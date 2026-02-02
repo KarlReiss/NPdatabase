@@ -1,0 +1,11 @@
+package cn.npdb.service.impl;
+
+import cn.npdb.entity.Disease;
+import cn.npdb.mapper.DiseaseMapper;
+import cn.npdb.service.DiseaseService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DiseaseServiceImpl extends ServiceImpl<DiseaseMapper, Disease> implements DiseaseService {
+}

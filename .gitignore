@@ -1,0 +1,67 @@
+# ===========================
+# NPdatabase Project .gitignore
+# ===========================
+
+# ===== 数据库相关 =====
+# 不上传大型数据文件（团队通过其他方式共享）
+/data/CMAUP/
+/data/NPASS/
+/data/TCMID/
+/data/TTD/
+
+# 不上传数据库备份文件（太大）
+/backups/*.sql
+
+# ===== 后端 (Java/Spring Boot) =====
+backend/target/
+backend/.idea/
+backend/*.iml
+backend/*.log
+backend/.DS_Store
+
+# Maven
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# ===== 前端 (Vue/Node.js) =====
+frontend/web/node_modules/
+frontend/web/dist/
+frontend/web/.vite/
+frontend/web/.DS_Store
+frontend/web/*.log
+frontend/web/.env.local
+frontend/web/.env.*.local
+
+# ===== IDE 配置 =====
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ===== Claude Code =====
+.claude/
+
+# ===== 操作系统 =====
+Thumbs.db
+Desktop.ini
+
+# ===== 临时文件 =====
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# ===== 数据导入输出 =====
+scripts/data-import/output/
+
+# ===== 环境变量 =====
+.env
+.env.local
+.env.*.local
+
+# ===== 日志文件 =====
+*.log
+logs/
