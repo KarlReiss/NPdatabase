@@ -38,7 +38,7 @@
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[1100px]">
+          <table class="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr style="background: var(--theme-bg);">
                 <th class="p-3 text-sm font-bold text-slate-700 border-b w-32">
@@ -54,9 +54,8 @@
                   </button>
                 </th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">拉丁名</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">类型</th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b">资源类型</th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">分类（科/属）</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">中医属性</th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">
                   <button class="flex items-center space-x-1" @click="toggleSort('numOfNaturalProducts')">
                     <span>天然产物数</span>
@@ -73,10 +72,10 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="loading">
-                <td colspan="8" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
+                <td colspan="7" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
               </tr>
               <tr v-else-if="filteredResources.length === 0">
-                <td colspan="8" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
+                <td colspan="7" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
               </tr>
               <tr
                 v-for="(resource, idx) in filteredResources"
@@ -84,18 +83,15 @@
                 :class="[idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30', 'hover:bg-slate-50 transition-colors']"
               >
                 <td class="p-3 text-sm">
-                    <RouterLink :to="`/resources/${resource.resourceId}`" class="text-[#3B82F6] hover:underline font-medium">
-                      {{ resource.resourceId }}
-                    </RouterLink>
-                  </td>
+                  <RouterLink :to="`/resources/${resource.resourceId}`" class="text-[#3B82F6] hover:underline font-medium">
+                    {{ resource.resourceId }}
+                  </RouterLink>
+                </td>
                 <td class="p-3 text-sm text-slate-800 font-medium">{{ resource.chineseName }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ resource.latinName ?? '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ resource.resourceType }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ resource.resourceType ?? '—' }}</td>
                 <td class="p-3 text-sm text-slate-600">
                   {{ resource.taxonomyFamily ?? '—' }} / {{ resource.taxonomyGenus ?? '—' }}
-                </td>
-                <td class="p-3 text-sm text-slate-600">
-                  {{ resource.tcmProperty ?? '—' }} / {{ resource.tcmFlavor ?? '—' }} / {{ resource.tcmMeridian ?? '—' }}
                 </td>
                 <td class="p-3 text-sm text-slate-600">{{ resource.numOfNaturalProducts }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ resource.numOfPrescriptions }}</td>

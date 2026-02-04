@@ -30,14 +30,6 @@
             </div>
           </div>
 
-          <div class="flex flex-wrap gap-2">
-            <span class="px-3 py-1 rounded-full text-sm bg-slate-100 text-slate-600">
-              类型：{{ resource.resourceType ?? '—' }}
-            </span>
-            <span class="px-3 py-1 rounded-full text-sm bg-slate-100 text-slate-600">
-              分类：{{ resource.taxonomyFamily ?? '—' }} / {{ resource.taxonomyGenus ?? '—' }}
-            </span>
-          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 rounded-lg p-4 min-w-[240px]" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
@@ -52,48 +44,77 @@
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-base text-slate-600">
-        <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
-          <div class="text-xs text-slate-400 uppercase tracking-wider">性味</div>
-          <div class="mt-1">{{ resource.tcmProperty ?? '—' }} / {{ resource.tcmFlavor ?? '—' }}</div>
-          <div class="mt-2 text-sm text-slate-500">归经：{{ resource.tcmMeridian ?? '—' }}</div>
-          <div class="mt-1 text-sm text-slate-500">毒性：{{ resource.tcmToxicity ?? '—' }}</div>
-        </div>
-        <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
-          <div class="text-xs text-slate-400 uppercase tracking-wider">药用信息</div>
-          <div class="mt-1">药用部位：{{ resource.medicinalPart ?? '—' }}</div>
-          <div class="mt-2 text-sm text-slate-500">拉丁名：{{ resource.medicinalPartLatin ?? '—' }}</div>
-          <div class="mt-2 text-sm text-slate-500">功效：{{ resource.functions ?? '—' }}</div>
-        </div>
-        <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
-          <div class="text-xs text-slate-400 uppercase tracking-wider">产地与分布</div>
-          <div class="mt-1">产地：{{ resource.originRegion ?? '—' }}</div>
-          <div class="mt-2 text-sm text-slate-500">分布：{{ resource.distribution ?? '—' }}</div>
-          <div class="mt-2 text-sm text-slate-500">生境：{{ resource.habitat ?? '—' }}</div>
+      <div class="mt-6 rounded-lg p-4 text-sm text-slate-600" style="background: #fff; border: 1px solid #E2E8F0;">
+        <div class="text-xs text-slate-400 uppercase tracking-wider">基本信息</div>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>资源类型：{{ resource.resourceType ?? '—' }}</div>
+          <div>英文名：{{ resource.englishName ?? '—' }}</div>
+          <div>拼音名：{{ resource.pinyinName ?? '—' }}</div>
+          <div>别名：{{ resource.alias ?? '—' }}</div>
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
-        <div class="rounded-lg p-4" style="background: #fff; border: 1px solid #E2E8F0;">
-          <div class="text-xs text-slate-400 uppercase tracking-wider">分类学信息</div>
-          <div class="mt-2 space-y-1">
-            <div>界/门/纲/目：{{ resource.taxonomyKingdom ?? '—' }} / {{ resource.taxonomyPhylum ?? '—' }} / {{ resource.taxonomyClass ?? '—' }} / {{ resource.taxonomyOrder ?? '—' }}</div>
-            <div>科/属/种：{{ resource.taxonomyFamily ?? '—' }} / {{ resource.taxonomyGenus ?? '—' }} / {{ resource.taxonomySpecies ?? '—' }}</div>
-            <div>Taxonomy ID：{{ resource.taxonomyId ?? '—' }}</div>
-            <div>Family/Genus/Species Tax ID：{{ resource.familyTaxId ?? '—' }} / {{ resource.genusTaxId ?? '—' }} / {{ resource.speciesTaxId ?? '—' }}</div>
-            <div>CMAUP ID：{{ resource.cmaupId ?? '—' }}</div>
+      <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm text-slate-600">
+        <div class="rounded-lg overflow-hidden h-full" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+          <div class="px-4 py-3 text-xs text-slate-500 uppercase tracking-wider border-b" style="border-color: var(--theme-soft);">
+            示例图片
+          </div>
+          <div class="p-4 flex items-center justify-center bg-white/70">
+            <img
+              v-if="resource.imageUrl"
+              :src="resource.imageUrl"
+              alt="生物资源图片"
+              class="max-h-[260px] object-contain rounded-md shadow-sm"
+            />
+            <div v-else class="text-xs text-slate-400">暂无图片</div>
           </div>
         </div>
-        <div class="rounded-lg p-4" style="background: #fff; border: 1px solid #E2E8F0;">
-          <div class="text-xs text-slate-400 uppercase tracking-wider">外部标识与参考</div>
-          <div class="mt-2 space-y-1">
-            <div>英文名：{{ resource.englishName ?? '—' }}</div>
-            <div>拼音/别名：{{ resource.pinyinName ?? '—' }} / {{ resource.alias ?? '—' }}</div>
-            <div>TCMID/TCMSP/Herb：{{ resource.tcmidId ?? '—' }} / {{ resource.tcmspId ?? '—' }} / {{ resource.herbId ?? '—' }}</div>
-            <div>药典/文献：{{ resource.pharmacopoeiaRef ?? '—' }} / {{ resource.literatureRef ?? '—' }}</div>
+
+        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">分类学信息</div>
+            <div class="mt-2 space-y-1 text-sm text-slate-600">
+              <div>科/属/种：{{ resource.taxonomyFamily ?? '—' }} / {{ resource.taxonomyGenus ?? '—' }} / {{ resource.taxonomySpecies ?? '—' }}</div>
+              <div>界/门/纲/目：{{ resource.taxonomyKingdom ?? '—' }} / {{ resource.taxonomyPhylum ?? '—' }} / {{ resource.taxonomyClass ?? '—' }} / {{ resource.taxonomyOrder ?? '—' }}</div>
+              <div>Taxonomy ID：{{ resource.taxonomyId ?? '—' }}</div>
+              <div>Family/Genus/Species Tax ID：{{ resource.familyTaxId ?? '—' }} / {{ resource.genusTaxId ?? '—' }} / {{ resource.speciesTaxId ?? '—' }}</div>
+            </div>
+          </div>
+
+          <div class="rounded-lg p-4" style="background: #fff; border: 1px solid #E2E8F0;">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">标识信息</div>
+            <div class="mt-2 space-y-1 text-sm text-slate-600">
+              <div>外部 ID：{{ resource.cmaupId ?? '—' }}</div>
+              <div>TCMID：{{ resource.tcmidId ?? '—' }}</div>
+              <div>TCMSP：{{ resource.tcmspId ?? '—' }}</div>
+              <div>Herb：{{ resource.herbId ?? '—' }}</div>
+            </div>
+          </div>
+
+          <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">药用信息</div>
+            <div class="mt-2 text-sm text-slate-600 space-y-1">
+              <div>药用部位：{{ resource.medicinalPart ?? '—' }}</div>
+              <div>拉丁名：{{ resource.medicinalPartLatin ?? '—' }}</div>
+              <div>性/味/归经：{{ resource.tcmProperty ?? '—' }} / {{ resource.tcmFlavor ?? '—' }} / {{ resource.tcmMeridian ?? '—' }}</div>
+              <div>毒性：{{ resource.tcmToxicity ?? '—' }}</div>
+              <div>药典/文献：{{ resource.pharmacopoeiaRef ?? '—' }} / {{ resource.literatureRef ?? '—' }}</div>
+            </div>
+          </div>
+
+          <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">功能主治与来源</div>
+            <div class="mt-2 text-sm text-slate-600 space-y-2">
+              <div>功能：{{ resource.functions ?? '—' }}</div>
+              <div>主治：{{ resource.indications ?? '—' }}</div>
+              <div>产地：{{ resource.originRegion ?? '—' }}</div>
+              <div>分布：{{ resource.distribution ?? '—' }}</div>
+              <div>生境：{{ resource.habitat ?? '—' }}</div>
+            </div>
           </div>
         </div>
       </div>
+
     </section>
 
     <section v-if="resource" class="bg-white rounded-md border border-[#E2E8F0] shadow-sm overflow-hidden">
