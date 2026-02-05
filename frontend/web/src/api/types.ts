@@ -173,41 +173,21 @@ export interface Prescription {
   chineseName?: string;
   pinyinName?: string;
   englishName?: string;
-  alias?: string;
-  sourceBook?: string;
-  sourceDynasty?: string;
-  sourceAuthor?: string;
-  category?: string;
-  subcategory?: string;
   functions?: string;
   indications?: string;
-  indicationsModern?: string;
-  syndrome?: string;
-  compositionText?: string;
-  dosageForm?: string;
-  preparationMethod?: string;
-  usageMethod?: string;
-  dosage?: string;
-  contraindications?: string;
-  precautions?: string;
-  adverseReactions?: string;
-  pharmacology?: string;
-  clinicalApplication?: string;
-  targetTissues?: string;
-  relatedDiseases?: string;
   tcmidId?: string;
-  tcmspId?: string;
-  symmapId?: string;
   diseaseIcd11Category?: string;
-  humanTissues?: string;
   reference?: string;
-  referenceBook?: string;
-  pharmacopoeiaRef?: string;
-  literatureRef?: string;
-  numOfHerbs?: number;
-  numOfNaturalProducts?: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface PrescriptionListItem {
+  prescriptionId?: string;
+  chineseName?: string;
+  functions?: string;
+  diseaseIcd11Category?: string;
+  bioResourceCount?: number;
 }
 
 export interface Disease {

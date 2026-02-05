@@ -1,0 +1,224 @@
+================================================================================
+prescription_resources 表导入报告
+================================================================================
+导入时间: 2026-02-05
+数据源: prescription_resources_data.txt
+
+## 导入概要
+
+✓ 数据已成功导入
+✓ 重复记录已合并
+✓ 唯一约束验证通过
+✓ 外键关联正确
+
+## 数据统计
+
+### 原始数据
+- prescription_resources_data.txt: 80,347 条记录
+- 合并重复后: 79,948 条记录
+- 合并了: 399 条重复记录
+
+### 导入结果
+- 成功导入: 79,933 条记录
+- 跳过记录: 15 条 (找不到对应的处方 ID)
+- 导入成功率: 99.98%
+
+### 覆盖范围
+- 涉及的唯一处方数: 7,238 个
+- 涉及的唯一生物资源数: 1,171 个
+- 有 TCMID Component ID: 79,933 条 (100%)
+
+## 数据处理
+
+### 1. 重复记录合并
+
+**问题**: 同一个 (prescription_id, bio_resource_id) 对应多个 component_id
+
+**示例**:
+```
+原始数据:
+TCMF8  TCMH451   NPO8101  ITSAH4578-14
+TCMF8  TCMH1966  NPO8101  ITSAH4578-14
+
+合并后:
+TCMF8  TCMH451,TCMH1966  NPO8101  ITSAH4578-14
+```
+
+**结果**: 合并了 399 条重复记录
+
+### 2. ID 转换
+
+**prescription_id 转换**:
+- 源格式: TCMF1 (TCMID 格式)
+- 目标格式: BIGINT (数据库 ID)
+- 转换方式: 通过 prescriptions.tcmid_id 字段匹配
+
+**bio_resource_id 转换**:
+- 源格式: NPO8101 (NPASS 格式)
+- 目标格式: BIGINT (数据库 ID)
+- 转换方式: 通过 bio_resources.resource_id 字段匹配
+
+### 3. 跳过的记录
+
+**跳过原因**: 找不到对应的处方 ID
+- 跳过数量: 15 条
+- 原因: 这些处方在 prescriptions 表中不存在
+
+## 表结构
+
+### prescription_resources 表 (5个字段)
+
+```sql
+CREATE TABLE prescription_resources (
+    id                  BIGSERIAL PRIMARY KEY,
+    prescription_id     BIGINT NOT NULL,           -- 处方ID (外键)
+    bio_resource_id     BIGINT NOT NULL,           -- 生物资源ID (外键)
+    created_at          TIMESTAMP DEFAULT NOW(),
+    tcmid_component_id  VARCHAR(500),              -- TCMID Component ID (多个用逗号分隔)
+    
+    UNIQUE (prescription_id, bio_resource_id)      -- 唯一约束
+);
+```
+
+### 字段说明
+
+1. **prescription_id**: 外键，关联 prescriptions.id
+2. **bio_resource_id**: 外键，关联 bio_resources.id
+3. **tcmid_component_id**: TCMID 的 ComponentID，多个用逗号分隔
+4. **唯一约束**: (prescription_id, bio_resource_id) 必须唯一
+
+### 不存储的字段
+
+以下字段已在关联表中，不需要重复存储：
+
+❌ **LatinName**: 已在 bio_resources.latin_name
+❌ **ChineseName**: 已在 bio_resources.chinese_name
+❌ **barcode**: 未导入 (可选字段)
+
+## 数据查询示例
+
+### 查询处方的所有药材
+
+```sql
+SELECT
+    p.prescription_id,
+    p.chinese_name as prescription_name,
+    br.resource_id,
+    br.latin_name,
+    br.chinese_name,
+    pr.tcmid_component_id
+FROM prescription_resources pr
+JOIN prescriptions p ON pr.prescription_id = p.id
+JOIN bio_resources br ON pr.bio_resource_id = br.id
+WHERE p.prescription_id = 'PRES00001';
+```
+
+### 查询药材所在的所有处方
+
+```sql
+SELECT
+    br.resource_id,
+    br.latin_name,
+    br.chinese_name,
+    p.prescription_id,
+    p.chinese_name as prescription_name,
+    pr.tcmid_component_id
+FROM prescription_resources pr
+JOIN prescriptions p ON pr.prescription_id = p.id
+JOIN bio_resources br ON pr.bio_resource_id = br.id
+WHERE br.resource_id = 'NPO18176';
+```
+
+### 统计每个处方的药材数量
+
+```sql
+SELECT
+    p.prescription_id,
+    p.chinese_name,
+    COUNT(*) as herb_count
+FROM prescription_resources pr
+JOIN prescriptions p ON pr.prescription_id = p.id
+GROUP BY p.id, p.prescription_id, p.chinese_name
+ORDER BY herb_count DESC
+LIMIT 10;
+```
+
+## 示例记录
+
+### 处方 PRES00001 的药材组成
+
+```
+处方: PRES00001
+药材1: NPO18176 (Ephedra sinica, 蜜麻黄,麻黄,麻黄根,麻黄浸膏,麻黄膏) - TCMID: TCMH1398
+药材2: NPO20553 (Zingiber officinale, 生姜) - TCMID: TCMH1903
+药材3: NPO4784 (Semen armeniacae amarum, 苦杏仁) - TCMID: TCMH1219
+药材4: NPO7154 (Glycyrrhiza uralensis, 土甘草,甘草,甘草干浸膏...) - TCMID: TCMH628
+```
+
+## 数据质量
+
+### 优点
+✓ 所有记录都有 TCMID Component ID
+✓ 唯一约束验证通过
+✓ 外键关联正确
+✓ 覆盖了 7,238 个处方
+✓ 覆盖了 1,171 个生物资源
+
+### 统计信息
+- 平均每个处方包含: 11.04 个药材
+- 平均每个生物资源出现在: 68.25 个处方中
+
+## 验证命令
+
+```sql
+-- 查看总记录数
+SELECT COUNT(*) FROM prescription_resources;
+
+-- 查看唯一处方数和生物资源数
+SELECT
+    COUNT(DISTINCT prescription_id) as unique_prescriptions,
+    COUNT(DISTINCT bio_resource_id) as unique_resources
+FROM prescription_resources;
+
+-- 检查唯一约束
+SELECT prescription_id, bio_resource_id, COUNT(*)
+FROM prescription_resources
+GROUP BY prescription_id, bio_resource_id
+HAVING COUNT(*) > 1;
+
+-- 查看示例
+SELECT pr.*, p.chinese_name, br.latin_name
+FROM prescription_resources pr
+JOIN prescriptions p ON pr.prescription_id = p.id
+JOIN bio_resources br ON pr.bio_resource_id = br.id
+LIMIT 10;
+```
+
+## 相关文件
+
+- 数据源: /home/yfguo/NPdatabase/data/processed/prescription_resources_data.txt
+- 导入脚本: /home/yfguo/NPdatabase/scripts/data-import/import_prescription_resources.py
+- 原始数据: /home/yfguo/NPdatabase/data/TCMID/prescription_herbs.csv
+
+## 后续建议
+
+1. **更新统计信息**:
+   ```sql
+   ANALYZE prescription_resources;
+   ```
+
+2. **更新处方的药材数量**:
+   ```sql
+   UPDATE prescriptions p
+   SET num_of_herbs = (
+       SELECT COUNT(*)
+       FROM prescription_resources pr
+       WHERE pr.prescription_id = p.id
+   );
+   ```
+
+3. **补充缺失的处方**: 导入那 15 个跳过的处方数据
+
+================================================================================
+报告结束
+================================================================================

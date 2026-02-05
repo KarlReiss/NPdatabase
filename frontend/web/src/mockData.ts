@@ -138,26 +138,20 @@ export const MOCK_RESOURCES: BioResource[] = [
 
 export const MOCK_PRESCRIPTIONS: Prescription[] = [
   {
+    id: 1,
     prescriptionId: 'PR0001',
     chineseName: '补中益气汤',
     pinyinName: 'Buzhong Yiqi Tang',
-    category: '补益',
-    subcategory: '补气',
     functions: '补中益气，升阳举陷',
     indications: '脾胃气虚，倦怠乏力',
-    numOfHerbs: 8,
-    numOfNaturalProducts: 120,
   },
   {
+    id: 2,
     prescriptionId: 'PR0002',
     chineseName: '四君子汤',
     pinyinName: 'Sijunzi Tang',
-    category: '补益',
-    subcategory: '补气',
     functions: '益气健脾',
     indications: '脾胃气虚，食少便溏',
-    numOfHerbs: 4,
-    numOfNaturalProducts: 60,
   },
 ];
 

@@ -16,7 +16,7 @@
           style="background: var(--theme-soft);"
         >
           <div class="flex items-center space-x-3">
-            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ resources.length }}</span></span>
+            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ totalCount }}</span></span>
             <div class="relative">
               <input
                 v-model="listQuery"
@@ -62,20 +62,14 @@
                     <SortIcon :active="sortKey === 'numOfNaturalProducts'" :dir="sortDir" />
                   </button>
                 </th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">
-                  <button class="flex items-center space-x-1" @click="toggleSort('numOfPrescriptions')">
-                    <span>处方数</span>
-                    <SortIcon :active="sortKey === 'numOfPrescriptions'" :dir="sortDir" />
-                  </button>
-                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="loading">
-                <td colspan="7" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
+                <td colspan="6" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
               </tr>
               <tr v-else-if="filteredResources.length === 0">
-                <td colspan="7" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
+                <td colspan="6" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
               </tr>
               <tr
                 v-for="(resource, idx) in filteredResources"
@@ -89,12 +83,11 @@
                 </td>
                 <td class="p-3 text-sm text-slate-800 font-medium">{{ resource.chineseName }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ resource.latinName ?? '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ resource.resourceType ?? '—' }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ toTypeLabel(resource.resourceType) }}</td>
                 <td class="p-3 text-sm text-slate-600">
                   {{ resource.taxonomyFamily ?? '—' }} / {{ resource.taxonomyGenus ?? '—' }}
                 </td>
                 <td class="p-3 text-sm text-slate-600">{{ resource.numOfNaturalProducts }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ resource.numOfPrescriptions }}</td>
               </tr>
             </tbody>
           </table>
@@ -113,12 +106,29 @@ import type { BioResource } from '@/api/types';
 const resources = ref<BioResource[]>([]);
 const loading = ref(false);
 const error = ref('');
+const totalCount = ref(0);
 
 const listQuery = ref('');
-const sortKey = ref<'resourceId' | 'chineseName' | 'numOfNaturalProducts' | 'numOfPrescriptions'>('numOfNaturalProducts');
+const sortKey = ref<'resourceId' | 'chineseName' | 'numOfNaturalProducts'>('numOfNaturalProducts');
 const sortDir = ref<'asc' | 'desc'>('desc');
 
 const normalize = (value: string) => value.trim().toLowerCase();
+
+const toTypeLabel = (value?: string) => {
+  if (!value) return '—';
+  const key = value.trim().toLowerCase();
+  if (key === 'plant') return '植物';
+  if (key === 'animal') return '动物';
+  if (key === 'mineral') return '矿物';
+  if (key === 'fungi' || key === 'fungus') return '真菌';
+  if (key === 'microbe' || key === 'microorganism') return '微生物';
+  if (key === 'bacteria') return '细菌';
+  if (key === 'virus') return '病毒';
+  if (key === 'algae') return '藻类';
+  if (key === 'unknown' || key === 'unclassified') return '未知';
+  if (key === 'other') return '其他';
+  return value;
+};
 
 const matchesQuery = (item: BioResource, query: string) => {
   if (!query) return true;
@@ -162,9 +172,11 @@ const fetchList = async () => {
   try {
     const result = await fetchBioResources({ page: 1, pageSize: 200 });
     resources.value = result.records ?? [];
+    totalCount.value = result.total ?? resources.value.length;
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     resources.value = [];
+    totalCount.value = 0;
   } finally {
     loading.value = false;
   }

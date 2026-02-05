@@ -13,9 +13,5 @@ public class PrescriptionDetailView {
 
     private String prescriptionId;
     private String chineseName;
-    private String category;
-    private Integer numOfHerbs;
-    private Integer numOfNaturalProducts;
     private Long herbCount;
-    private Long directNaturalProductCount;
 }

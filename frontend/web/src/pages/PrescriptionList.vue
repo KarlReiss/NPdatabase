@@ -16,7 +16,7 @@
           style="background: var(--theme-soft);"
         >
           <div class="flex items-center space-x-3">
-            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ prescriptions.length }}</span></span>
+            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ totalCount }}</span></span>
             <div class="relative">
               <input
                 v-model="listQuery"
@@ -38,12 +38,12 @@
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[1000px]">
+          <table class="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr style="background: var(--theme-bg);">
                 <th class="p-3 text-sm font-bold text-slate-700 border-b w-32">
                   <button class="flex items-center space-x-1" @click="toggleSort('prescriptionId')">
-                    <span>编号</span>
+                    <span>处方编号</span>
                     <SortIcon :active="sortKey === 'prescriptionId'" :dir="sortDir" />
                   </button>
                 </th>
@@ -53,29 +53,17 @@
                     <SortIcon :active="sortKey === 'chineseName'" :dir="sortDir" />
                   </button>
                 </th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">拼音</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">分类</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">功效/主治</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">
-                  <button class="flex items-center space-x-1" @click="toggleSort('numOfHerbs')">
-                    <span>药材数</span>
-                    <SortIcon :active="sortKey === 'numOfHerbs'" :dir="sortDir" />
-                  </button>
-                </th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">
-                  <button class="flex items-center space-x-1" @click="toggleSort('numOfNaturalProducts')">
-                    <span>天然产物数</span>
-                    <SortIcon :active="sortKey === 'numOfNaturalProducts'" :dir="sortDir" />
-                  </button>
-                </th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b">功效</th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b">疾病编号</th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b text-right">生物资源数量</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="loading">
-                <td colspan="7" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
+                <td colspan="5" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
               </tr>
               <tr v-else-if="filteredPrescriptions.length === 0">
-                <td colspan="7" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
+                <td colspan="5" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
               </tr>
               <tr
                 v-for="(pres, idx) in filteredPrescriptions"
@@ -88,13 +76,9 @@
                   </RouterLink>
                 </td>
                 <td class="p-3 text-sm text-slate-800 font-medium">{{ pres.chineseName }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ pres.pinyinName ?? '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ pres.category ?? '—' }} / {{ pres.subcategory ?? '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">
-                  {{ pres.functions ?? '—' }}
-                </td>
-                <td class="p-3 text-sm text-slate-600">{{ pres.numOfHerbs }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ pres.numOfNaturalProducts }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ pres.functions ?? '—' }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ pres.diseaseIcd11Category ?? '—' }}</td>
+                <td class="p-3 text-sm text-slate-700 text-right">{{ pres.bioResourceCount ?? 0 }}</td>
               </tr>
             </tbody>
           </table>
@@ -108,25 +92,26 @@
 import { computed, onMounted, ref } from 'vue';
 import SortIcon from '@/components/SortIcon.vue';
 import { fetchPrescriptions } from '@/api/prescriptions';
-import type { Prescription } from '@/api/types';
+import type { PrescriptionListItem } from '@/api/types';
 
-const prescriptions = ref<Prescription[]>([]);
+const prescriptions = ref<PrescriptionListItem[]>([]);
 const loading = ref(false);
 const error = ref('');
+const totalCount = ref(0);
 
 const listQuery = ref('');
-const sortKey = ref<'prescriptionId' | 'chineseName' | 'numOfHerbs' | 'numOfNaturalProducts'>('numOfNaturalProducts');
+const sortKey = ref<'prescriptionId' | 'chineseName'>('prescriptionId');
 const sortDir = ref<'asc' | 'desc'>('desc');
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
-const matchesQuery = (item: Prescription, query: string) => {
+const matchesQuery = (item: PrescriptionListItem, query: string) => {
   if (!query) return true;
   const keyword = normalize(query);
   return (
     normalize(item.prescriptionId ?? '').includes(keyword) ||
     normalize(item.chineseName ?? '').includes(keyword) ||
-    normalize(item.pinyinName ?? '').includes(keyword)
+    normalize(item.functions ?? '').includes(keyword)
   );
 };
 
@@ -162,9 +147,11 @@ const fetchList = async () => {
   try {
     const result = await fetchPrescriptions({ page: 1, pageSize: 200 });
     prescriptions.value = result.records ?? [];
+    totalCount.value = result.total ?? prescriptions.value.length;
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     prescriptions.value = [];
+    totalCount.value = 0;
   } finally {
     loading.value = false;
   }
