@@ -16,7 +16,7 @@
           style="background: var(--theme-soft);"
         >
           <div class="flex items-center space-x-3">
-            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ diseases.length }}</span></span>
+            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ total }}</span></span>
             <div class="relative">
               <input
                 v-model="listQuery"
@@ -42,9 +42,9 @@
             <thead>
               <tr style="background: var(--theme-bg);">
                 <th class="p-3 text-sm font-bold text-slate-700 border-b w-28">
-                  <button class="flex items-center space-x-1" @click="toggleSort('diseaseId')">
+                  <button class="flex items-center space-x-1" @click="toggleSort('id')">
                     <span>编号</span>
-                    <SortIcon :active="sortKey === 'diseaseId'" :dir="sortDir" />
+                    <SortIcon :active="sortKey === 'id'" :dir="sortDir" />
                   </button>
                 </th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">
@@ -55,44 +55,30 @@
                 </th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">ICD-11</th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">分类</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">
-                  <button class="flex items-center space-x-1" @click="toggleSort('numOfRelatedTargets')">
-                    <span>关联靶点数</span>
-                    <SortIcon :active="sortKey === 'numOfRelatedTargets'" :dir="sortDir" />
-                  </button>
-                </th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">
-                  <button class="flex items-center space-x-1" @click="toggleSort('numOfRelatedPlants')">
-                    <span>关联植物数</span>
-                    <SortIcon :active="sortKey === 'numOfRelatedPlants'" :dir="sortDir" />
-                  </button>
-                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="loading">
-                <td colspan="6" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
+                <td colspan="4" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
               </tr>
               <tr v-else-if="filteredDiseases.length === 0">
-                <td colspan="6" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
+                <td colspan="4" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
               </tr>
               <tr
                 v-for="(disease, idx) in filteredDiseases"
-                :key="disease.diseaseId"
+                :key="disease.id"
                 :class="[idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30', 'hover:bg-slate-50 transition-colors']"
               >
                 <td class="p-3 text-sm text-slate-600">
-                  {{ disease.diseaseId }}
+                  {{ disease.id }}
                 </td>
                 <td class="p-3 text-sm text-slate-800 font-medium">
-                  <RouterLink :to="`/diseases/${disease.diseaseId}`" class="text-[#3B82F6] hover:underline font-medium">
-                    {{ disease.diseaseNameZh || disease.diseaseName }}
+                  <RouterLink :to="`/diseases/${disease.id}`" class="text-[#3B82F6] hover:underline font-medium">
+                    {{ disease.diseaseNameZh || disease.diseaseName || disease.diseaseNameCmaup }}
                   </RouterLink>
                 </td>
                 <td class="p-3 text-sm text-slate-600">{{ disease.icd11Code }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ disease.diseaseCategory ?? '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ disease.numOfRelatedTargets }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ disease.numOfRelatedPlants }}</td>
               </tr>
             </tbody>
           </table>
@@ -109,11 +95,12 @@ import { fetchDiseases } from '@/api/diseases';
 import type { Disease } from '@/api/types';
 
 const diseases = ref<Disease[]>([]);
+const total = ref(0);
 const loading = ref(false);
 const error = ref('');
 
 const listQuery = ref('');
-const sortKey = ref<'diseaseId' | 'diseaseName' | 'numOfRelatedTargets' | 'numOfRelatedPlants'>('numOfRelatedPlants');
+const sortKey = ref<'id' | 'diseaseName'>('id');
 const sortDir = ref<'asc' | 'desc'>('desc');
 
 const normalize = (value: string) => value.trim().toLowerCase();
@@ -122,9 +109,10 @@ const matchesQuery = (item: Disease, query: string) => {
   if (!query) return true;
   const keyword = normalize(query);
   return (
-    normalize(item.diseaseId ?? '').includes(keyword) ||
+    normalize(String(item.id)).includes(keyword) ||
     normalize(item.diseaseName ?? '').includes(keyword) ||
     normalize(item.diseaseNameZh ?? '').includes(keyword) ||
+    normalize(item.diseaseNameCmaup ?? '').includes(keyword) ||
     normalize(item.diseaseCategory ?? '').includes(keyword) ||
     normalize(item.icd11Code ?? '').includes(keyword)
   );
@@ -162,9 +150,11 @@ const fetchList = async () => {
   try {
     const result = await fetchDiseases({ page: 1, pageSize: 200 });
     diseases.value = result.records ?? [];
+    total.value = result.total ?? diseases.value.length;
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     diseases.value = [];
+    total.value = 0;
   } finally {
     loading.value = false;
   }

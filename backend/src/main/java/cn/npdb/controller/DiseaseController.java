@@ -61,27 +61,15 @@ public class DiseaseController {
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
 
-        QueryWrapper<Disease> wrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(q)) {
-            wrapper.and(w -> w.like("disease_name", q)
-                    .or().like("disease_name_zh", q)
-                    .or().like("disease_id", q)
-                    .or().like("icd11_code", q));
-        }
-        if (StringUtils.hasText(category)) {
-            wrapper.eq("disease_category", category.trim());
-        }
-        wrapper.orderByDesc("id");
-
-        Page<Disease> mpPage = new Page<>(safePage, safePageSize);
-        Page<Disease> result = diseaseService.page(mpPage, wrapper);
+        String keyword = StringUtils.hasText(q) ? q.trim() : null;
+        String categoryValue = StringUtils.hasText(category) ? category.trim() : null;
+        Page<Disease> result = diseaseService.listPage(safePage, safePageSize, keyword, categoryValue);
         return ApiResponse.ok(PageResponse.from(result));
     }
 
     @GetMapping("/{diseaseId}")
-    public ApiResponse<Disease> detail(@PathVariable("diseaseId") String diseaseId) {
-        Disease disease = diseaseService.getOne(
-                new QueryWrapper<Disease>().eq("disease_id", diseaseId));
+    public ApiResponse<Disease> detail(@PathVariable("diseaseId") Long diseaseId) {
+        Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
@@ -89,16 +77,15 @@ public class DiseaseController {
     }
 
     @GetMapping("/{diseaseId}/bio-resources")
-    public ApiResponse<List<BioResource>> bioResources(@PathVariable("diseaseId") String diseaseId) {
-        Disease disease = diseaseService.getOne(
-                new QueryWrapper<Disease>().select("id").eq("disease_id", diseaseId));
+    public ApiResponse<List<BioResource>> bioResources(@PathVariable("diseaseId") Long diseaseId) {
+        Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
         List<Long> resourceIds = bioResourceDiseaseAssociationService.list(
                         new QueryWrapper<BioResourceDiseaseAssociation>()
                                 .select("distinct bio_resource_id")
-                                .eq("disease_id", disease.getId()))
+                                .eq("disease_id", diseaseId))
                 .stream()
                 .map(BioResourceDiseaseAssociation::getBioResourceId)
                 .collect(Collectors.toList());
@@ -111,16 +98,15 @@ public class DiseaseController {
     }
 
     @GetMapping("/{diseaseId}/natural-products")
-    public ApiResponse<List<NaturalProduct>> naturalProducts(@PathVariable("diseaseId") String diseaseId) {
-        Disease disease = diseaseService.getOne(
-                new QueryWrapper<Disease>().select("id").eq("disease_id", diseaseId));
+    public ApiResponse<List<NaturalProduct>> naturalProducts(@PathVariable("diseaseId") Long diseaseId) {
+        Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
         List<Long> resourceIds = bioResourceDiseaseAssociationService.list(
                         new QueryWrapper<BioResourceDiseaseAssociation>()
                                 .select("distinct bio_resource_id")
-                                .eq("disease_id", disease.getId()))
+                                .eq("disease_id", diseaseId))
                 .stream()
                 .map(BioResourceDiseaseAssociation::getBioResourceId)
                 .collect(Collectors.toList());

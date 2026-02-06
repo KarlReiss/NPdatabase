@@ -35,11 +35,17 @@ public class NaturalProduct {
     private Integer hBondAcceptors;
     private Integer rotatableBonds;
 
+    // 新增理化性质字段
+    private BigDecimal logS;
+    private BigDecimal logD;
+    private BigDecimal logP;
+    private BigDecimal tpsa;
+    private Integer ringCount;
+
     private Integer numOfOrganism;
     private Integer numOfTarget;
     private Integer numOfActivity;
 
-    private String geneCluster;
     private Boolean ifQuantity;
 
     private LocalDateTime createdAt;

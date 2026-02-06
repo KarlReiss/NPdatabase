@@ -192,15 +192,11 @@ export interface PrescriptionListItem {
 
 export interface Disease {
   id: number;
-  diseaseId?: string;
   icd11Code?: string;
   diseaseName?: string;
   diseaseNameZh?: string;
+  diseaseNameCmaup?: string;
   diseaseCategory?: string;
-  description?: string;
-  symptoms?: string;
-  numOfRelatedPlants?: number;
-  numOfRelatedTargets?: number;
   createdAt?: string;
   updatedAt?: string;
 }

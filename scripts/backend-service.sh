@@ -13,10 +13,10 @@ FRONTEND_LOG_FILE="$ROOT_DIR/frontend/web/logs/frontend.log"
 DB_USER_VALUE="${DB_USER:-yfguo}"
 DB_PASSWORD_VALUE="${DB_PASSWORD:-npdb2024}"
 SPRING_PROFILE_VALUE="${SPRING_PROFILES_ACTIVE:-}"
-SERVER_ADDRESS_VALUE="${SERVER_ADDRESS:-}"
-SERVER_PORT_VALUE="${SERVER_PORT:-}"
-FRONTEND_HOST_VALUE="${FRONTEND_HOST:-127.0.0.1}"
-FRONTEND_PORT_VALUE="${FRONTEND_PORT:-5173}"
+SERVER_ADDRESS_VALUE="${SERVER_ADDRESS:-0.0.0.0}"
+SERVER_PORT_VALUE="${SERVER_PORT:-8080}"
+FRONTEND_HOST_VALUE="${FRONTEND_HOST:-0.0.0.0}"
+FRONTEND_PORT_VALUE="${FRONTEND_PORT:-3001}"
 
 MVN_CMD=(mvn -f "$ROOT_DIR/backend/pom.xml" spring-boot:run -DskipTests)
 NPM_CMD=(npm --prefix "$FRONTEND_DIR" run dev -- --host "$FRONTEND_HOST_VALUE" --port "$FRONTEND_PORT_VALUE")
@@ -24,6 +24,54 @@ NPM_CMD=(npm --prefix "$FRONTEND_DIR" run dev -- --host "$FRONTEND_HOST_VALUE" -
 ensure_dirs() {
   mkdir -p "$(dirname "$BACKEND_PID_FILE")" "$(dirname "$BACKEND_LOG_FILE")"
   mkdir -p "$(dirname "$FRONTEND_PID_FILE")" "$(dirname "$FRONTEND_LOG_FILE")"
+}
+
+# 检查端口是否被占用
+check_port() {
+  local port=$1
+  if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
+    return 0  # 端口被占用
+  else
+    return 1  # 端口空闲
+  fi
+}
+
+# 杀死占用指定端口的进程
+kill_port() {
+  local port=$1
+  local service_name=$2
+
+  if check_port "$port"; then
+    echo "检测到端口 $port 被占用，正在清理..."
+    local pids=$(lsof -ti :$port)
+    if [[ -n "$pids" ]]; then
+      echo "发现占用端口 $port 的进程: $pids"
+      for pid in $pids; do
+        echo "终止进程 $pid..."
+        kill -15 "$pid" 2>/dev/null || true
+      done
+
+      # 等待进程退出
+      sleep 2
+
+      # 如果还在运行，强制终止
+      if check_port "$port"; then
+        echo "进程未退出，强制终止..."
+        for pid in $pids; do
+          kill -9 "$pid" 2>/dev/null || true
+        done
+        sleep 1
+      fi
+
+      if check_port "$port"; then
+        echo "警告：端口 $port 仍被占用，$service_name 可能无法启动"
+        return 1
+      else
+        echo "端口 $port 已释放"
+      fi
+    fi
+  fi
+  return 0
 }
 
 is_running_backend() {
@@ -54,29 +102,33 @@ start_backend() {
     return 0
   fi
 
+  # 检查并清理端口
+  kill_port "$SERVER_PORT_VALUE" "$APP_NAME_BACKEND"
+
   ensure_dirs
 
   echo "启动 $APP_NAME_BACKEND..."
+  echo "  - 端口: $SERVER_PORT_VALUE"
+  echo "  - 地址: $SERVER_ADDRESS_VALUE"
+  echo "  - 数据库用户: $DB_USER_VALUE"
   (
     export DB_USER="$DB_USER_VALUE"
     export DB_PASSWORD="$DB_PASSWORD_VALUE"
+    export SERVER_ADDRESS="$SERVER_ADDRESS_VALUE"
+    export SERVER_PORT="$SERVER_PORT_VALUE"
     if [[ -n "$SPRING_PROFILE_VALUE" ]]; then
       export SPRING_PROFILES_ACTIVE="$SPRING_PROFILE_VALUE"
-    fi
-    if [[ -n "$SERVER_ADDRESS_VALUE" ]]; then
-      export SERVER_ADDRESS="$SERVER_ADDRESS_VALUE"
-    fi
-    if [[ -n "$SERVER_PORT_VALUE" ]]; then
-      export SERVER_PORT="$SERVER_PORT_VALUE"
     fi
 
     nohup "${MVN_CMD[@]}" > "$BACKEND_LOG_FILE" 2>&1 &
     echo $! > "$BACKEND_PID_FILE"
   )
 
-  sleep 1
+  sleep 3
   if is_running_backend; then
     echo "$APP_NAME_BACKEND 启动成功，PID: $(cat "$BACKEND_PID_FILE")"
+    echo "访问地址：http://localhost:$SERVER_PORT_VALUE"
+    echo "Swagger文档：http://localhost:$SERVER_PORT_VALUE/swagger-ui.html"
     echo "日志：$BACKEND_LOG_FILE"
   else
     echo "$APP_NAME_BACKEND 启动失败，请查看日志：$BACKEND_LOG_FILE"
@@ -90,17 +142,23 @@ start_frontend() {
     return 0
   fi
 
+  # 检查并清理端口
+  kill_port "$FRONTEND_PORT_VALUE" "$APP_NAME_FRONTEND"
+
   ensure_dirs
 
   echo "启动 $APP_NAME_FRONTEND..."
+  echo "  - 端口: $FRONTEND_PORT_VALUE"
+  echo "  - 地址: $FRONTEND_HOST_VALUE"
   (
     nohup "${NPM_CMD[@]}" > "$FRONTEND_LOG_FILE" 2>&1 &
     echo $! > "$FRONTEND_PID_FILE"
   )
 
-  sleep 1
+  sleep 3
   if is_running_frontend; then
     echo "$APP_NAME_FRONTEND 启动成功，PID: $(cat "$FRONTEND_PID_FILE")"
+    echo "访问地址：http://localhost:$FRONTEND_PORT_VALUE"
     echo "日志：$FRONTEND_LOG_FILE"
   else
     echo "$APP_NAME_FRONTEND 启动失败，请查看日志：$FRONTEND_LOG_FILE"
@@ -116,6 +174,8 @@ start() {
 stop_backend() {
   if ! is_running_backend; then
     echo "$APP_NAME_BACKEND 未运行"
+    # 即使进程不在运行，也尝试清理端口
+    kill_port "$SERVER_PORT_VALUE" "$APP_NAME_BACKEND" || true
     return 0
   fi
 
@@ -128,6 +188,8 @@ stop_backend() {
     if ! kill -0 "$pid" 2>/dev/null; then
       rm -f "$BACKEND_PID_FILE"
       echo "$APP_NAME_BACKEND 已停止"
+      # 确保端口被释放
+      kill_port "$SERVER_PORT_VALUE" "$APP_NAME_BACKEND" || true
       return 0
     fi
     sleep 1
@@ -136,12 +198,17 @@ stop_backend() {
   echo "进程未退出，尝试强制终止..."
   kill -9 "$pid" 2>/dev/null || true
   rm -f "$BACKEND_PID_FILE"
+  sleep 1
+  # 确保端口被释放
+  kill_port "$SERVER_PORT_VALUE" "$APP_NAME_BACKEND" || true
   echo "$APP_NAME_BACKEND 已强制停止"
 }
 
 stop_frontend() {
   if ! is_running_frontend; then
     echo "$APP_NAME_FRONTEND 未运行"
+    # 即使进程不在运行，也尝试清理端口
+    kill_port "$FRONTEND_PORT_VALUE" "$APP_NAME_FRONTEND" || true
     return 0
   fi
 
@@ -154,6 +221,8 @@ stop_frontend() {
     if ! kill -0 "$pid" 2>/dev/null; then
       rm -f "$FRONTEND_PID_FILE"
       echo "$APP_NAME_FRONTEND 已停止"
+      # 确保端口被释放
+      kill_port "$FRONTEND_PORT_VALUE" "$APP_NAME_FRONTEND" || true
       return 0
     fi
     sleep 1
@@ -162,6 +231,9 @@ stop_frontend() {
   echo "进程未退出，尝试强制终止..."
   kill -9 "$pid" 2>/dev/null || true
   rm -f "$FRONTEND_PID_FILE"
+  sleep 1
+  # 确保端口被释放
+  kill_port "$FRONTEND_PORT_VALUE" "$APP_NAME_FRONTEND" || true
   echo "$APP_NAME_FRONTEND 已强制停止"
 }
 
@@ -171,21 +243,39 @@ stop() {
 }
 
 restart() {
+  echo "=========================================="
+  echo "重启服务..."
+  echo "=========================================="
   stop
+  echo ""
+  echo "等待3秒后启动服务..."
+  sleep 3
+  echo ""
   start
 }
 
 status() {
+  echo "=========================================="
+  echo "服务状态"
+  echo "=========================================="
   if is_running_backend; then
-    echo "$APP_NAME_BACKEND 运行中，PID: $(cat "$BACKEND_PID_FILE")"
+    echo "✓ $APP_NAME_BACKEND 运行中"
+    echo "  PID: $(cat "$BACKEND_PID_FILE")"
+    echo "  端口: $SERVER_PORT_VALUE"
+    echo "  访问: http://localhost:$SERVER_PORT_VALUE"
   else
-    echo "$APP_NAME_BACKEND 未运行"
+    echo "✗ $APP_NAME_BACKEND 未运行"
   fi
+  echo ""
   if is_running_frontend; then
-    echo "$APP_NAME_FRONTEND 运行中，PID: $(cat "$FRONTEND_PID_FILE")"
+    echo "✓ $APP_NAME_FRONTEND 运行中"
+    echo "  PID: $(cat "$FRONTEND_PID_FILE")"
+    echo "  端口: $FRONTEND_PORT_VALUE"
+    echo "  访问: http://localhost:$FRONTEND_PORT_VALUE"
   else
-    echo "$APP_NAME_FRONTEND 未运行"
+    echo "✗ $APP_NAME_FRONTEND 未运行"
   fi
+  echo "=========================================="
 }
 
 logs() {
@@ -207,16 +297,40 @@ logs() {
 
 usage() {
   cat <<USAGE
+========================================
+NPdatabase 服务管理脚本
+========================================
+
 用法：$(basename "$0") {start|stop|restart|status|logs [backend|frontend]}
 
-可选环境变量：
-  DB_USER                 数据库用户（默认：postgres）
-  DB_PASSWORD             数据库密码（默认：空）
-  SPRING_PROFILES_ACTIVE  Spring Profile
-  SERVER_ADDRESS          绑定地址（默认：空，建议 0.0.0.0）
-  SERVER_PORT             端口（默认：8080）
+命令说明：
+  start    - 启动前后端服务
+  stop     - 停止前后端服务
+  restart  - 重启前后端服务
+  status   - 查看服务运行状态
+  logs     - 查看日志（默认后端，可指定 frontend）
+
+固定端口配置：
+  后端端口: $SERVER_PORT_VALUE
+  前端端口: $FRONTEND_PORT_VALUE
+
+可选环境变量（高级用户）：
+  DB_USER                 数据库用户（默认：yfguo）
+  DB_PASSWORD             数据库密码（默认：npdb2024）
+  SERVER_ADDRESS          后端绑定地址（默认：0.0.0.0）
+  SERVER_PORT             后端端口（默认：8080）
   FRONTEND_HOST           前端绑定地址（默认：0.0.0.0）
-  FRONTEND_PORT           前端端口（默认：5173）
+  FRONTEND_PORT           前端端口（默认：3001）
+
+示例：
+  $(basename "$0") start          # 启动服务
+  $(basename "$0") stop           # 停止服务
+  $(basename "$0") restart        # 重启服务
+  $(basename "$0") status         # 查看状态
+  $(basename "$0") logs           # 查看后端日志
+  $(basename "$0") logs frontend  # 查看前端日志
+
+========================================
 USAGE
 }
 

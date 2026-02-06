@@ -13,15 +13,11 @@ public class Disease {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String diseaseId;
     private String icd11Code;
     private String diseaseName;
     private String diseaseNameZh;
+    private String diseaseNameCmaup;
     private String diseaseCategory;
-    private String description;
-    private String symptoms;
-    private Integer numOfRelatedPlants;
-    private Integer numOfRelatedTargets;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

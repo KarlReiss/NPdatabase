@@ -25,28 +25,12 @@
               </span>
             </div>
             <div class="mt-2 text-base text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
-              <span>编号：{{ disease.diseaseId }}</span>
+              <span>编号：{{ disease.id }}</span>
               <span>ICD-11：{{ disease.icd11Code }}</span>
               <span>分类：{{ disease.diseaseCategory ?? '—' }}</span>
             </div>
           </div>
         </div>
-
-        <div class="grid grid-cols-2 gap-3 rounded-lg p-4 min-w-[240px]" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
-          <div class="text-center">
-            <div class="text-xs text-slate-500">关联靶点</div>
-            <div class="text-xl font-semibold text-slate-800">{{ disease.numOfRelatedTargets }}</div>
-          </div>
-          <div class="text-center">
-            <div class="text-xs text-slate-500">关联植物</div>
-            <div class="text-xl font-semibold text-slate-800">{{ disease.numOfRelatedPlants }}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-6 rounded-lg p-4 text-base text-slate-600" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
-        <div class="text-xs text-slate-400 uppercase tracking-wider">简介</div>
-        <p class="mt-1">{{ disease.description || '疾病信息待补充。' }}</p>
       </div>
     </section>
 
@@ -87,7 +71,7 @@
                   </RouterLink>
                 </td>
                 <td class="p-3 text-sm text-slate-700">{{ res.chineseName || res.latinName || res.resourceId }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ res.resourceType ?? '—' }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ toTypeLabel(res.resourceType) }}</td>
               </tr>
             </tbody>
           </table>
@@ -144,6 +128,22 @@ const loading = ref(false);
 const error = ref('');
 
 const diseaseId = computed(() => String(route.params.id || ''));
+
+const toTypeLabel = (value?: string) => {
+  if (!value) return '—';
+  const key = value.trim().toLowerCase();
+  if (key === 'plant') return '植物';
+  if (key === 'animal') return '动物';
+  if (key === 'mineral') return '矿物';
+  if (key === 'fungi' || key === 'fungus') return '真菌';
+  if (key === 'microbe' || key === 'microorganism') return '微生物';
+  if (key === 'bacteria') return '细菌';
+  if (key === 'virus') return '病毒';
+  if (key === 'algae') return '藻类';
+  if (key === 'unknown' || key === 'unclassified') return '未知';
+  if (key === 'other') return '其他';
+  return value;
+};
 
 const tabs = computed(() => [
   { id: 'resources', name: '关联生物资源', count: relatedResources.value.length },
