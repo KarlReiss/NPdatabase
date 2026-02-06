@@ -77,11 +77,20 @@ public class DiseaseController {
     }
 
     @GetMapping("/{diseaseId}/bio-resources")
-    public ApiResponse<List<BioResource>> bioResources(@PathVariable("diseaseId") Long diseaseId) {
+    public ApiResponse<PageResponse<BioResource>> bioResources(
+            @PathVariable("diseaseId") Long diseaseId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+        //验证疾病是否存在
         Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
+        //查询关联的生物资源ID
         List<Long> resourceIds = bioResourceDiseaseAssociationService.list(
                         new QueryWrapper<BioResourceDiseaseAssociation>()
                                 .select("distinct bio_resource_id")
@@ -90,19 +99,30 @@ public class DiseaseController {
                 .map(BioResourceDiseaseAssociation::getBioResourceId)
                 .collect(Collectors.toList());
         if (resourceIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
-        List<BioResource> list = bioResourceService.list(
-                new QueryWrapper<BioResource>().in("id", resourceIds));
-        return ApiResponse.ok(list);
+        //分页查询生物资源列表
+        Page<BioResource> mpPage = new Page<>(safePage, safePageSize);
+        Page<BioResource> result = bioResourceService.page(mpPage,
+                new QueryWrapper<BioResource>().in("id", resourceIds).orderByDesc("id"));
+        return ApiResponse.ok(PageResponse.from(result));
     }
 
     @GetMapping("/{diseaseId}/natural-products")
-    public ApiResponse<List<NaturalProduct>> naturalProducts(@PathVariable("diseaseId") Long diseaseId) {
+    public ApiResponse<PageResponse<NaturalProduct>> naturalProducts(
+            @PathVariable("diseaseId") Long diseaseId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+        //验证疾病是否存在
         Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
+        //查询关联的生物资源ID
         List<Long> resourceIds = bioResourceDiseaseAssociationService.list(
                         new QueryWrapper<BioResourceDiseaseAssociation>()
                                 .select("distinct bio_resource_id")
@@ -111,7 +131,7 @@ public class DiseaseController {
                 .map(BioResourceDiseaseAssociation::getBioResourceId)
                 .collect(Collectors.toList());
         if (resourceIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
         Set<Long> npIds = new HashSet<>(
                 bioResourceNaturalProductService.list(
@@ -123,10 +143,11 @@ public class DiseaseController {
                         .collect(Collectors.toSet())
         );
         if (npIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
-        List<NaturalProduct> list = naturalProductService.list(
-                new QueryWrapper<NaturalProduct>().in("id", npIds));
-        return ApiResponse.ok(list);
+        Page<NaturalProduct> mpPage = new Page<>(safePage, safePageSize);
+        Page<NaturalProduct> result = naturalProductService.page(mpPage,
+                new QueryWrapper<NaturalProduct>().in("id", npIds).orderByDesc("id"));
+        return ApiResponse.ok(PageResponse.from(result));
     }
 }

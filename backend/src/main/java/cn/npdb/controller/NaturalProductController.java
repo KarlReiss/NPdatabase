@@ -266,48 +266,87 @@ public class NaturalProductController {
     }
 
     @GetMapping("/{npId}/targets")
-    public ApiResponse<List<Target>> targets(@PathVariable("npId") String npId) {
+    public ApiResponse<PageResponse<Target>> targets(
+            @PathVariable("npId") String npId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+
+        //解析天然产物ID
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
+        //查询关联的靶点ID列表
         List<Long> targetIds = bioactivityService.list(
                         new QueryWrapper<Bioactivity>().select("distinct target_id")
                                 .eq("natural_product_id", naturalProductId))
                 .stream().map(Bioactivity::getTargetId).collect(Collectors.toList());
         if (targetIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
-        List<Target> targets = targetService.list(new QueryWrapper<Target>().in("id", targetIds));
-        return ApiResponse.ok(targets);
+
+        //分页查询靶点信息
+        Page<Target> mpPage = new Page<>(safePage, safePageSize);
+        QueryWrapper<Target> wrapper = new QueryWrapper<Target>()
+                .in("id", targetIds);
+        Page<Target> result = targetService.page(mpPage, wrapper);
+        return ApiResponse.ok(PageResponse.from(result));
     }
 
     @GetMapping("/{npId}/bio-resources")
-    public ApiResponse<List<BioResource>> bioResources(@PathVariable("npId") String npId) {
+    public ApiResponse<PageResponse<BioResource>> bioResources(
+            @PathVariable("npId") String npId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+
+        //解析天然产物ID
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
+        //查询关联的生物资源ID列表
         List<Long> bioResourceIds = bioResourceNaturalProductService.list(
                         new QueryWrapper<BioResourceNaturalProduct>().select("distinct bio_resource_id")
                                 .eq("natural_product_id", naturalProductId))
                 .stream().map(BioResourceNaturalProduct::getBioResourceId).collect(Collectors.toList());
         if (bioResourceIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
-        List<BioResource> resources = bioResourceService.list(new QueryWrapper<BioResource>().in("id", bioResourceIds));
-        return ApiResponse.ok(resources);
+        //分页查询生物资源信息
+        Page<BioResource> mpPage = new Page<>(safePage, safePageSize);
+        QueryWrapper<BioResource> wrapper = new QueryWrapper<BioResource>()
+                .in("id", bioResourceIds);
+        Page<BioResource> result = bioResourceService.page(mpPage, wrapper);
+        return ApiResponse.ok(PageResponse.from(result));
     }
 
     @GetMapping("/{npId}/toxicity")
-    public ApiResponse<List<Toxicity>> toxicity(@PathVariable("npId") String npId) {
+    public ApiResponse<PageResponse<Toxicity>> toxicity(
+            @PathVariable("npId") String npId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+        //解析天然产物ID
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
-        List<Toxicity> list = toxicityService.list(
+        //分页查询毒性信息
+        Page<Toxicity> mpPage = new Page<>(safePage, safePageSize);
+        Page<Toxicity> result = toxicityService.page(mpPage,
                 new QueryWrapper<Toxicity>().eq("natural_product_id", naturalProductId));
-        return ApiResponse.ok(list);
+        return ApiResponse.ok(PageResponse.from(result));
     }
 
     private Long resolveNaturalProductId(String npId) {

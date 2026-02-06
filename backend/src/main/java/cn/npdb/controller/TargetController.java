@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,20 +114,32 @@ public class TargetController {
     }
 
     @GetMapping("/{targetId}/natural-products")
-    public ApiResponse<List<NaturalProductDetailView>> naturalProducts(@PathVariable("targetId") String targetId) {
+    public ApiResponse<PageResponse<NaturalProductDetailView>> naturalProducts(
+            @PathVariable("targetId") String targetId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+        //查询靶点
         Target target = targetService.getOne(new QueryWrapper<Target>().select("id").eq("target_id", targetId));
         if (target == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
+        //查询关联的自然产物ID列表
         List<Long> npIds = bioactivityService.list(
                         new QueryWrapper<Bioactivity>().select("distinct natural_product_id")
                                 .eq("target_id", target.getId()))
                 .stream().map(Bioactivity::getNaturalProductId).collect(Collectors.toList());
         if (npIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
-        List<NaturalProductDetailView> list = naturalProductDetailMapper.selectList(
-                new QueryWrapper<NaturalProductDetailView>().in("id", npIds));
-        return ApiResponse.ok(list);
+        //分页查询自然产物列表
+        Page<NaturalProductDetailView> mpPage = new Page<>(safePage, safePageSize);
+        QueryWrapper<NaturalProductDetailView> wrapper = new QueryWrapper<NaturalProductDetailView>()
+                .in("id", npIds);
+        Page<NaturalProductDetailView> result = naturalProductDetailMapper.selectPage(mpPage, wrapper);
+        return ApiResponse.ok(PageResponse.from(result));
     }
 }

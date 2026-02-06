@@ -66,12 +66,21 @@ public class PrescriptionController {
     }
 
     @GetMapping("/{prescriptionId}/bio-resources")
-    public ApiResponse<List<BioResource>> bioResources(@PathVariable("prescriptionId") String prescriptionId) {
+    public ApiResponse<PageResponse<BioResource>> bioResources(
+            @PathVariable("prescriptionId") String prescriptionId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+        //查询处方
         Prescription prescription = prescriptionService.getOne(
                 new QueryWrapper<Prescription>().select("id").eq("prescription_id", prescriptionId));
         if (prescription == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
+        //查询相关生物资源ID
         List<Long> resourceIds = prescriptionResourceService.list(
                         new QueryWrapper<PrescriptionResource>()
                                 .select("distinct bio_resource_id")
@@ -80,10 +89,12 @@ public class PrescriptionController {
                 .map(PrescriptionResource::getBioResourceId)
                 .collect(Collectors.toList());
         if (resourceIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
-        List<BioResource> list = bioResourceService.list(
-                new QueryWrapper<BioResource>().in("id", resourceIds));
-        return ApiResponse.ok(list);
+        //分页查询生物资源列表
+        Page<BioResource> mpPage = new Page<>(safePage, safePageSize);
+        QueryWrapper<BioResource> w = new QueryWrapper<BioResource>().in("id", resourceIds);
+        Page<BioResource> result = bioResourceService.page(mpPage, w);
+        return ApiResponse.ok(PageResponse.from(result));
     }
 }
