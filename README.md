@@ -29,10 +29,11 @@ NPdatabase/
 │   ├── archived/                    # 历史/归档文档
 │   │   └── requirements-full.md     # 完整版需求文档
 │   └── README.md
-├── data/                    # NPASS 3.0 原始数据
+├── data/                    # NPASS 3.0 原始数据与数据库备份
 │   ├── NPASS3.0_naturalproducts_generalinfo.txt
 │   ├── NPASS3.0_activities.txt
 │   ├── NPASS3.0_target.txt
+│   ├── npdb_full_dump.sql.gz  # 完整数据库备份（压缩）
 │   └── ...
 ├── backend/                 # Spring Boot 后端项目（已完成）
 ├── frontend/                # 前端应用
@@ -58,6 +59,10 @@ NPdatabase/
   - 整合后总记录数: 49,054条
   - 匹配方法: 99.53% ID精确匹配, 0.47% 属科组合匹配
   - 输出文件: `data/processed/bio_resources_integrated.txt`
+- [x] **完整数据库备份** (2026-02-06)
+  - 导出完整的 npdb 数据库为 SQL 文件
+  - 文件: `data/npdb_full_dump.sql.gz` (33MB 压缩，原始 164MB)
+  - 包含所有表结构、数据、视图、索引和约束
 
 ### 🚧 进行中
 - [ ] 前端联调与页面完善
@@ -75,6 +80,19 @@ cd NPdatabase
 ```
 
 ### 2. 设置数据库
+
+**方式一：使用完整数据库备份（推荐）**
+
+```bash
+# 解压并导入完整数据库（包含所有数据）
+gunzip -c data/npdb_full_dump.sql.gz | psql -h localhost -U yfguo
+
+# 或者分步操作
+gunzip data/npdb_full_dump.sql.gz
+psql -h localhost -U yfguo -f data/npdb_full_dump.sql
+```
+
+**方式二：从头构建数据库**
 
 ```bash
 # 创建数据库
@@ -118,6 +136,29 @@ npm run dev
 - **[docs/backend-dev-doc.md](docs/backend-dev-doc.md)** - 后端 API 文档
 - **[docs/requirements-simplified.md](docs/requirements-simplified.md)** - 项目需求
 - **[data/README.md](data/README.md)** - 数据文件获取说明
+
+## 数据库备份与恢复
+
+项目提供完整的数据库备份文件 `data/npdb_full_dump.sql.gz`（33MB），包含：
+- 所有表结构（natural_products、targets、bioactivity、toxicity、bio_resources等）
+- 完整数据（约50万天然产物、100万生物活性记录）
+- 所有视图、索引和约束
+
+**恢复数据库：**
+```bash
+# 直接从压缩文件恢复
+gunzip -c data/npdb_full_dump.sql.gz | psql -h localhost -U yfguo
+
+# 或者先解压再导入
+gunzip data/npdb_full_dump.sql.gz
+psql -h localhost -U yfguo -f data/npdb_full_dump.sql
+```
+
+**创建新备份：**
+```bash
+# 导出并压缩
+pg_dump -h localhost -U yfguo -d npdb --clean --if-exists --create | gzip -9 > data/npdb_backup_$(date +%Y%m%d).sql.gz
+```
 
 ## 参考文档
 
