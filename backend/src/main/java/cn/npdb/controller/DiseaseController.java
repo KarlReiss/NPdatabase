@@ -71,7 +71,7 @@ public class DiseaseController {
     public ApiResponse<Disease> detail(@PathVariable("diseaseId") Long diseaseId) {
         Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         return ApiResponse.ok(disease);
     }
@@ -88,7 +88,7 @@ public class DiseaseController {
         //验证疾病是否存在
         Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询关联的生物资源ID
         List<Long> resourceIds = bioResourceDiseaseAssociationService.list(
@@ -120,7 +120,7 @@ public class DiseaseController {
         //验证疾病是否存在
         Disease disease = diseaseService.getById(diseaseId);
         if (disease == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询关联的生物资源ID
         List<Long> resourceIds = bioResourceDiseaseAssociationService.list(

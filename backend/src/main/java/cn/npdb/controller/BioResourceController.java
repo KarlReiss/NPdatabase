@@ -78,7 +78,7 @@ public class BioResourceController {
     public ApiResponse<BioResource> detail(@PathVariable("resourceId") String resourceId) {
         BioResource resource = bioResourceService.getOne(new QueryWrapper<BioResource>().eq("resource_id", resourceId));
         if (resource == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         return ApiResponse.ok(resource);
     }
@@ -98,7 +98,7 @@ public class BioResourceController {
                 select("id")
                 .eq("resource_id", resourceId));
         if (resource == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询关联的自然产物ID列表
         List<Long> npIds = bioResourceNaturalProductService.list(new QueryWrapper<BioResourceNaturalProduct>().
@@ -130,7 +130,7 @@ public class BioResourceController {
         BioResource resource = bioResourceService.getOne(new QueryWrapper<BioResource>()
                 .select("id").eq("resource_id", resourceId));
         if (resource == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询关联的处方ID列表
         List<Long> prescriptionIds = prescriptionResourceService.list(new QueryWrapper<PrescriptionResource>()

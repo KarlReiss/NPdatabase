@@ -69,7 +69,7 @@ public class TargetController {
         Target target = targetService.getOne(
                 new QueryWrapper<Target>().eq("target_id", targetId));
         if (target == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         TargetDetailView view = new TargetDetailView();
         view.setId(target.getId());
@@ -125,7 +125,7 @@ public class TargetController {
         //查询靶点
         Target target = targetService.getOne(new QueryWrapper<Target>().select("id").eq("target_id", targetId));
         if (target == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询关联的自然产物ID列表
         List<Long> npIds = bioactivityService.list(

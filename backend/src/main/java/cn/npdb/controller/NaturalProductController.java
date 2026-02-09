@@ -204,7 +204,7 @@ public class NaturalProductController {
             return view;
         }).collect(Collectors.toList());
 
-        return ApiResponse.ok(new PageResponse<>(views, result.getCurrent(), result.getSize(), -1));
+        return ApiResponse.ok(new PageResponse<>(views, result.getCurrent(), result.getSize(), records.size()));
     }
 
     @GetMapping("/{npId}")
@@ -212,7 +212,7 @@ public class NaturalProductController {
         NaturalProduct np = naturalProductService.getOne(
                 new QueryWrapper<NaturalProduct>().eq("np_id", npId));
         if (np == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         NaturalProductDetailView view = new NaturalProductDetailView();
         BeanUtils.copyProperties(np, view);
@@ -255,7 +255,7 @@ public class NaturalProductController {
     ) {
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
@@ -278,7 +278,7 @@ public class NaturalProductController {
         //解析天然产物ID
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询关联的靶点ID列表
         List<Long> targetIds = bioactivityService.list(
@@ -310,7 +310,7 @@ public class NaturalProductController {
         //解析天然产物ID
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询关联的生物资源ID列表
         List<Long> bioResourceIds = bioResourceNaturalProductService.list(
@@ -318,7 +318,7 @@ public class NaturalProductController {
                                 .eq("natural_product_id", naturalProductId))
                 .stream().map(BioResourceNaturalProduct::getBioResourceId).collect(Collectors.toList());
         if (bioResourceIds.isEmpty()) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //分页查询生物资源信息
         Page<BioResource> mpPage = new Page<>(safePage, safePageSize);
@@ -340,7 +340,7 @@ public class NaturalProductController {
         //解析天然产物ID
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //分页查询毒性信息
         Page<Toxicity> mpPage = new Page<>(safePage, safePageSize);

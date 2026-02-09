@@ -1,6 +1,5 @@
 package cn.npdb.common;
 
-import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
@@ -28,10 +27,10 @@ public class GlobalExceptionHandler {
         return ApiResponse.error(ApiCode.BAD_REQUEST, message);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ApiResponse<Void> handleConstraintViolation(ConstraintViolationException ex) {
-        return ApiResponse.error(ApiCode.BAD_REQUEST, ex.getMessage());
-    }
+//    @ExceptionHandler(ConstraintViolationException.class)
+//    public ApiResponse<Void> handleConstraintViolation(ConstraintViolationException ex) {
+//        return ApiResponse.error(ApiCode.BAD_REQUEST, ex.getMessage());
+//    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ApiResponse<Void> handleIllegalArgument(IllegalArgumentException ex) {

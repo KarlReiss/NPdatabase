@@ -60,7 +60,7 @@ public class PrescriptionController {
         Prescription prescription = prescriptionService.getOne(
                 new QueryWrapper<Prescription>().eq("prescription_id", prescriptionId));
         if (prescription == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         return ApiResponse.ok(prescription);
     }
@@ -78,7 +78,7 @@ public class PrescriptionController {
         Prescription prescription = prescriptionService.getOne(
                 new QueryWrapper<Prescription>().select("id").eq("prescription_id", prescriptionId));
         if (prescription == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
         //查询相关生物资源ID
         List<Long> resourceIds = prescriptionResourceService.list(
