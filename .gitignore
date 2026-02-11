@@ -65,3 +65,7 @@ scripts/data-import/output/
 # ===== 日志文件 =====
 *.log
 logs/
+
+# ===== 其他工具 =====
+clash-for-linux-install/
+clashctl/
