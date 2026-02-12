@@ -29,10 +29,14 @@ export interface NaturalProductDetailView {
   hBondDonors?: number;
   hBondAcceptors?: number;
   rotatableBonds?: number;
+  logS?: number;
+  logD?: number;
+  logP?: number;
+  tpsa?: number;
+  ringCount?: number;
   numOfOrganism?: number;
   numOfTarget?: number;
   numOfActivity?: number;
-  geneCluster?: string;
   ifQuantity?: boolean;
   bioactivityCount?: number;
   targetCount?: number;
@@ -113,6 +117,17 @@ export interface Bioactivity {
   createdAt?: string;
 }
 
+export interface BioactivityTargetSummary {
+  targetDbId: number;
+  targetId?: string;
+  targetName?: string;
+  targetType?: string;
+  targetOrganism?: string;
+  uniprotId?: string;
+  bioactivityCount?: number;
+  bestActivityValue?: number;
+}
+
 export interface BioResource {
   id: number;
   resourceId?: string;
@@ -134,6 +149,7 @@ export interface BioResource {
   genusTaxId?: string;
   familyTaxId?: string;
   cmaupId?: string;
+  standardChineseName?: string;
   medicinalPart?: string;
   medicinalPartLatin?: string;
   originRegion?: string;
@@ -190,6 +206,25 @@ export interface PrescriptionListItem {
   bioResourceCount?: number;
 }
 
+export interface BioResourceNaturalProductItem {
+  npId: string;
+  prefName?: string;
+  iupacName?: string;
+  molecularWeight?: number;
+  xlogp?: number;
+  psa?: number;
+  formula?: string;
+  orgIsolationPart?: string;
+  orgCollectLocation?: string;
+  orgCollectTime?: string;
+  refType?: string;
+  refId?: string;
+  refIdType?: string;
+  refUrl?: string;
+  newCpFound?: string;
+  sourceCount?: number;
+}
+
 export interface Disease {
   id: number;
   icd11Code?: string;
@@ -222,13 +257,13 @@ export interface SearchResponse {
 }
 
 export interface StatsResponse {
-  naturalProducts: number;
-  targets: number;
-  bioactivity: number;
-  toxicity: number;
   bioResources: number;
+  naturalProducts: number;
   prescriptions: number;
-  diseases?: number;
+  targets: number;
+  diseases: number;
+  bioactivity?: number;
+  toxicity?: number;
 }
 
 export interface NaturalProductListParams {
@@ -258,5 +293,6 @@ export type NaturalProductApi = NaturalProductDetailView;
 export type TargetApi = Target;
 export type TargetDetailApi = TargetDetailView;
 export type BioactivityApi = Bioactivity;
+export type BioactivityTargetSummaryApi = BioactivityTargetSummary;
 export type BioResourceApi = BioResource;
 export type ToxicityApi = Toxicity;

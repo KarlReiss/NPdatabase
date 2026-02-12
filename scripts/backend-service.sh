@@ -26,6 +26,20 @@ ensure_dirs() {
   mkdir -p "$(dirname "$FRONTEND_PID_FILE")" "$(dirname "$FRONTEND_LOG_FILE")"
 }
 
+wait_for_backend() {
+  local url="http://localhost:${SERVER_PORT_VALUE}/api/health"
+  local retries=20
+  local wait_seconds=1
+
+  for _ in $(seq 1 "$retries"); do
+    if curl -sf "$url" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep "$wait_seconds"
+  done
+  return 1
+}
+
 # 检查端口是否被占用
 check_port() {
   local port=$1
@@ -125,15 +139,17 @@ start_backend() {
   )
 
   sleep 3
-  if is_running_backend; then
+  if is_running_backend && wait_for_backend; then
     echo "$APP_NAME_BACKEND 启动成功，PID: $(cat "$BACKEND_PID_FILE")"
     echo "访问地址：http://localhost:$SERVER_PORT_VALUE"
     echo "Swagger文档：http://localhost:$SERVER_PORT_VALUE/swagger-ui.html"
     echo "日志：$BACKEND_LOG_FILE"
-  else
-    echo "$APP_NAME_BACKEND 启动失败，请查看日志：$BACKEND_LOG_FILE"
-    return 1
+    return 0
   fi
+
+  echo "$APP_NAME_BACKEND 启动失败，请查看日志：$BACKEND_LOG_FILE"
+  tail -n 120 "$BACKEND_LOG_FILE" || true
+  return 1
 }
 
 start_frontend() {
@@ -168,6 +184,14 @@ start_frontend() {
 
 start() {
   start_backend
+  start_frontend
+}
+
+start_backend_only() {
+  start_backend
+}
+
+start_frontend_only() {
   start_frontend
 }
 
@@ -254,6 +278,30 @@ restart() {
   start
 }
 
+restart_backend_only() {
+  echo "=========================================="
+  echo "重启后端服务..."
+  echo "=========================================="
+  stop_backend
+  echo ""
+  echo "等待2秒后启动后端..."
+  sleep 2
+  echo ""
+  start_backend
+}
+
+restart_frontend_only() {
+  echo "=========================================="
+  echo "重启前端服务..."
+  echo "=========================================="
+  stop_frontend
+  echo ""
+  echo "等待2秒后启动前端..."
+  sleep 2
+  echo ""
+  start_frontend
+}
+
 status() {
   echo "=========================================="
   echo "服务状态"
@@ -301,7 +349,7 @@ usage() {
 NPdatabase 服务管理脚本
 ========================================
 
-用法：$(basename "$0") {start|stop|restart|status|logs [backend|frontend]}
+用法：$(basename "$0") {start|stop|restart|status|logs [backend|frontend]|start-backend|start-frontend|restart-backend|restart-frontend}
 
 命令说明：
   start    - 启动前后端服务
@@ -309,6 +357,10 @@ NPdatabase 服务管理脚本
   restart  - 重启前后端服务
   status   - 查看服务运行状态
   logs     - 查看日志（默认后端，可指定 frontend）
+  start-backend   - 仅启动后端服务
+  start-frontend  - 仅启动前端服务
+  restart-backend - 仅重启后端服务
+  restart-frontend- 仅重启前端服务
 
 固定端口配置：
   后端端口: $SERVER_PORT_VALUE
@@ -329,6 +381,8 @@ NPdatabase 服务管理脚本
   $(basename "$0") status         # 查看状态
   $(basename "$0") logs           # 查看后端日志
   $(basename "$0") logs frontend  # 查看前端日志
+  $(basename "$0") start-backend  # 仅启动后端
+  $(basename "$0") restart-backend# 仅重启后端
 
 ========================================
 USAGE
@@ -336,8 +390,12 @@ USAGE
 
 case "${1:-}" in
   start) start ;;
+  start-backend) start_backend_only ;;
+  start-frontend) start_frontend_only ;;
   stop) stop ;;
   restart) restart ;;
+  restart-backend) restart_backend_only ;;
+  restart-frontend) restart_frontend_only ;;
   status) status ;;
   logs) logs "$@" ;;
   *) usage ; exit 1 ;;

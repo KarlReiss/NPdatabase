@@ -82,28 +82,28 @@
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
+          <div class="text-[11px] text-slate-400">生物资源</div>
+          <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.bioResources) }}</div>
+        </div>
+        <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
           <div class="text-[11px] text-slate-400">天然产物</div>
           <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.naturalProducts) }}</div>
+        </div>
+        <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
+          <div class="text-[11px] text-slate-400">处方</div>
+          <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.prescriptions) }}</div>
         </div>
         <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
           <div class="text-[11px] text-slate-400">靶点</div>
           <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.targets) }}</div>
         </div>
         <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
-          <div class="text-[11px] text-slate-400">活性记录</div>
+          <div class="text-[11px] text-slate-400">生物活性</div>
           <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.bioactivity) }}</div>
         </div>
         <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
-          <div class="text-[11px] text-slate-400">生物资源</div>
-          <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.bioResources) }}</div>
-        </div>
-        <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
-          <div class="text-[11px] text-slate-400">毒性记录</div>
-          <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.toxicity) }}</div>
-        </div>
-        <div class="bg-white border border-[#E2E8F0] rounded-md p-4">
-          <div class="text-[11px] text-slate-400">处方</div>
-          <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.prescriptions) }}</div>
+          <div class="text-[11px] text-slate-400">疾病</div>
+          <div class="text-xl font-bold text-slate-800">{{ formatCount(stats?.diseases) }}</div>
         </div>
       </div>
     </section>

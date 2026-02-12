@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/npdb
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:}
+    username: ${DB_USER:yfguo}
+    password: ${DB_PASSWORD:npdb2024}
     driver-class-name: org.postgresql.Driver
 
 mybatis-plus:

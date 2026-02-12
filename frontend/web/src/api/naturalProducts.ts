@@ -1,5 +1,11 @@
 import { apiGet, type PageResponse } from './client';
-import type { BioactivityApi, BioResourceApi, NaturalProductApi, TargetApi, ToxicityApi } from './types';
+import type {
+  BioactivityApi,
+  BioactivityTargetSummaryApi,
+  BioResourceApi,
+  NaturalProductApi,
+  ToxicityApi,
+} from './types';
 
 export interface NaturalProductQuery {
   page?: number;
@@ -26,12 +32,11 @@ export const fetchNaturalProductDetail = (npId: string) =>
 export const fetchNaturalProductBioactivity = (npId: string, params: { page?: number; pageSize?: number }) =>
   apiGet<PageResponse<BioactivityApi>>(`/api/natural-products/${npId}/bioactivity`, params);
 
-export const fetchNaturalProductTargets = (npId: string) =>
-  apiGet<TargetApi[]>(`/api/natural-products/${npId}/targets`);
+export const fetchNaturalProductBioactivityTargets = (npId: string) =>
+  apiGet<BioactivityTargetSummaryApi[]>(`/api/natural-products/${npId}/bioactivity-targets`);
 
 export const fetchNaturalProductResources = (npId: string) =>
   apiGet<BioResourceApi[]>(`/api/natural-products/${npId}/bio-resources`);
 
 export const fetchNaturalProductToxicity = (npId: string) =>
   apiGet<ToxicityApi[]>(`/api/natural-products/${npId}/toxicity`);
-

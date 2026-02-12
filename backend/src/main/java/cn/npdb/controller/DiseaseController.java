@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/diseases")
@@ -113,20 +114,31 @@ public class DiseaseController {
         if (resourceIds.isEmpty()) {
             return ApiResponse.ok(Collections.emptyList());
         }
-        Set<Long> npIds = new HashSet<>(
+        List<String> resourceIdStrings = bioResourceService.list(
+                        new QueryWrapper<BioResource>().select("resource_id").in("id", resourceIds))
+                .stream()
+                .map(BioResource::getResourceId)
+                .filter(id -> id != null && !id.isBlank())
+                .collect(Collectors.toList());
+        if (resourceIdStrings.isEmpty()) {
+            return ApiResponse.ok(Collections.emptyList());
+        }
+
+        Set<String> npIds = new HashSet<>(
                 bioResourceNaturalProductService.list(
                                 new QueryWrapper<BioResourceNaturalProduct>()
-                                        .select("distinct natural_product_id")
-                                        .in("bio_resource_id", resourceIds))
+                                        .select("distinct np_id")
+                                        .in("org_id", resourceIdStrings))
                         .stream()
-                        .map(BioResourceNaturalProduct::getNaturalProductId)
+                        .map(BioResourceNaturalProduct::getNpId)
+                        .filter(id -> id != null && !id.isBlank())
                         .collect(Collectors.toSet())
         );
         if (npIds.isEmpty()) {
             return ApiResponse.ok(Collections.emptyList());
         }
         List<NaturalProduct> list = naturalProductService.list(
-                new QueryWrapper<NaturalProduct>().in("id", npIds));
+                new QueryWrapper<NaturalProduct>().in("np_id", npIds));
         return ApiResponse.ok(list);
     }
 }

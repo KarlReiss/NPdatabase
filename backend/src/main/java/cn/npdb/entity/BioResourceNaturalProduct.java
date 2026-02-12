@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,16 +13,20 @@ public class BioResourceNaturalProduct {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private Long bioResourceId;
-    private Long naturalProductId;
-
-    private BigDecimal contentValue;
-    private String contentUnit;
-    private String contentPart;
-
-    private String isolationMethod;
+    private String orgId;
+    private String npId;
+    private String srcOrgRecordId;
+    private String srcOrgPairId;
+    private String srcOrgPair;
+    private String newCpFound;
+    private String orgIsolationPart;
+    private String orgCollectLocation;
+    private String orgCollectTime;
+    private String refType;
     private String refId;
     private String refIdType;
+    private String refUrl;
 
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

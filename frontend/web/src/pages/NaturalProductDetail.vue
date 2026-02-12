@@ -16,24 +16,6 @@
 
     <template v-if="compound">
       <section class="bg-white rounded-md border border-[#E2E8F0] shadow-sm overflow-hidden flex flex-col md:flex-row mb-8">
-        <div class="md:w-[360px] p-8 border-b md:border-b-0 md:border-r border-[#E2E8F0] bg-white flex flex-col items-center justify-center relative">
-          <img
-            v-if="structureUrl"
-            :src="structureUrl"
-            :alt="compoundName"
-            class="w-[300px] h-[300px] object-contain mb-4"
-          />
-          <div v-else class="w-[300px] h-[300px] flex items-center justify-center text-slate-300 text-sm mb-4">
-            暂无结构图
-          </div>
-          <button class="flex items-center space-x-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-600 hover:bg-slate-100 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            <span>下载结构</span>
-          </button>
-        </div>
-
         <div class="flex-1 p-8">
           <div class="flex items-start justify-between mb-6">
             <div>
@@ -77,6 +59,23 @@
             </p>
           </div>
         </div>
+
+        <div
+          v-if="structureUrl"
+          class="md:w-[260px] p-6 border-t md:border-t-0 md:border-l border-[#E2E8F0] bg-white flex flex-col items-center justify-start"
+        >
+          <img
+            :src="structureUrl"
+            :alt="compoundName"
+            class="w-[200px] h-[200px] object-contain mb-3"
+          />
+          <button class="flex items-center space-x-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-600 hover:bg-slate-100 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>下载结构</span>
+          </button>
+        </div>
       </section>
 
       <section class="bg-white rounded-md border border-[#E2E8F0] shadow-sm overflow-hidden">
@@ -96,9 +95,49 @@
         </div>
 
         <div class="p-6">
-          <div v-if="activeTab === 'bio'">
+          <div v-if="activeTab === 'targets'">
             <div class="mb-4 flex items-center justify-between">
-              <h3 class="text-sm font-bold text-slate-800">实验与活性证据</h3>
+              <h3 class="text-sm font-bold text-slate-800">关联靶点列表</h3>
+              <div class="text-xs text-slate-500">共 {{ formatCount(targetSummaries.length) }} 个靶点</div>
+            </div>
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50/50">
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b">靶点</th>
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b">类型</th>
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b">物种</th>
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b">活性记录数</th>
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b">最佳活性(nM)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+                <tr v-if="targetSummaries.length === 0">
+                  <td colspan="5" class="p-6 text-sm text-slate-400 text-center">暂无靶点记录</td>
+                </tr>
+                <tr v-else v-for="t in targetSummaries" :key="t.targetDbId" class="hover:bg-slate-50/50">
+                  <td class="p-3">
+                    <div class="text-sm text-slate-800 font-medium">{{ t.targetName || t.targetId || '—' }}</div>
+                    <div class="text-[11px] text-slate-400">编号：{{ t.targetId || '—' }}</div>
+                    <RouterLink
+                      v-if="t.targetId"
+                      :to="`/targets/${t.targetId}`"
+                      class="inline-flex text-xs text-[#3B82F6] hover:underline mt-1"
+                    >
+                      查看靶点详情
+                    </RouterLink>
+                  </td>
+                  <td class="p-3 text-sm text-slate-600">{{ t.targetType || '—' }}</td>
+                  <td class="p-3 text-sm text-slate-600">{{ t.targetOrganism || '—' }}</td>
+                  <td class="p-3 text-sm text-slate-600">{{ formatCount(t.bioactivityCount ?? 0) }}</td>
+                  <td class="p-3 text-sm font-bold text-slate-800">{{ formatDecimal(t.bestActivityValue, 2) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-if="activeTab === 'bioactivity'">
+            <div class="mb-4 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-800">活性数据列表</h3>
               <div class="text-xs text-slate-500">展示前 {{ bioactivityRows.length }} 条记录</div>
             </div>
             <table class="w-full text-left border-collapse">
@@ -143,34 +182,6 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          <div v-if="activeTab === 'target'" class="space-y-4">
-            <div class="bg-[#EFF6FF] border-l-4 border-[#3B82F6] p-4 text-[13px] text-[#1E40AF]">
-              <strong>Disease inference note:</strong> Disease association is inferred through target links and is
-              provided for research reference only, not clinical evidence.
-            </div>
-            <div v-if="targets.length === 0" class="text-sm text-slate-400">暂无关联靶点记录。</div>
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div
-                v-for="t in targets"
-                :key="t.targetId"
-                class="p-4 border rounded-md hover:border-[#10B981] transition-all"
-              >
-                <div class="font-bold text-slate-800">{{ t.targetName || t.targetId }}</div>
-                <div class="text-[11px] text-slate-500 mb-2">编号：{{ t.targetId || '—' }}</div>
-                <div class="text-[12px] text-slate-600">类型：{{ t.targetType || '—' }}</div>
-                <div class="text-[12px] text-slate-600">物种：{{ t.targetOrganism || '—' }}</div>
-                <div class="text-[12px] text-slate-600">UniProt：{{ t.uniprotId || '—' }}</div>
-                <RouterLink
-                  v-if="t.targetId"
-                  :to="`/targets/${t.targetId}`"
-                  class="inline-flex text-xs text-[#3B82F6] hover:underline mt-2"
-                >
-                  查看靶点详情
-                </RouterLink>
-              </div>
-            </div>
           </div>
 
           <div v-if="activeTab === 'herb'" class="space-y-4">
@@ -226,21 +237,26 @@ import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   fetchNaturalProductBioactivity,
+  fetchNaturalProductBioactivityTargets,
   fetchNaturalProductDetail,
   fetchNaturalProductResources,
-  fetchNaturalProductTargets,
   fetchNaturalProductToxicity,
 } from '@/api/naturalProducts';
-import type { BioactivityApi, BioResourceApi, NaturalProductApi, TargetApi, ToxicityApi } from '@/api/types';
+import type {
+  BioactivityApi,
+  BioactivityTargetSummaryApi,
+  BioResourceApi,
+  NaturalProductApi,
+  ToxicityApi,
+} from '@/api/types';
 import { buildPubchemImage, formatCount, formatDecimal, toNumber } from '@/utils/format';
 
 const route = useRoute();
-const activeTab = ref<'bio' | 'target' | 'herb' | 'trial'>('bio');
-
+const activeTab = ref<'targets' | 'bioactivity' | 'herb' | 'trial'>('targets');
 const compound = ref<NaturalProductApi | null>(null);
 const bioactivity = ref<BioactivityApi[]>([]);
 const bioactivityTotal = ref(0);
-const targets = ref<TargetApi[]>([]);
+const targetSummaries = ref<BioactivityTargetSummaryApi[]>([]);
 const resources = ref<BioResourceApi[]>([]);
 const toxicity = ref<ToxicityApi[]>([]);
 
@@ -257,9 +273,14 @@ const metadata = computed(() => [
   { label: '分子量（MW）', value: formatDecimal(compound.value?.molecularWeight) },
   { label: '脂水分配系数（XLogP）', value: formatDecimal(compound.value?.xlogp) },
   { label: '极性表面积（PSA）', value: formatDecimal(compound.value?.psa) },
+  { label: '水溶性（LogS）', value: formatDecimal(compound.value?.logS) },
+  { label: '分配系数（LogD, pH7.4）', value: formatDecimal(compound.value?.logD) },
+  { label: '脂水分配系数（LogP）', value: formatDecimal(compound.value?.logP) },
+  { label: '拓扑极性表面积（tPSA）', value: formatDecimal(compound.value?.tpsa) },
   { label: '氢键供体数', value: compound.value?.hBondDonors ?? '—' },
   { label: '氢键受体数', value: compound.value?.hBondAcceptors ?? '—' },
   { label: '可旋转键数', value: compound.value?.rotatableBonds ?? '—' },
+  { label: '环数量', value: compound.value?.ringCount ?? '—' },
   {
     label: '活性记录数',
     value: formatCount(compound.value?.numOfActivity ?? compound.value?.bioactivityCount ?? 0),
@@ -272,25 +293,28 @@ const metadata = computed(() => [
     label: '来源生物资源数',
     value: formatCount(compound.value?.numOfOrganism ?? compound.value?.bioResourceCount ?? 0),
   },
-  { label: '基因簇', value: compound.value?.geneCluster || '—' },
   { label: '是否量化', value: compound.value?.ifQuantity ? '是' : '否' },
+  { label: 'InChI', value: compound.value?.inchi || '—' },
+  { label: 'SMILES', value: compound.value?.smiles || '—' },
   { label: 'PubChem CID', value: compound.value?.pubchemId || '—' },
   { label: 'ChEMBL ID', value: compound.value?.chemblId || '—' },
   { label: 'InChIKey', value: compound.value?.inchikey || '—' },
+  { label: '创建时间', value: compound.value?.createdAt || '—' },
+  { label: '更新时间', value: compound.value?.updatedAt || '—' },
 ]);
 
 const tabs = computed(() => [
-  { id: 'bio', name: '活性数据', count: compound.value?.bioactivityCount ?? bioactivityTotal.value },
-  { id: 'target', name: '靶点', count: compound.value?.targetCount ?? targets.value.length },
+  { id: 'targets', name: '关联靶点', count: compound.value?.targetCount ?? targetSummaries.value.length },
+  { id: 'bioactivity', name: '活性数据', count: compound.value?.bioactivityCount ?? bioactivityTotal.value },
   { id: 'herb', name: '来源药材', count: compound.value?.bioResourceCount ?? resources.value.length },
   { id: 'trial', name: '临床试验', count: 0 },
 ]);
 
 const targetMap = computed(() => {
-  const map = new Map<number, TargetApi>();
-  targets.value.forEach((target) => {
-    if (typeof target.id === 'number') {
-      map.set(target.id, target);
+  const map = new Map<number, BioactivityTargetSummaryApi>();
+  targetSummaries.value.forEach((target) => {
+    if (typeof target.targetDbId === 'number') {
+      map.set(target.targetDbId, target);
     }
   });
   return map;
@@ -337,7 +361,7 @@ const fetchAll = async () => {
   try {
     const detailPromise = fetchNaturalProductDetail(compoundId.value);
     const bioPromise = fetchNaturalProductBioactivity(compoundId.value, { page: 1, pageSize: 50 });
-    const targetPromise = fetchNaturalProductTargets(compoundId.value);
+    const targetPromise = fetchNaturalProductBioactivityTargets(compoundId.value);
     const resourcePromise = fetchNaturalProductResources(compoundId.value);
     const toxicityPromise = fetchNaturalProductToxicity(compoundId.value);
 
@@ -365,14 +389,14 @@ const fetchAll = async () => {
       bioactivityTotal.value = 0;
     }
 
-    targets.value = targetResult.status === 'fulfilled' ? targetResult.value : [];
+    targetSummaries.value = targetResult.status === 'fulfilled' ? targetResult.value : [];
     resources.value = resourceResult.status === 'fulfilled' ? resourceResult.value : [];
     toxicity.value = toxicityResult.status === 'fulfilled' ? toxicityResult.value : [];
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     compound.value = null;
     bioactivity.value = [];
-    targets.value = [];
+    targetSummaries.value = [];
     resources.value = [];
     toxicity.value = [];
   } finally {
@@ -381,7 +405,6 @@ const fetchAll = async () => {
 };
 
 watch(compoundId, () => {
-  activeTab.value = 'bio';
   fetchAll();
 }, { immediate: true });
 </script>

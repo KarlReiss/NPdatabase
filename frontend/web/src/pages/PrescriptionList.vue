@@ -16,21 +16,31 @@
           style="background: var(--theme-soft);"
         >
           <div class="flex items-center space-x-3">
-            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ totalCount }}</span></span>
+            <span class="text-sm text-slate-600">总记录数：<span class="font-bold">{{ total }}</span></span>
             <div class="relative">
               <input
-                v-model="listQuery"
+                v-model="searchQuery"
                 type="text"
                 placeholder="在本列表中搜索..."
-                class="w-[240px] h-10 pl-9 pr-3 bg-white border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2"
+                class="w-[260px] h-11 pl-9 pr-3 bg-white border border-[#E2E8F0] rounded-md text-sm focus:outline-none focus:ring-2"
                 :style="{ '--tw-ring-color': 'var(--theme)' }"
               />
-              <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 absolute left-3 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
           </div>
-          <div class="text-sm text-slate-500">点击表头排序</div>
+          <div class="flex items-center space-x-4">
+            <div class="text-sm text-slate-500">点击表头排序</div>
+            <div class="flex items-center space-x-2 text-sm">
+              <span class="text-slate-500">每页数量：</span>
+              <select v-model.number="pageSize" class="border rounded px-2 py-1 outline-none text-slate-700">
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div v-if="error" class="px-4 py-3 text-sm text-red-500 bg-red-50/40 border-b border-[#E2E8F0]">
@@ -62,11 +72,12 @@
               <tr v-if="loading">
                 <td colspan="5" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
               </tr>
-              <tr v-else-if="filteredPrescriptions.length === 0">
+              <tr v-else-if="sortedPrescriptions.length === 0">
                 <td colspan="5" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
               </tr>
               <tr
-                v-for="(pres, idx) in filteredPrescriptions"
+                v-else
+                v-for="(pres, idx) in sortedPrescriptions"
                 :key="pres.prescriptionId"
                 :class="[idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30', 'hover:bg-slate-50 transition-colors']"
               >
@@ -83,56 +94,151 @@
             </tbody>
           </table>
         </div>
+
+        <div class="p-4 border-t border-[#E2E8F0] flex items-center justify-between">
+          <span class="text-xs text-slate-500">第 {{ page }} / {{ totalPages }} 页</span>
+          <div class="flex items-center space-x-1">
+            <button
+              class="px-2 py-1 text-sm border rounded"
+              :class="page === 1 ? 'text-slate-400 border-gray-100 cursor-not-allowed' : 'text-slate-600 hover:bg-gray-50'"
+              :disabled="page === 1"
+              @click="goToPage(page - 1)"
+            >
+              上一页
+            </button>
+            <template v-for="item in pageItems" :key="`page-${item}`">
+              <span v-if="item === '...'" class="text-sm text-slate-400 px-1">...</span>
+              <button
+                v-else
+                class="px-3 py-1 text-sm rounded"
+                :class="item === page ? 'bg-[#10B981] text-white' : 'text-slate-600 hover:bg-gray-50'"
+                @click="goToPage(Number(item))"
+              >
+                {{ item }}
+              </button>
+            </template>
+            <button
+              class="px-2 py-1 text-sm border rounded"
+              :class="page === totalPages ? 'text-slate-400 border-gray-100 cursor-not-allowed' : 'text-[#10B981] border-[#10B981]/20 hover:bg-[#10B981]/5'"
+              :disabled="page === totalPages"
+              @click="goToPage(page + 1)"
+            >
+              下一页
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import SortIcon from '@/components/SortIcon.vue';
 import { fetchPrescriptions } from '@/api/prescriptions';
 import type { PrescriptionListItem } from '@/api/types';
 
-const prescriptions = ref<PrescriptionListItem[]>([]);
+type SortKey = 'prescriptionId' | 'chineseName';
+type PageItem = number | '...';
+
+const route = useRoute();
+const router = useRouter();
+
+const searchQuery = ref(String(route.query.q ?? ''));
+const page = ref(1);
+const pageSize = ref(20);
+const total = ref(0);
+const rows = ref<PrescriptionListItem[]>([]);
 const loading = ref(false);
 const error = ref('');
-const totalCount = ref(0);
 
-const listQuery = ref('');
-const sortKey = ref<'prescriptionId' | 'chineseName'>('prescriptionId');
+const sortKey = ref<SortKey>('prescriptionId');
 const sortDir = ref<'asc' | 'desc'>('desc');
 
-const normalize = (value: string) => value.trim().toLowerCase();
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)));
 
-const matchesQuery = (item: PrescriptionListItem, query: string) => {
-  if (!query) return true;
-  const keyword = normalize(query);
-  return (
-    normalize(item.prescriptionId ?? '').includes(keyword) ||
-    normalize(item.chineseName ?? '').includes(keyword) ||
-    normalize(item.functions ?? '').includes(keyword)
-  );
+const pageItems = computed<PageItem[]>(() => {
+  const totalPageCount = totalPages.value;
+  if (totalPageCount <= 7) {
+    return Array.from({ length: totalPageCount }, (_, idx) => idx + 1);
+  }
+  const current = page.value;
+  const items: PageItem[] = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(totalPageCount - 1, current + 1);
+  if (start > 2) items.push('...');
+  for (let i = start; i <= end; i += 1) items.push(i);
+  if (end < totalPageCount - 1) items.push('...');
+  items.push(totalPageCount);
+  return items;
+});
+
+const compareValues = (a: unknown, b: unknown) => {
+  if (a === null || a === undefined || a === '') return 1;
+  if (b === null || b === undefined || b === '') return -1;
+  if (typeof a === 'string' || typeof b === 'string') {
+    return String(a).localeCompare(String(b), 'zh-Hans-CN', { numeric: true });
+  }
+  return Number(a) > Number(b) ? 1 : -1;
 };
 
 const sortedPrescriptions = computed(() => {
-  const data = [...prescriptions.value];
+  const data = [...rows.value];
   const key = sortKey.value;
   const dir = sortDir.value;
   return data.sort((a, b) => {
-    const aValue = a[key] ?? '';
-    const bValue = b[key] ?? '';
-    if (aValue === bValue) return 0;
-    const order = aValue > bValue ? 1 : -1;
-    return dir === 'asc' ? order : -order;
+    const result = compareValues(a[key], b[key]);
+    return dir === 'asc' ? result : -result;
   });
 });
 
-const filteredPrescriptions = computed(() =>
-  sortedPrescriptions.value.filter((pres) => matchesQuery(pres, listQuery.value))
-);
+let requestId = 0;
+const fetchList = async (options?: { resetPage?: boolean }) => {
+  if (options?.resetPage) {
+    page.value = 1;
+  }
+  const currentId = (requestId += 1);
+  loading.value = true;
+  error.value = '';
+  try {
+    const response = await fetchPrescriptions({
+      page: page.value,
+      pageSize: pageSize.value,
+      q: searchQuery.value.trim() || undefined,
+    });
+    if (currentId !== requestId) return;
+    rows.value = response.records ?? [];
+    total.value = response.total ?? 0;
+    page.value = response.page ?? page.value;
+    pageSize.value = response.pageSize ?? pageSize.value;
+  } catch (err) {
+    if (currentId !== requestId) return;
+    error.value = err instanceof Error ? err.message : '数据加载失败';
+  } finally {
+    if (currentId === requestId) {
+      loading.value = false;
+    }
+  }
+};
 
-const toggleSort = (key: typeof sortKey.value) => {
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
+const scheduleSearch = () => {
+  if (searchTimer) {
+    clearTimeout(searchTimer);
+  }
+  searchTimer = setTimeout(() => {
+    fetchList({ resetPage: true });
+  }, 300);
+};
+
+const syncQueryToRoute = () => {
+  const q = searchQuery.value.trim();
+  const nextQuery = { ...route.query, q: q || undefined };
+  router.replace({ query: nextQuery });
+};
+
+const toggleSort = (key: SortKey) => {
   if (sortKey.value === key) {
     sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
     return;
@@ -141,21 +247,24 @@ const toggleSort = (key: typeof sortKey.value) => {
   sortDir.value = 'desc';
 };
 
-const fetchList = async () => {
-  loading.value = true;
-  error.value = '';
-  try {
-    const result = await fetchPrescriptions({ page: 1, pageSize: 200 });
-    prescriptions.value = result.records ?? [];
-    totalCount.value = result.total ?? prescriptions.value.length;
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : '数据加载失败';
-    prescriptions.value = [];
-    totalCount.value = 0;
-  } finally {
-    loading.value = false;
+const goToPage = (target: number) => {
+  const safe = Math.min(Math.max(target, 1), totalPages.value);
+  if (safe !== page.value) {
+    page.value = safe;
+    fetchList();
   }
 };
 
-onMounted(fetchList);
+watch(searchQuery, () => {
+  syncQueryToRoute();
+  scheduleSearch();
+});
+
+watch(pageSize, () => {
+  fetchList({ resetPage: true });
+});
+
+onMounted(() => {
+  fetchList();
+});
 </script>

@@ -3,6 +3,7 @@ package cn.npdb.controller;
 import cn.npdb.common.ApiCode;
 import cn.npdb.common.ApiResponse;
 import cn.npdb.common.PageResponse;
+import cn.npdb.dto.BioResourceNaturalProductItem;
 import cn.npdb.entity.BioResource;
 import cn.npdb.entity.BioResourceNaturalProduct;
 import cn.npdb.entity.NaturalProduct;
@@ -23,7 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -86,25 +91,72 @@ public class BioResourceController {
     }
 
     @GetMapping("/{resourceId}/natural-products")
-    public ApiResponse<List<NaturalProduct>> naturalProducts(@PathVariable("resourceId") String resourceId) {
+    public ApiResponse<List<BioResourceNaturalProductItem>> naturalProducts(@PathVariable("resourceId") String resourceId) {
         BioResource resource = bioResourceService.getOne(
-                new QueryWrapper<BioResource>().select("id").eq("resource_id", resourceId));
+                new QueryWrapper<BioResource>().select("resource_id").eq("resource_id", resourceId));
         if (resource == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
-        List<Long> npIds = bioResourceNaturalProductService.list(
-                        new QueryWrapper<BioResourceNaturalProduct>()
-                                .select("distinct natural_product_id")
-                                .eq("bio_resource_id", resource.getId()))
-                .stream()
-                .map(BioResourceNaturalProduct::getNaturalProductId)
-                .collect(Collectors.toList());
-        if (npIds.isEmpty()) {
+
+        List<BioResourceNaturalProduct> links = bioResourceNaturalProductService.list(
+                new QueryWrapper<BioResourceNaturalProduct>().eq("org_id", resourceId));
+        if (links.isEmpty()) {
             return ApiResponse.ok(Collections.emptyList());
         }
-        List<NaturalProduct> list = naturalProductService.list(
-                new QueryWrapper<NaturalProduct>().in("id", npIds));
-        return ApiResponse.ok(list);
+
+        Map<String, Aggregate> aggregates = new LinkedHashMap<>();
+        for (BioResourceNaturalProduct link : links) {
+            if (link.getNpId() == null || link.getNpId().trim().isEmpty()) {
+                continue;
+            }
+            Aggregate agg = aggregates.computeIfAbsent(link.getNpId().trim(), key -> new Aggregate());
+            agg.sourceCount++;
+            agg.orgIsolationPart.add(trimOrNull(link.getOrgIsolationPart()));
+            agg.orgCollectLocation.add(trimOrNull(link.getOrgCollectLocation()));
+            agg.orgCollectTime.add(trimOrNull(link.getOrgCollectTime()));
+            agg.refType.add(trimOrNull(link.getRefType()));
+            agg.refId.add(trimOrNull(link.getRefId()));
+            agg.refIdType.add(trimOrNull(link.getRefIdType()));
+            agg.refUrl.add(trimOrNull(link.getRefUrl()));
+            agg.newCpFound.add(trimOrNull(link.getNewCpFound()));
+        }
+
+        if (aggregates.isEmpty()) {
+            return ApiResponse.ok(Collections.emptyList());
+        }
+
+        List<String> npIds = aggregates.keySet().stream().collect(Collectors.toList());
+        List<NaturalProduct> products = naturalProductService.list(
+                new QueryWrapper<NaturalProduct>().in("np_id", npIds));
+        Map<String, NaturalProduct> productMap = products.stream()
+                .collect(Collectors.toMap(NaturalProduct::getNpId, p -> p, (a, b) -> a));
+
+        List<BioResourceNaturalProductItem> items = npIds.stream().map(npId -> {
+            Aggregate agg = aggregates.get(npId);
+            NaturalProduct np = productMap.get(npId);
+            BioResourceNaturalProductItem item = new BioResourceNaturalProductItem();
+            item.setNpId(npId);
+            if (np != null) {
+                item.setPrefName(np.getPrefName());
+                item.setIupacName(np.getIupacName());
+                item.setMolecularWeight(np.getMolecularWeight());
+                item.setXlogp(np.getXlogp());
+                item.setPsa(np.getPsa());
+                item.setFormula(np.getFormula());
+            }
+            item.setOrgIsolationPart(joinNonBlank(agg.orgIsolationPart));
+            item.setOrgCollectLocation(joinNonBlank(agg.orgCollectLocation));
+            item.setOrgCollectTime(joinNonBlank(agg.orgCollectTime));
+            item.setRefType(joinNonBlank(agg.refType));
+            item.setRefId(joinNonBlank(agg.refId));
+            item.setRefIdType(joinNonBlank(agg.refIdType));
+            item.setRefUrl(joinNonBlank(agg.refUrl));
+            item.setNewCpFound(joinNonBlank(agg.newCpFound));
+            item.setSourceCount(agg.sourceCount);
+            return item;
+        }).collect(Collectors.toList());
+
+        return ApiResponse.ok(items);
     }
 
     @GetMapping("/{resourceId}/prescriptions")
@@ -127,5 +179,33 @@ public class BioResourceController {
         List<Prescription> list = prescriptionService.list(
                 new QueryWrapper<Prescription>().in("id", prescriptionIds));
         return ApiResponse.ok(list);
+    }
+
+    private static String joinNonBlank(Set<String> values) {
+        String joined = values.stream()
+                .filter(value -> value != null && !value.isEmpty())
+                .distinct()
+                .collect(Collectors.joining("; "));
+        return joined.isEmpty() ? null : joined;
+    }
+
+    private static String trimOrNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static class Aggregate {
+        private int sourceCount = 0;
+        private final Set<String> orgIsolationPart = new LinkedHashSet<>();
+        private final Set<String> orgCollectLocation = new LinkedHashSet<>();
+        private final Set<String> orgCollectTime = new LinkedHashSet<>();
+        private final Set<String> refType = new LinkedHashSet<>();
+        private final Set<String> refId = new LinkedHashSet<>();
+        private final Set<String> refIdType = new LinkedHashSet<>();
+        private final Set<String> refUrl = new LinkedHashSet<>();
+        private final Set<String> newCpFound = new LinkedHashSet<>();
     }
 }

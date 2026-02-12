@@ -22,55 +22,87 @@ Natural Product Database (天然产物数据库) is a full-stack web application
 ```
 NPdatabase/
 ├── docs/                           # Project documentation
-│   ├── database.md                 # Database schema (final structure)
-│   ├── requirements-simplified.md  # Simplified requirements (recommended)
-│   ├── backend-dev-doc.md          # Backend development documentation
-│   ├── backend-dev-log.md          # Backend development log
-│   ├── swagger-validation.md       # Swagger validation guide
-│   ├── next-steps.md               # Next steps after backend completion
-│   └── archived/                   # Historical documents
-│       └── requirements-full.md    # Full requirements document
-├── data/                           # NPASS 3.0 raw data files
-│   ├── NPASS3.0_naturalproducts_generalinfo.txt
-│   ├── NPASS3.0_activities.txt
-│   ├── NPASS3.0_target.txt
-│   ├── NPASS3.0_species_info.txt
-│   ├── NPASS3.0_naturalproducts_species_pair.txt
-│   ├── NPASS3.0_naturalproducts_structure.txt
-│   └── NPASS3.0_toxicity.txt
-├── frontend/                       # Frontend application
-│   └── web/                        # Vue 3 web application
-├── scripts/                        # Data processing scripts
-│   └── database/
-│       ├── schema.sql              # Base schema
-│       ├── add_prescription_bioresource.sql  # Extended tables
-│       ├── optimize_table_structure.sql      # Structure optimization
-│       ├── import_natural_products.py
-│       ├── import_targets.py
-│       ├── import_bioactivity.py
-│       ├── import_toxicity.py
-│       ├── import_bio_resources.py
-│       └── import_bio_resource_natural_products.py
-└── backend/                        # Spring Boot backend (completed)
+│   └── startup-guide.md            # 详细的服务启动指南
+├── data/                           # 多源数据文件
+│   ├── NPASS/                      # NPASS 3.0 数据
+│   │   ├── NPASS3.0_naturalproducts_generalinfo.txt
+│   │   ├── NPASS3.0_activities.txt
+│   │   ├── NPASS3.0_target.txt
+│   │   ├── NPASS3.0_species_info.txt
+│   │   ├── NPASS3.0_naturalproducts_species_pair.txt
+│   │   ├── NPASS3.0_naturalproducts_structure.txt
+│   │   └── NPASS3.0_toxicity.txt
+│   ├── TCMID/                      # TCMID 中药数据
+│   │   ├── herbs.txt
+│   │   ├── ingredients.txt
+│   │   └── ...
+│   ├── CMAUP/                      # CMAUP 中药材数据
+│   │   └── ...
+│   └── TTD/                        # TTD 靶点数据
+│       └── ...
+├── frontend/                       # 前端应用
+│   └── web/                        # Vue 3 web 应用
+│       ├── src/
+│       │   ├── api/                # API 客户端
+│       │   ├── components/         # 共享组件
+│       │   ├── pages/              # 页面组件
+│       │   ├── router/             # 路由配置
+│       │   └── utils/              # 工具函数
+│       └── run/                    # 运行时文件（PID等）
+├── scripts/                        # 脚本集合
+│   ├── backend-service.sh          # 服务管理脚本
+│   └── data-import/                # 数据导入脚本
+│       ├── README.md               # 导入说明
+│       ├── import_npass_data.py    # NPASS 导入
+│       ├── import_tcmid_data.py    # TCMID 导入
+│       ├── import_cmaup_data.py    # CMAUP 导入
+│       ├── import_bio_resource_disease_associations.py
+│       └── output/                 # 导入报告和日志
+└── backend/                        # Spring Boot 后端
     ├── pom.xml
+    ├── run/                        # 运行时文件（PID等）
     └── src/main/java/cn/npdb/
-        ├── controller/             # API controllers
-        ├── service/                # Service interfaces
-        ├── service/impl/           # Service implementations
-        ├── mapper/                 # MyBatis-Plus mappers
-        ├── entity/                 # Database entities
-        ├── dto/                    # Data transfer objects
-        ├── common/                 # Common utilities (response, exceptions)
-        └── config/                 # Configuration classes
+        ├── controller/             # API 控制器
+        ├── service/                # 服务接口
+        ├── service/impl/           # 服务实现
+        ├── mapper/                 # MyBatis-Plus 映射器
+        ├── entity/                 # 数据库实体
+        ├── dto/                    # 数据传输对象
+        ├── common/                 # 通用工具（响应、异常）
+        └── config/                 # 配置类
 ```
 
 ## Development Commands
+
+### 快速启动（推荐）
+
+使用启动脚本一键启动前后端服务：
+
+```bash
+# 启动服务
+bash scripts/backend-service.sh start
+
+# 停止服务
+bash scripts/backend-service.sh stop
+
+# 重启服务
+bash scripts/backend-service.sh restart
+
+# 查看状态
+bash scripts/backend-service.sh status
+
+# 查看日志
+bash scripts/backend-service.sh logs          # 后端日志
+bash scripts/backend-service.sh logs frontend # 前端日志
+```
+
+详细说明请参考 `docs/startup-guide.md`
 
 ### Backend
 
 ```bash
 # Start backend (with environment variables)
-DB_USER=your_user DB_PASSWORD=your_password \
+DB_USER=yfguo DB_PASSWORD=npdb2024 \
   mvn -f backend/pom.xml spring-boot:run -DskipTests
 
 # Build backend
@@ -98,24 +130,44 @@ npm run preview
 
 ### Database Setup
 
-```bash
-# Execute in order:
-psql -U postgres -d npdb -f scripts/database/schema.sql
-psql -U postgres -d npdb -f scripts/database/add_prescription_bioresource.sql
-psql -U postgres -d npdb -f scripts/database/optimize_table_structure.sql
+数据库已完成初始化和数据导入。当前数据库状态：
 
-# Import data
-python scripts/database/import_natural_products.py
-python scripts/database/import_targets.py
-python scripts/database/import_bioactivity.py
-python scripts/database/import_toxicity.py
-python scripts/database/import_bio_resources.py
-python scripts/database/import_bio_resource_natural_products.py
+**数据库信息：**
+- 数据库名：`npdb`
+- 用户：`yfguo`
+- 密码：`npdb2024`
+- 主机：`localhost:5432`
+
+**已导入的数据表：**
+- `natural_products` - 天然产物（~500,000 条记录）
+- `targets` - 靶点（~1,000 条记录）
+- `bioactivity` - 生物活性（~1,000,000 条记录）
+- `toxicity` - 毒性数据
+- `bio_resources` - 生物资源（整合 NPASS、TCMID、CMAUP 数据）
+- `bio_resource_natural_products` - 生物资源-天然产物关联
+- `bio_resource_disease_associations` - 生物资源-疾病关联
+- `prescriptions` - 方剂（预留，暂无数据）
+- `prescription_resources` - 方剂-生物资源关联（预留）
+- `prescription_natural_products` - 方剂-天然产物关联（预留）
+
+**如需重新导入数据：**
+
+```bash
+# 数据导入脚本位于 scripts/data-import/
+cd scripts/data-import
+
+# 按顺序执行导入脚本
+python import_npass_data.py
+python import_tcmid_data.py
+python import_cmaup_data.py
+python import_bio_resource_disease_associations.py
+
+# 详细导入报告位于 scripts/data-import/output/
 ```
 
 ## Database Schema
 
-### Core Tables (9 tables)
+### Core Tables (10 tables)
 
 - **natural_products**: Natural product core table (formerly `compounds`)
   - Chemical properties: MW, formula, CAS, PubChem ID, XLogP, PSA, H-bond donors/acceptors
@@ -132,9 +184,15 @@ python scripts/database/import_bio_resource_natural_products.py
 
 - **bio_resources**: Biological resources (herbs, species, sources)
   - Replaces old `species` table
-  - Includes Latin names, Chinese names, categories
+  - Key fields: `resource_id`, `resource_type`, `chinese_name`, `latin_name`, `official_chinese_name`
+  - Taxonomy: `taxonomy_kingdom`, `taxonomy_family`, `taxonomy_genus`, `taxonomy_species`
+  - External IDs: `tcmid_id`, `cmaup_id`, `species_tax_id`, `genus_tax_id`, `family_tax_id`
+  - Statistics: `num_of_natural_products`, `num_of_prescriptions`
 
 - **bio_resource_natural_products**: Many-to-many relationship between bio_resources and natural_products
+
+- **bio_resource_disease_associations**: Disease associations for bio resources
+  - Links bio resources to diseases with evidence from literature
 
 - **prescriptions**: Traditional medicine prescriptions (reserved for future use)
 
@@ -272,31 +330,72 @@ src/
 
 ## Data Sources
 
-NPASS 3.0 data files in `data/` directory:
+### NPASS 3.0 (主要数据源)
+NPASS 3.0 data files in `data/NPASS/` directory:
 - ~500,000 natural products
 - ~1,000,000 bioactivity records
 - ~1,000 targets
 - Species/source information
 - Toxicity data
 
+### TCMID (中药分子数据库)
+TCMID data in `data/TCMID/` directory:
+- 中药材信息（herbs）
+- 中药成分信息（ingredients）
+- 中药-成分关联关系
+- 疾病关联信息
+
+### CMAUP (中药材数据库)
+CMAUP data in `data/CMAUP/` directory:
+- 植物药材信息
+- 标准中文名称
+- 分类学信息
+- 疾病治疗关联
+
+### TTD (治疗靶点数据库)
+TTD data in `data/TTD/` directory:
+- 靶点信息
+- 靶点-疾病关联
+- 药物-靶点关联
+
+数据整合说明：
+- bio_resources 表整合了 NPASS、TCMID、CMAUP 的生物资源数据
+- 通过 `tcmid_id`、`cmaup_id` 等字段关联外部数据库
+- `official_chinese_name` 字段存储 CMAUP 的标准中文名称
+- 详细的数据导入报告见 `scripts/data-import/output/`
+
 ## Current Status
 
 ### ✅ Completed
 
 - [x] Requirements documentation (simplified + full versions)
-- [x] Data files prepared (NPASS 3.0)
+- [x] Data files prepared (NPASS 3.0, TCMID, CMAUP, TTD)
 - [x] Project structure planning
 - [x] Vue 3 frontend application structure
-- [x] Database schema and data processing complete
+- [x] Database schema design and optimization
+- [x] Multi-source data integration (NPASS + TCMID + CMAUP + TTD)
+- [x] Data import scripts and validation
 - [x] Backend project initialization (Spring Boot + MyBatis-Plus)
-- [x] Core API implementation (natural products/targets/search/stats)
+- [x] Core API implementation (natural products/targets/bio-resources/search/stats)
 - [x] Swagger documentation and validation guide
+- [x] Service management scripts (backend-service.sh)
+- [x] Startup guide documentation
 
 ### 🚧 In Progress
 
 - [ ] Frontend integration with backend APIs
-- [ ] Data quality improvements (physicochemical properties, null handling)
+- [ ] Bio resources detail page implementation
+- [ ] Disease associations display
+- [ ] Advanced search features (structure search, similarity search)
+
+### 📋 Future Enhancements
+
 - [ ] Performance optimization (caching, indexing)
+- [ ] Data quality improvements (physicochemical properties validation)
+- [ ] User authentication and authorization
+- [ ] Data export functionality
+- [ ] API rate limiting
+- [ ] Advanced analytics and visualization
 
 ## Important Notes
 
@@ -339,14 +438,37 @@ This is a research tool for natural products and drug discovery. Key concepts:
 
 ## Key Documentation
 
-Priority reading order:
+### 核心文档（推荐阅读顺序）
 
-1. **`docs/database.md`** ⭐⭐⭐⭐⭐ - Database schema (must read)
-2. **`docs/requirements-simplified.md`** ⭐⭐⭐⭐⭐ - Project requirements
-3. **`docs/backend-dev-doc.md`** ⭐⭐⭐⭐⭐ - Backend implementation guide
-4. **`docs/backend-dev-log.md`** ⭐⭐⭐⭐ - Development history
-5. **`docs/backend-delivery.md`** ⭐⭐⭐⭐ - Delivery checklist
-6. **`docs/next-steps.md`** ⭐⭐⭐ - Future roadmap
+1. **`README.md`** ⭐⭐⭐⭐⭐ - 项目介绍和快速开始
+2. **`quick-start.md`** ⭐⭐⭐⭐⭐ - 快速启动指南
+3. **`docs/startup-guide.md`** ⭐⭐⭐⭐⭐ - 详细的服务启动指南（推荐）
+
+### 数据导入文档
+
+- **`scripts/data-import/README.md`** - 数据导入总览
+- **`scripts/data-import/output/`** - 数据导入报告和日志
+  - `import_report_*.txt` - 各数据源导入报告
+  - `validation_report_*.txt` - 数据验证报告
+  - `bio_resource_disease_associations_import_report.txt` - 疾病关联导入报告
+
+### 脚本文档
+
+- **`scripts/backend-service.sh`** - 服务管理脚本（启动/停止/重启/状态/日志）
+- **`scripts/data-import/`** - 数据导入脚本集合
+  - `import_npass_data.py` - NPASS 数据导入
+  - `import_tcmid_data.py` - TCMID 数据导入
+  - `import_cmaup_data.py` - CMAUP 数据导入
+  - `import_bio_resource_disease_associations.py` - 疾病关联导入
+
+### 已归档文档（历史参考）
+
+以下文档已删除，内容已整合到上述核心文档中：
+- `docs/database.md` - 数据库结构（已整合到 CLAUDE.md）
+- `docs/backend-dev-doc.md` - 后端开发文档
+- `docs/backend-dev-log.md` - 开发日志
+- `docs/backend-delivery.md` - 交付清单
+- `docs/requirements-simplified.md` - 需求文档
 
 ## Contact
 

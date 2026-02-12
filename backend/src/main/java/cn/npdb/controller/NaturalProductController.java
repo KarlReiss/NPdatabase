@@ -3,6 +3,7 @@ package cn.npdb.controller;
 import cn.npdb.common.ApiCode;
 import cn.npdb.common.ApiResponse;
 import cn.npdb.common.PageResponse;
+import cn.npdb.dto.BioactivityTargetSummary;
 import cn.npdb.entity.BioResource;
 import cn.npdb.entity.BioResourceNaturalProduct;
 import cn.npdb.entity.Bioactivity;
@@ -10,6 +11,7 @@ import cn.npdb.entity.NaturalProduct;
 import cn.npdb.entity.NaturalProductDetailView;
 import cn.npdb.entity.Target;
 import cn.npdb.entity.Toxicity;
+import cn.npdb.mapper.BioactivityMapper;
 import cn.npdb.service.BioResourceNaturalProductService;
 import cn.npdb.service.BioResourceService;
 import cn.npdb.service.BioactivityService;
@@ -47,19 +49,22 @@ public class NaturalProductController {
     private final BioResourceService bioResourceService;
     private final BioResourceNaturalProductService bioResourceNaturalProductService;
     private final ToxicityService toxicityService;
+    private final BioactivityMapper bioactivityMapper;
 
     public NaturalProductController(NaturalProductService naturalProductService,
                                     BioactivityService bioactivityService,
                                     TargetService targetService,
                                     BioResourceService bioResourceService,
                                     BioResourceNaturalProductService bioResourceNaturalProductService,
-                                    ToxicityService toxicityService) {
+                                    ToxicityService toxicityService,
+                                    BioactivityMapper bioactivityMapper) {
         this.naturalProductService = naturalProductService;
         this.bioactivityService = bioactivityService;
         this.targetService = targetService;
         this.bioResourceService = bioResourceService;
         this.bioResourceNaturalProductService = bioResourceNaturalProductService;
         this.toxicityService = toxicityService;
+        this.bioactivityMapper = bioactivityMapper;
     }
 
     @GetMapping
@@ -148,7 +153,7 @@ public class NaturalProductController {
         }
         wrapper.orderByDesc("id");
 
-        Page<NaturalProduct> mpPage = new Page<>(safePage, safePageSize, false);
+        Page<NaturalProduct> mpPage = new Page<>(safePage, safePageSize, true);
         Page<NaturalProduct> result = naturalProductService.page(mpPage, wrapper);
 
         List<NaturalProduct> records = result.getRecords();
@@ -204,7 +209,7 @@ public class NaturalProductController {
             return view;
         }).collect(Collectors.toList());
 
-        return ApiResponse.ok(new PageResponse<>(views, result.getCurrent(), result.getSize(), -1));
+        return ApiResponse.ok(new PageResponse<>(views, result.getCurrent(), result.getSize(), result.getTotal()));
     }
 
     @GetMapping("/{npId}")
@@ -235,9 +240,13 @@ public class NaturalProductController {
             view.setBestActivityValue(null);
         }
 
-        Long bioResourceCount = bioResourceNaturalProductService.count(
-                new QueryWrapper<BioResourceNaturalProduct>().eq("natural_product_id", np.getId())
-        );
+        QueryWrapper<BioResourceNaturalProduct> brCountWrapper = new QueryWrapper<>();
+        brCountWrapper.select("COUNT(DISTINCT org_id) AS cnt");
+        brCountWrapper.eq("np_id", np.getNpId());
+        java.util.Map<String, Object> brCountRow = bioResourceNaturalProductService.getMap(brCountWrapper);
+        Long bioResourceCount = brCountRow == null || brCountRow.get("cnt") == null
+                ? 0L
+                : ((Number) brCountRow.get("cnt")).longValue();
         view.setBioResourceCount(bioResourceCount);
         boolean hasToxicity = toxicityService.count(
                 new QueryWrapper<Toxicity>().eq("natural_product_id", np.getId())
@@ -282,20 +291,32 @@ public class NaturalProductController {
         return ApiResponse.ok(targets);
     }
 
-    @GetMapping("/{npId}/bio-resources")
-    public ApiResponse<List<BioResource>> bioResources(@PathVariable("npId") String npId) {
+    @GetMapping("/{npId}/bioactivity-targets")
+    public ApiResponse<List<BioactivityTargetSummary>> bioactivityTargets(@PathVariable("npId") String npId) {
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
             return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
         }
-        List<Long> bioResourceIds = bioResourceNaturalProductService.list(
-                        new QueryWrapper<BioResourceNaturalProduct>().select("distinct bio_resource_id")
-                                .eq("natural_product_id", naturalProductId))
-                .stream().map(BioResourceNaturalProduct::getBioResourceId).collect(Collectors.toList());
-        if (bioResourceIds.isEmpty()) {
+        List<BioactivityTargetSummary> list = bioactivityMapper.listTargetSummaries(naturalProductId);
+        return ApiResponse.ok(list == null ? Collections.emptyList() : list);
+    }
+
+    @GetMapping("/{npId}/bio-resources")
+    public ApiResponse<List<BioResource>> bioResources(@PathVariable("npId") String npId) {
+        NaturalProduct np = naturalProductService.getOne(
+                new QueryWrapper<NaturalProduct>().select("np_id").eq("np_id", npId));
+        if (np == null) {
+            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+        }
+        List<String> resourceIds = bioResourceNaturalProductService.list(
+                        new QueryWrapper<BioResourceNaturalProduct>().select("distinct org_id")
+                                .eq("np_id", npId))
+                .stream().map(BioResourceNaturalProduct::getOrgId).collect(Collectors.toList());
+        if (resourceIds.isEmpty()) {
             return ApiResponse.ok(Collections.emptyList());
         }
-        List<BioResource> resources = bioResourceService.list(new QueryWrapper<BioResource>().in("id", bioResourceIds));
+        List<BioResource> resources = bioResourceService.list(
+                new QueryWrapper<BioResource>().in("resource_id", resourceIds));
         return ApiResponse.ok(resources);
     }
 

@@ -1,5 +1,5 @@
 import { apiGet, type PageResponse } from './client';
-import type { BioResource, NaturalProductApi, Prescription } from './types';
+import type { BioResource, BioResourceNaturalProductItem, Prescription } from './types';
 
 export interface BioResourceQuery {
   page?: number;
@@ -15,7 +15,7 @@ export const fetchBioResourceDetail = (resourceId: string) =>
   apiGet<BioResource>(`/api/bio-resources/${resourceId}`);
 
 export const fetchBioResourceNaturalProducts = (resourceId: string) =>
-  apiGet<NaturalProductApi[]>(`/api/bio-resources/${resourceId}/natural-products`);
+  apiGet<BioResourceNaturalProductItem[]>(`/api/bio-resources/${resourceId}/natural-products`);
 
 export const fetchBioResourcePrescriptions = (resourceId: string) =>
   apiGet<Prescription[]>(`/api/bio-resources/${resourceId}/prescriptions`);

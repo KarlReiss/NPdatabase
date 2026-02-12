@@ -192,23 +192,21 @@
           </div>
 
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[800px]">
+            <table class="w-full text-left border-collapse min-w-[760px]">
               <thead>
                 <tr style="background: var(--theme-bg);">
                   <th class="p-3 text-sm font-bold text-slate-700 border-b w-32">编号</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b w-24">结构</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">名称</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">理化属性</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">统计</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">最强活性</th>
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b w-[360px]">名称</th>
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b w-36">分子量（MW）</th>
+                  <th class="p-3 text-sm font-bold text-slate-700 border-b w-28">活性记录</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-if="loading">
-                  <td colspan="6" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
+                  <td colspan="4" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
                 </tr>
                 <tr v-else-if="rows.length === 0">
-                  <td colspan="6" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
+                  <td colspan="4" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
                 </tr>
                 <tr
                   v-else
@@ -225,22 +223,8 @@
                     </RouterLink>
                   </td>
                   <td class="p-3">
-                    <div
-                      class="w-10 h-10 border border-gray-100 bg-white rounded p-0.5 flex items-center justify-center overflow-hidden hover:scale-150 transition-transform origin-left z-10"
-                    >
-                      <img
-                        v-if="cmp.structureUrl"
-                        :src="cmp.structureUrl"
-                        :alt="cmp.name"
-                        class="max-w-full max-h-full object-contain"
-                      />
-                      <div v-else class="text-[10px] text-slate-300">无结构</div>
-                    </div>
-                  </td>
-                  <td class="p-3">
                     <div class="flex flex-col">
                       <span class="text-sm font-bold text-slate-800">{{ cmp.name }}</span>
-                      <span class="text-xs text-slate-400">{{ cmp.subtitle || '—' }}</span>
                       <span
                         v-if="cmp.hasToxicity"
                         class="mt-1 inline-flex w-fit px-2 py-0.5 text-[10px] font-semibold rounded-full bg-red-50 text-red-600"
@@ -249,21 +233,8 @@
                       </span>
                     </div>
                   </td>
-                  <td class="p-3 text-sm text-slate-600 leading-tight">
-                    分子式：{{ cmp.formula || '—' }}<br />
-                    分子量（MW）：{{ formatDecimal(cmp.molecularWeight) }}<br />
-                    脂水分配系数（XLogP）：{{ formatDecimal(cmp.xlogp) }}<br />
-                    极性表面积（PSA）：{{ formatDecimal(cmp.psa) }}
-                  </td>
-                  <td class="p-3 text-sm text-slate-600 leading-tight">
-                    活性记录：{{ formatCount(cmp.activityCount) }}<br />
-                    靶点数：{{ formatCount(cmp.targetCount) }}<br />
-                    来源资源：{{ formatCount(cmp.organismCount) }}
-                  </td>
-                  <td class="p-3">
-                    <span class="text-sm font-bold text-[#10B981]">{{ formatActivityValue(cmp.bestActivityValue) }}</span>
-                    <div class="text-xs text-slate-400">标准化值（nM）</div>
-                  </td>
+                  <td class="p-3 text-sm text-slate-600">{{ formatDecimal(cmp.molecularWeight) }}</td>
+                  <td class="p-3 text-sm text-slate-600">{{ formatCount(cmp.activityCount) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -317,7 +288,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchNaturalProducts } from '@/api/naturalProducts';
 import type { NaturalProductApi } from '@/api/types';
-import { buildPubchemImage, formatActivityValue, formatCount, formatDecimal, toNumber } from '@/utils/format';
+import { buildPubchemImage, formatCount, formatDecimal, toNumber } from '@/utils/format';
 
 interface CompoundRow {
   id: string;
