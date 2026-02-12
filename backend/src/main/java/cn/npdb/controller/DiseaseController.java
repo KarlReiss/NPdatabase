@@ -22,11 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 @RestController
@@ -138,10 +136,10 @@ public class DiseaseController {
                         new QueryWrapper<BioResource>().select("resource_id").in("id", resourceIds))
                 .stream()
                 .map(BioResource::getResourceId)
-                .filter(id -> id != null && !id.isBlank())
+                .filter(id -> id != null && !id.trim().isEmpty())
                 .collect(Collectors.toList());
         if (resourceIdStrings.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
 
         Set<String> npIds = new HashSet<>(
@@ -151,14 +149,25 @@ public class DiseaseController {
                                         .in("org_id", resourceIdStrings))
                         .stream()
                         .map(BioResourceNaturalProduct::getNpId)
-                        .filter(id -> id != null && !id.isBlank())
+                        .filter(id -> id != null && !id.trim().isEmpty())
                         .collect(Collectors.toSet())
         );
         if (npIds.isEmpty()) {
             return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
-        List<NaturalProduct> list = naturalProductService.list(
-                new QueryWrapper<NaturalProduct>().in("np_id", npIds));
-        return ApiResponse.ok(list);
+        Page<NaturalProduct> mPage = new Page<>(safePage, safePageSize);
+        Page<NaturalProduct> result = naturalProductService.page(mPage,
+                new QueryWrapper<NaturalProduct>().in("np_id", npIds).orderByDesc("id"));
+        return ApiResponse.ok(PageResponse.from(result));
+    }
+
+    /**
+     * @description 获取疾病分类列表
+     * @return
+     */
+    @GetMapping("/categories")
+    public ApiResponse<List<String>> diseaseCategories() {
+        List<String> categories = diseaseService.listCategories();
+        return ApiResponse.ok(categories);
     }
 }

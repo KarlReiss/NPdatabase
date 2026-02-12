@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 public interface DiseaseMapper extends BaseMapper<Disease> {
     @Select({
             "<script>",
@@ -37,4 +39,7 @@ public interface DiseaseMapper extends BaseMapper<Disease> {
             "</script>"
     })
     Page<Disease> selectListPage(Page<?> page, @Param("q") String q, @Param("category") String category);
+
+    @Select("SELECT DISTINCT disease_category FROM diseases WHERE disease_category IS NOT NULL ORDER BY disease_category")
+    List<String> selectCategories();
 }

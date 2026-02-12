@@ -317,22 +317,47 @@ public class NaturalProductController {
     }
 
     @GetMapping("/{npId}/bio-resources")
-    public ApiResponse<List<BioResource>> bioResources(@PathVariable("npId") String npId) {
+    public ApiResponse<PageResponse<BioResource>> bioResources(
+            @PathVariable("npId") String npId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize) {
+        //验证分页参数
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+
         NaturalProduct np = naturalProductService.getOne(
                 new QueryWrapper<NaturalProduct>().select("np_id").eq("np_id", npId));
         if (np == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
-        List<String> resourceIds = bioResourceNaturalProductService.list(
-                        new QueryWrapper<BioResourceNaturalProduct>().select("distinct org_id")
-                                .eq("np_id", npId))
-                .stream().map(BioResourceNaturalProduct::getOrgId).collect(Collectors.toList());
+
+        QueryWrapper<BioResourceNaturalProduct> countWrapper = new QueryWrapper<BioResourceNaturalProduct>()
+                .eq("np_id", npId)
+                .select("DISTINCT org_id");
+        long total = bioResourceNaturalProductService.count(countWrapper);
+        if (total == 0) {
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
+        }
+
+        Page<BioResourceNaturalProduct> pageRequest = new Page<>(safePage, safePageSize);
+        QueryWrapper<BioResourceNaturalProduct> wrapper = new QueryWrapper<BioResourceNaturalProduct>()
+                .eq("np_id", npId)
+                .select("DISTINCT org_id")
+                .orderByAsc("org_id");
+
+        Page<BioResourceNaturalProduct> linkPage = bioResourceNaturalProductService.page(pageRequest, wrapper);
+        List<String> resourceIds = linkPage.getRecords().stream()
+                .map(BioResourceNaturalProduct::getOrgId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         if (resourceIds.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
         List<BioResource> resources = bioResourceService.list(
-                new QueryWrapper<BioResource>().in("resource_id", resourceIds));
-        return ApiResponse.ok(resources);
+                new QueryWrapper<BioResource>().in("resource_id", resourceIds)
+                        .orderByAsc("resource_id"));
+        return ApiResponse.ok(new PageResponse<>(resources, safePage, safePageSize, total));
     }
 
     @GetMapping("/{npId}/toxicity")

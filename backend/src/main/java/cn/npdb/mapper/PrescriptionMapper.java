@@ -25,6 +25,7 @@ public interface PrescriptionMapper extends BaseMapper<Prescription> {
             "WHERE p.prescription_id ILIKE CONCAT('%', #{q}, '%')",
             "   OR p.chinese_name ILIKE CONCAT('%', #{q}, '%')",
             "   OR p.pinyin_name ILIKE CONCAT('%', #{q}, '%')",
+            "   OR p.functions ILIKE CONCAT('%', #{q}, '%')",
             "</if>",
             "ORDER BY p.id DESC",
             "</script>"

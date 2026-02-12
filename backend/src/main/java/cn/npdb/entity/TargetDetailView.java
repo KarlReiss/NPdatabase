@@ -24,7 +24,7 @@ public class TargetDetailView {
     private String uniprotId;
 
     private Integer numOfActivities;
-    private Integer numOfNaturalProducts;
+//    private Integer numOfNaturalProducts;
     private String geneName;
     private String synonyms;
     private String function;

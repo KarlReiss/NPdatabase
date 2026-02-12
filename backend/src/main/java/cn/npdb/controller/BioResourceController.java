@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,20 +58,18 @@ public class BioResourceController {
     public ApiResponse<PageResponse<BioResource>> list(
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "20") long pageSize,
-            @RequestParam(required = false) String q,
-            @RequestParam(required = false) String resourceType) {
+            @RequestParam(required = false) String resourceType,
+            @RequestParam(required = false) String taxonomyFamily,
+            @RequestParam(required = false) String taxonomyGenus) {
+
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
 
         QueryWrapper<BioResource> wrapper = new QueryWrapper<>();
-        if (StringUtils.hasText(q)) {
-            wrapper.and(w -> w.like("chinese_name", q)
-                    .or().like("latin_name", q)
-                    .or().like("resource_id", q));
-        }
-        if (StringUtils.hasText(resourceType)) {
-            wrapper.eq("resource_type", resourceType.trim());
-        }
+
+        wrapper.eq(StringUtils.hasText(resourceType), "resource_type", resourceType);
+        wrapper.eq(StringUtils.hasText(taxonomyFamily), "taxonomy_family", taxonomyFamily);
+        wrapper.eq(StringUtils.hasText(taxonomyGenus), "taxonomy_genus", taxonomyGenus);
         wrapper.orderByDesc("id");
 
         Page<BioResource> mpPage = new Page<>(safePage, safePageSize);
@@ -89,17 +87,36 @@ public class BioResourceController {
     }
 
     @GetMapping("/{resourceId}/natural-products")
-    public ApiResponse<List<BioResourceNaturalProductItem>> naturalProducts(@PathVariable("resourceId") String resourceId) {
+    public ApiResponse<PageResponse<BioResourceNaturalProductItem>> naturalProducts(
+            @PathVariable("resourceId") String resourceId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize) {
+        //验证分页参数
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+
         BioResource resource = bioResourceService.getOne(
                 new QueryWrapper<BioResource>().select("resource_id").eq("resource_id", resourceId));
         if (resource == null) {
-            return ApiResponse.error(ApiCode.NOT_FOUND, "Not found");
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
 
-        List<BioResourceNaturalProduct> links = bioResourceNaturalProductService.list(
+        long total = bioResourceNaturalProductService.count(
                 new QueryWrapper<BioResourceNaturalProduct>().eq("org_id", resourceId));
+        if (total == 0) {
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
+        }
+
+        Page<BioResourceNaturalProduct> linkPage = new Page<>(safePage, safePageSize);
+        QueryWrapper<BioResourceNaturalProduct> linkWrapper = new QueryWrapper<BioResourceNaturalProduct>()
+                .eq("org_id", resourceId)
+                .orderByDesc("id");
+        Page<BioResourceNaturalProduct> linkPageResult = bioResourceNaturalProductService.page(linkPage, linkWrapper);
+        List<BioResourceNaturalProduct> links = linkPageResult.getRecords();
+//        List<BioResourceNaturalProduct> links = bioResourceNaturalProductService.list(
+//                new QueryWrapper<BioResourceNaturalProduct>().eq("org_id", resourceId));
         if (links.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
 
         Map<String, Aggregate> aggregates = new LinkedHashMap<>();
@@ -120,7 +137,7 @@ public class BioResourceController {
         }
 
         if (aggregates.isEmpty()) {
-            return ApiResponse.ok(Collections.emptyList());
+            return ApiResponse.ok(PageResponse.from(new Page<>()));
         }
 
         List<String> npIds = aggregates.keySet().stream().collect(Collectors.toList());
@@ -154,7 +171,7 @@ public class BioResourceController {
             return item;
         }).collect(Collectors.toList());
 
-        return ApiResponse.ok(items);
+        return ApiResponse.ok(new PageResponse<>(items, safePage, safePageSize, total));
     }
 
     @GetMapping("/{resourceId}/prescriptions")
@@ -187,6 +204,42 @@ public class BioResourceController {
         QueryWrapper<Prescription> wrapper = new QueryWrapper<Prescription>().in("id", prescriptionIds);
         Page<Prescription> result = prescriptionService.page(mpPage, wrapper);
         return ApiResponse.ok(PageResponse.from(result));
+    }
+
+    /**
+     * @return
+     * @description 获取生物资源的类型列表
+     */
+    @GetMapping("/resource-types")
+    public ApiResponse<List<String>> getResourceTypes() {
+        List<String> types = bioResourceService.list().stream()
+                .map(BioResource::getResourceType)
+                .filter(StringUtils::hasText)
+                .distinct()
+                .collect(Collectors.toList());
+        return ApiResponse.ok(types);
+    }
+
+    /**
+     * @return
+     * @description 获取生物资源的分类列表，格式为 "Family Genus" -> "Family Genus"
+     */
+    @GetMapping("/categories")
+    public ApiResponse<Map<String, String>> getCategories() {
+        List<BioResource> resources = bioResourceService.list();
+        Map<String, String> categories = resources.stream()
+                .filter(r -> StringUtils.hasText(r.getTaxonomyFamily()) && StringUtils.hasText(r.getTaxonomyGenus()))
+                .sorted(Comparator
+                        .comparing(BioResource::getTaxonomyFamily)
+                        .thenComparing(BioResource::getTaxonomyGenus))
+                .collect(Collectors.toMap(
+                        r -> r.getTaxonomyFamily() + " " + r.getTaxonomyGenus(),
+                        r -> r.getTaxonomyFamily() + " " + r.getTaxonomyGenus(),
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+
+        return ApiResponse.ok(categories);
     }
 
     private static String joinNonBlank(Set<String> values) {

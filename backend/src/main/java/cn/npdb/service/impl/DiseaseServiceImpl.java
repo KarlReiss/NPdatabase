@@ -7,11 +7,18 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DiseaseServiceImpl extends ServiceImpl<DiseaseMapper, Disease> implements DiseaseService {
     @Override
     public Page<Disease> listPage(long page, long pageSize, String q, String category) {
         Page<Disease> mpPage = new Page<>(page, pageSize);
         return baseMapper.selectListPage(mpPage, q, category);
+    }
+
+    @Override
+    public List<String> listCategories() {
+        return baseMapper.selectCategories();
     }
 }

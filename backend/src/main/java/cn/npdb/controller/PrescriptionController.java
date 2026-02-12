@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,11 +43,12 @@ public class PrescriptionController {
     public ApiResponse<PageResponse<PrescriptionListItem>> list(
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "20") long pageSize,
-            @RequestParam(required = false) String q
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String functions
     ) {
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
-        String keyword = StringUtils.hasText(q) ? q : null;
+        String keyword = StringUtils.hasText(functions) ? functions : null;
 
         Page<PrescriptionListItem> mpPage = new Page<>(safePage, safePageSize);
         Page<PrescriptionListItem> result = prescriptionService.listPage(mpPage, keyword);

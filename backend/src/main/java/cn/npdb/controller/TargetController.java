@@ -44,7 +44,8 @@ public class TargetController {
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "20") long pageSize,
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) String targetType
+            @RequestParam(required = false) String targetType,
+            @RequestParam(required = false) String bioclass
     ) {
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
@@ -56,6 +57,9 @@ public class TargetController {
         }
         if (StringUtils.hasText(targetType)) {
             wrapper.eq("target_type", targetType.trim());
+        }
+        if (StringUtils.hasText(bioclass)) {
+            wrapper.eq("bioclass", bioclass.trim());
         }
         wrapper.orderByDesc("id");
 
@@ -88,7 +92,7 @@ public class TargetController {
         view.setSequence(target.getSequence());
         view.setTtdId(target.getTtdId());
         view.setNumOfActivities(target.getNumOfActivities());
-        view.setNumOfNaturalProducts(target.getNumOfNaturalProducts());
+//        view.setNumOfNaturalProducts(target.getNumOfNaturalProducts());
         view.setCreatedAt(target.getCreatedAt());
         view.setUpdatedAt(target.getUpdatedAt());
 
@@ -141,5 +145,38 @@ public class TargetController {
                 .in("id", npIds);
         Page<NaturalProductDetailView> result = naturalProductDetailMapper.selectPage(mpPage, wrapper);
         return ApiResponse.ok(PageResponse.from(result));
+    }
+
+
+    /**
+     * @description 获取靶点类型列表
+     * @return
+     */
+    @GetMapping("/targetTypes")
+    public ApiResponse<List<String>> targetTypes() {
+        List<String> types = targetService.list()
+                .stream()
+                .map(Target::getTargetType)
+                .filter(StringUtils::hasText)
+                .distinct()
+                .sorted()  // 升序排序
+                .collect(Collectors.toList());
+        return ApiResponse.ok(types);
+    }
+
+    /**
+     * @description 获取靶点生物分类列表
+     * @return
+     */
+    @GetMapping("/bioclasses")
+    public ApiResponse<List<String>> bioclassList() {
+        List<String> bioclasses = targetService.list()
+                .stream()
+                .map(Target::getBioclass)
+                .filter(StringUtils::hasText)
+                .distinct()
+                .sorted()  // 升序排序
+                .collect(Collectors.toList());
+        return ApiResponse.ok(bioclasses);
     }
 }
