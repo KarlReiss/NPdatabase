@@ -25,11 +25,21 @@
               </span>
             </div>
             <div class="mt-2 text-base text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
-              <span>编号：{{ disease.id }}</span>
-              <span>ICD-11：{{ disease.icd11Code }}</span>
-              <span>分类：{{ disease.diseaseCategory ?? '—' }}</span>
+              <span>ICD-11 编码：{{ disease.icd11Code || '—' }}</span>
+              <span v-if="disease.diseaseName">英文名：{{ disease.diseaseName }}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-base text-slate-600">
+        <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+          <div class="text-xs text-slate-400 uppercase tracking-wider">疾病分类</div>
+          <div class="mt-1">{{ disease.diseaseCategory ?? '—' }}</div>
+        </div>
+        <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+          <div class="text-xs text-slate-400 uppercase tracking-wider">CMAUP 名称</div>
+          <div class="mt-1">{{ disease.diseaseNameCmaup ?? '—' }}</div>
         </div>
       </div>
     </section>

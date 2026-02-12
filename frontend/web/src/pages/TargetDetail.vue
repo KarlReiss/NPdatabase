@@ -25,9 +25,8 @@
                 靶点
               </span>
             </div>
-            <div class="mt-2 text-base text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
+            <div class="mt-2 text-base text-slate-500">
               <span>编号：{{ target.targetId || '—' }}</span>
-              <span>UniProt：{{ target.uniprotId || '—' }}</span>
             </div>
           </div>
 
@@ -57,26 +56,85 @@
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-base text-slate-600">
-        <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
-          <div class="text-xs text-slate-400 uppercase tracking-wider">基础信息</div>
-          <div class="mt-2 space-y-1 text-sm text-slate-600">
-            <div>基因名：{{ target.geneName || '—' }}</div>
-            <div>TTD ID：{{ target.ttdId || '—' }}</div>
-            <div>EC 编号：{{ target.ecNumber || '—' }}</div>
-            <div>PDB 结构：{{ target.pdbStructure || '—' }}</div>
-            <div>生物分类：{{ target.bioclass || '—' }}</div>
-            <div>物种 Tax ID：{{ target.targetOrganismTaxId || '—' }}</div>
+        <div class="mt-6 space-y-4 text-base text-slate-600">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+              <div class="text-xs text-slate-400 uppercase tracking-wider">基础信息</div>
+              <div class="mt-2 space-y-1 text-sm text-slate-600">
+                <div>基因名：{{ target.geneName || '—' }}</div>
+                <div class="flex flex-wrap gap-1 items-center">
+                  <span>TTD ID：</span>
+                  <span v-if="ttdIds.length === 0">—</span>
+                  <template v-else>
+                    <a
+                      v-for="(id, idx) in ttdIds"
+                      :key="idx"
+                      :href="`https://db.idrblab.net/ttd/data/target/details/${id}`"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-[#3B82F6] hover:underline"
+                    >{{ id }}</a>
+                    <span v-if="idx < ttdIds.length - 1">,</span>
+                  </template>
+                </div>
+                <div>EC 编号：{{ target.ecNumber || '—' }}</div>
+                <div class="flex flex-wrap gap-1 items-center">
+                  <span>PDB 结构：</span>
+                  <span v-if="pdbIds.length === 0">—</span>
+                  <template v-else>
+                    <a
+                      v-for="(id, idx) in pdbIds"
+                      :key="idx"
+                      :href="`https://www.rcsb.org/structure/${id}`"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-[#3B82F6] hover:underline"
+                    >{{ id }}</a>
+                    <span v-if="idx < pdbIds.length - 1">,</span>
+                  </template>
+                </div>
+                <div>生物分类：{{ target.bioclass || '—' }}</div>
+                <div>物种 Tax ID：{{ target.targetOrganismTaxId || '—' }}</div>
+                <div class="flex flex-wrap gap-1 items-center">
+                  <span>UniProt ID：</span>
+                  <span v-if="uniprotIds.length === 0">—</span>
+                  <template v-else>
+                    <a
+                      v-for="(id, idx) in uniprotIds"
+                      :key="idx"
+                      :href="`https://www.uniprot.org/uniprotkb/${id}/entry`"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-[#3B82F6] hover:underline"
+                    >{{ id }}</a>
+                    <span v-if="idx < uniprotIds.length - 1">,</span>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">同义词</div>
+            <div class="mt-2 text-sm text-slate-600 leading-relaxed">
+              {{ target.synonyms || '—' }}
+            </div>
+          </div>
+
+          <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">功能</div>
+            <div class="mt-2 text-sm text-slate-600 leading-relaxed">
+              {{ target.function || '—' }}
+            </div>
+          </div>
+
+          <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">序列</div>
+            <div class="mt-2 text-sm text-slate-600 break-all font-mono">
+              {{ target.sequence || '—' }}
+            </div>
           </div>
         </div>
-        <div class="rounded-lg p-4" style="background: var(--theme-bg); border: 1px solid var(--theme-soft);">
-          <div class="text-xs text-slate-400 uppercase tracking-wider">功能与同义词</div>
-          <div class="mt-2 text-sm text-slate-600 leading-relaxed">
-            <div>同义词：{{ target.synonyms || '—' }}</div>
-            <div class="mt-2">功能：{{ target.function || '—' }}</div>
-          </div>
-        </div>
-      </div>
       </section>
 
       <section class="bg-white rounded-md border border-[#E2E8F0] shadow-sm overflow-hidden">
@@ -153,6 +211,21 @@ const loading = ref(false);
 const error = ref('');
 
 const targetId = computed(() => String(route.params.id || ''));
+
+const uniprotIds = computed(() => {
+  if (!target.value?.uniprotId) return [];
+  return target.value.uniprotId.split(/[,;]\s*/).filter(id => id.trim());
+});
+
+const ttdIds = computed(() => {
+  if (!target.value?.ttdId) return [];
+  return target.value.ttdId.split(/[,;]\s*/).filter(id => id.trim());
+});
+
+const pdbIds = computed(() => {
+  if (!target.value?.pdbStructure) return [];
+  return target.value.pdbStructure.split(/[,;]\s*/).filter(id => id.trim());
+});
 
 const compoundRows = computed(() =>
   relatedCompounds.value.map((item) => ({

@@ -81,7 +81,13 @@
               </td>
               <td class="p-3 text-sm">
                 <RouterLink :to="`/resources/${resource.resourceId}`" class="text-[#3B82F6] hover:underline font-medium">
-                  {{ resource.chineseName ?? resource.resourceId }}
+                  {{
+                    resource.standardChineseName
+                      ?? resource.officialChineseName
+                      ?? resource.chineseName
+                      ?? resource.latinName
+                      ?? resource.resourceId
+                  }}
                 </RouterLink>
               </td>
               <td class="p-3 text-sm text-slate-600">{{ toTypeLabel(resource.resourceType) }}</td>

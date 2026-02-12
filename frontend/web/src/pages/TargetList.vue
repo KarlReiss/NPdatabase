@@ -48,7 +48,7 @@
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[1040px]">
+          <table class="w-full text-left border-collapse min-w-[920px]">
             <thead>
               <tr style="background: var(--theme-bg);">
                 <th class="p-3 text-sm font-bold text-slate-700 border-b w-32">
@@ -63,10 +63,8 @@
                     <SortIcon :active="sortKey === 'targetName'" :dir="sortDir" />
                   </button>
                 </th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">基因名</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">类型</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">物种</th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">UniProt</th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b">类型</th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">
                   <button class="flex items-center space-x-1" @click="toggleSort('numOfNaturalProducts')">
                     <span>关联天然产物数</span>
@@ -83,10 +81,10 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="loading">
-                <td colspan="8" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
+                <td colspan="7" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
               </tr>
               <tr v-else-if="sortedTargets.length === 0">
-                <td colspan="8" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
+                <td colspan="7" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
               </tr>
               <tr
                 v-else
@@ -99,11 +97,9 @@
                     {{ target.targetId }}
                   </RouterLink>
                 </td>
-                <td class="p-3 text-sm text-slate-800 font-medium">{{ target.targetName || '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ target.geneName || '—' }}</td>
+                <td class="p-3 text-sm text-slate-800 font-medium">{{ removeParentheses(target.targetName) || '—' }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ formatUniprot(target.uniprotId) }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ target.targetType || '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ target.targetOrganism || '—' }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ target.uniprotId || '—' }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ formatCount(target.numOfNaturalProducts) }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ formatCount(target.numOfActivities) }}</td>
               </tr>
@@ -229,7 +225,7 @@ const mapRow = (item: TargetApi): TargetRow => ({
   targetType: item.targetType || '',
   targetOrganism: item.targetOrganism || '',
   uniprotId: item.uniprotId || '',
-  numOfNaturalProducts: item.numOfNaturalProducts ?? item.numOfCompounds ?? null,
+  numOfNaturalProducts: item.numOfNaturalProducts ?? null,
   numOfActivities: item.numOfActivities ?? null,
 });
 
@@ -293,6 +289,24 @@ const goToPage = (target: number) => {
     page.value = safe;
     fetchList();
   }
+};
+
+const removeParentheses = (text?: string) => {
+  if (!text) return '';
+  return text.replace(/\s*\([^)]*\)/g, '').trim();
+};
+
+const formatUniprot = (value?: string) => {
+  if (!value) return '—';
+  const cleaned = value.replace(/\s+/g, '');
+  if (!cleaned || cleaned === 'n.a.' || cleaned === 'n.a' || cleaned === 'na' || cleaned === '-') {
+    return '—';
+  }
+  const parts = cleaned.split(/[|;]+/).filter(Boolean);
+  if (parts.length <= 1) {
+    return parts[0] || '—';
+  }
+  return `${parts[0]} (+${parts.length - 1})`;
 };
 
 watch(searchQuery, () => {

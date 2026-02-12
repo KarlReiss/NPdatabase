@@ -17,6 +17,8 @@ public class BioResource {
     private String resourceType;
 
     private String chineseName;
+    private String officialChineseName;
+    private String standardChineseName;
     private String latinName;
 
     private String taxonomyKingdom;

@@ -38,6 +38,7 @@ export interface Target {
 export interface BioResource {
   resourceId: string;
   chineseName: string;
+  officialChineseName?: string;
   latinName?: string;
   resourceType: string;
   taxonomyFamily?: string;
