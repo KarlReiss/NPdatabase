@@ -1,0 +1,24 @@
+类别,优先级,字段名,数据库字段,数据类型,示例值 (CID 5280445),说明
+现有字段补充,⭐⭐⭐⭐⭐,IUPAC Name,iupac_name,计算值,"2-(3,4-dihydroxyphenyl)-5,7-dihydroxychromen-4-one",补充缺失
+现有字段补充,⭐⭐⭐⭐⭐,XLogP3,xlogp,计算值,1.4,脂水分配系数(计算)
+现有字段补充,⭐⭐⭐⭐⭐,TPSA,tpsa,计算值,107,拓扑极性表面积
+现有字段补充,⭐⭐⭐⭐⭐,HBond Donor Count,h_bond_donors,计算值,4,氢键供体数
+现有字段补充,⭐⭐⭐⭐⭐,HBond Acceptor Count,h_bond_acceptors,计算值,6,氢键受体数
+现有字段补充,⭐⭐⭐⭐⭐,Rotatable Bond Count,rotatable_bonds,计算值,1,可旋转键数
+现有字段补充,⭐⭐⭐⭐⭐,InChIKey,inchikey,计算值,IQPNAANSBPBGFQ-UHFFFAOYSA-N,标准化标识符
+现有字段补充,⭐⭐⭐⭐⭐,CanonicalSMILES,smiles,计算值,C1=CC(=C(C=C1C2=CC(=O)C3=C(C=C(C=C3O2)O)O)O)O,标准化SMILES
+实验属性,⭐⭐⭐⭐,LogP (Experimental),xlogp_experimental (新),实验值,2.53,脂水分配系数(实验更准)
+实验属性,⭐⭐⭐⭐,Melting Point,melting_point (新),实验值,329.5 °C,熔点
+实验属性,⭐⭐⭐⭐,Physical Description,physical_state (新),实验值,Solid,物理状态
+天然产物特有,⭐⭐⭐⭐,Synonyms,synonyms (新),-,Luteolin; Digitoflavone; 491-70-3,同义词含CAS号
+天然产物特有,⭐⭐⭐⭐,CAS Number,cas_number (新),-,491-70-3,CAS登记号
+天然产物特有,⭐⭐⭐⭐,Chemical Classes,chemical_class (新),-,"Flavonoids > Flavones",化学分类
+扩展属性,⭐⭐⭐,Exact Mass,exact_mass (新),计算值,286.04773803,精确质量
+扩展属性,⭐⭐⭐,Heavy Atom Count,heavy_atom_count (新),计算值,21,重原子数
+扩展属性,⭐⭐⭐,Complexity,complexity (新),计算值,447,分子复杂度
+安全毒性,⭐⭐⭐,GHS Hazards,ghs_hazards (新),-,-,GHS危险说明
+安全毒性,⭐⭐⭐,Acute Toxicity,acute_toxicity (新),-,-,急性毒性
+药理活性,⭐⭐⭐,Drug Indication,drug_indication (新),-,-,药物适应症
+药理活性,⭐⭐⭐,Protein Targets,protein_targets (新),-,-,蛋白靶点
+光谱数据,⭐⭐,NMR Spectra,-,-,-,核磁共振谱(链接)
+光谱数据,⭐⭐,Mass Spectrometry,-,-,-,质谱数据(链接)

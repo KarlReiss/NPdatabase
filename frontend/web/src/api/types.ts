@@ -100,6 +100,11 @@ export interface Bioactivity {
   naturalProductId: number;
   npId?: string;
   targetId: number;
+  // 靶点信息（从 JOIN 获取）
+  targetDbId?: number;
+  targetRouteId?: string;
+  targetName?: string;
+  targetType?: string;
   activityType?: string;
   activityTypeGrouped?: string;
   activityRelation?: string;

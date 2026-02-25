@@ -110,7 +110,7 @@
           <div v-if="activeTab === 'targets'">
             <div class="mb-4 flex items-center justify-between">
               <h3 class="text-sm font-bold text-slate-800">关联靶点列表</h3>
-              <div class="text-xs text-slate-500">共 {{ formatCount(targetSummaries.length) }} 个靶点</div>
+              <div class="text-xs text-slate-500">共 {{ formatCount(targetTotal) }} 个靶点</div>
             </div>
             <table class="w-full text-left border-collapse">
               <thead>
@@ -123,7 +123,10 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-50">
-                <tr v-if="targetSummaries.length === 0">
+                <tr v-if="targetLoading">
+                  <td colspan="5" class="p-6 text-sm text-slate-400 text-center">加载中…</td>
+                </tr>
+                <tr v-else-if="targetSummaries.length === 0">
                   <td colspan="5" class="p-6 text-sm text-slate-400 text-center">暂无靶点记录</td>
                 </tr>
                 <tr v-else v-for="t in targetSummaries" :key="t.targetDbId" class="hover:bg-slate-50/50">
@@ -143,6 +146,19 @@
                 </tr>
               </tbody>
             </table>
+            <div v-if="targetTotalPages > 1" class="mt-4 flex items-center justify-center gap-2">
+              <button
+                class="px-3 py-1 text-xs rounded border border-[#E2E8F0] text-slate-600 disabled:opacity-40"
+                :disabled="targetPage <= 1"
+                @click="loadTargets(targetPage - 1)"
+              >上一页</button>
+              <span class="text-xs text-slate-500">{{ targetPage }} / {{ targetTotalPages }}</span>
+              <button
+                class="px-3 py-1 text-xs rounded border border-[#E2E8F0] text-slate-600 disabled:opacity-40"
+                :disabled="targetPage >= targetTotalPages"
+                @click="loadTargets(targetPage + 1)"
+              >下一页</button>
+            </div>
           </div>
 
           <div v-if="activeTab === 'bioactivity'">
@@ -316,6 +332,9 @@ const bioactivityPage = ref(1);
 const bioactivityLoading = ref(false);
 
 const targetSummaries = ref<BioactivityTargetSummaryApi[]>([]);
+const targetTotal = ref(0);
+const targetPage = ref(1);
+const targetLoading = ref(false);
 
 const resources = ref<BioResourceApi[]>([]);
 const resourcesTotal = ref(0);
@@ -332,7 +351,7 @@ const structureUrl = computed(() => buildPubchemImage(compound.value?.pubchemId)
 
 const bioactivityTotalPages = computed(() => Math.ceil(bioactivityTotal.value / PAGE_SIZE));
 const resourcesTotalPages = computed(() => Math.ceil(resourcesTotal.value / PAGE_SIZE));
-
+const targetTotalPages = computed(() => Math.ceil(targetTotal.value / PAGE_SIZE));
 const metadata = computed(() => [
   { label: '分子式（Formula）', value: compound.value?.formula || '—' },
   { label: '分子量（MW）', value: formatDecimal(compound.value?.molecularWeight) },
@@ -369,21 +388,11 @@ const metadata = computed(() => [
 ]);
 
 const tabs = computed(() => [
-  { id: 'targets', name: '关联靶点', count: compound.value?.numOfTarget ?? compound.value?.targetCount ?? targetSummaries.value.length },
+  { id: 'targets', name: '关联靶点', count: compound.value?.numOfTarget ?? compound.value?.targetCount ?? targetTotal.value },
   { id: 'bioactivity', name: '活性记录', count: compound.value?.numOfActivity ?? compound.value?.bioactivityCount ?? bioactivityTotal.value },
   { id: 'herb', name: '生物资源', count: compound.value?.numOfOrganism ?? compound.value?.bioResourceCount ?? resourcesTotal.value },
   { id: 'trial', name: '临床试验', count: 0 },
 ]);
-
-const targetMap = computed(() => {
-  const map = new Map<number, BioactivityTargetSummaryApi>();
-  targetSummaries.value.forEach((target) => {
-    if (typeof target.targetDbId === 'number') {
-      map.set(target.targetDbId, target);
-    }
-  });
-  return map;
-});
 
 const formatActivityRecord = (value: unknown, unit?: string | null, relation?: string | null) => {
   const numeric = toNumber(value);
@@ -395,11 +404,9 @@ const formatActivityRecord = (value: unknown, unit?: string | null, relation?: s
 
 const bioactivityRows = computed(() =>
   bioactivity.value.map((act) => {
-    const target = typeof act.targetId === 'number' ? targetMap.value.get(act.targetId) : undefined;
-    const targetLabel = target?.targetName || target?.targetId || (act.targetId ? `靶点 ${act.targetId}` : '—');
-    const targetIdLabel = target?.targetId || '—';
+    const targetLabel = act.targetName || act.targetRouteId || (act.targetDbId ? `靶点 ${act.targetDbId}` : '—');
+    const targetIdLabel = act.targetRouteId || '—';
     const type = act.activityType || '—';
-    const rawValue = formatActivityRecord(act.activityValue, act.activityUnits, act.activityRelation);
     const stdValue = formatActivityRecord(
       act.activityValueStd ?? act.activityValue,
       act.activityUnitsStd ?? act.activityUnits,
@@ -411,11 +418,11 @@ const bioactivityRows = computed(() =>
     const refLink = refType.toUpperCase() === 'PMID' && act.refId ? `https://pubmed.ncbi.nlm.nih.gov/${act.refId}/` : '';
 
     return {
-      id: act.id ?? `${act.targetId}-${act.activityType}`,
-      targetRouteId: target?.targetId || null,
+      id: act.id ?? `${act.targetDbId}-${act.activityType}`,
+      targetRouteId: act.targetRouteId || null,
       targetLabel,
       targetIdLabel,
-      targetType: target?.targetType || '—',
+      targetType: act.targetType || '—',
       type,
       stdValue,
       refLabel,
@@ -456,17 +463,33 @@ const loadResources = async (page: number) => {
   }
 };
 
+const loadTargets = async (page: number) => {
+  if (!compoundId.value) return;
+  targetLoading.value = true;
+  try {
+    const res = await fetchNaturalProductBioactivityTargets(compoundId.value, { page, pageSize: PAGE_SIZE });
+    targetSummaries.value = res.records;
+    targetTotal.value = res.total;
+    targetPage.value = page;
+  } catch {
+    targetSummaries.value = [];
+    targetTotal.value = 0;
+  } finally {
+    targetLoading.value = false;
+  }
+};
 const fetchAll = async () => {
   if (!compoundId.value) return;
   loading.value = true;
   error.value = '';
   bioactivityPage.value = 1;
   resourcesPage.value = 1;
+  targetPage.value = 1;
   try {
     const [detailResult, bioResult, targetResult, resourceResult] = await Promise.allSettled([
       fetchNaturalProductDetail(compoundId.value),
       fetchNaturalProductBioactivity(compoundId.value, { page: 1, pageSize: PAGE_SIZE }),
-      fetchNaturalProductBioactivityTargets(compoundId.value),
+      fetchNaturalProductBioactivityTargets(compoundId.value, { page: 1, pageSize: PAGE_SIZE }),
       fetchNaturalProductResources(compoundId.value, { page: 1, pageSize: PAGE_SIZE }),
     ]);
 
@@ -484,7 +507,13 @@ const fetchAll = async () => {
       bioactivityTotal.value = 0;
     }
 
-    targetSummaries.value = targetResult.status === 'fulfilled' ? targetResult.value : [];
+    if (targetResult.status === 'fulfilled') {
+      targetSummaries.value = targetResult.value.records;
+      targetTotal.value = targetResult.value.total;
+    } else {
+      targetSummaries.value = [];
+      targetTotal.value = 0;
+    }
 
     if (resourceResult.status === 'fulfilled') {
       resources.value = resourceResult.value.records;
@@ -498,6 +527,7 @@ const fetchAll = async () => {
     compound.value = null;
     bioactivity.value = [];
     targetSummaries.value = [];
+    targetTotal.value = 0;
     resources.value = [];
   } finally {
     loading.value = false;

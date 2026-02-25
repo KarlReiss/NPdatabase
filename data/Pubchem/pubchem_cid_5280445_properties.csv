@@ -1,0 +1,27 @@
+类别,属性名称,值,单位,来源/参考
+基本信息,CID,5280445,,PubChem
+基本信息,化合物名称,Luteolin,,PubChem
+基本信息,IUPAC名称,"2-(3,4-dihydroxyphenyl)-5,7-dihydroxychromen-4-one",,PubChem
+基本信息,分子式,C15H10O6,,PubChem
+基本信息,InChIKey,IQPNAANSBPBGFQ-UHFFFAOYSA-N,,PubChem
+计算属性,分子量 (Molecular Weight),286.24,g/mol,Computed by PubChem 2.2
+计算属性,脂水分配系数 (XLogP3),1.4,,Computed by XLogP3 3.0
+计算属性,氢键供体数 (HBond Donor Count),4,,Computed by Cactvs 3.4.8.18
+计算属性,氢键受体数 (HBond Acceptor Count),6,,Computed by Cactvs 3.4.8.18
+计算属性,可旋转键数 (Rotatable Bond Count),1,,Computed by Cactvs 3.4.8.18
+计算属性,精确质量 (Exact Mass),286.04773803,Da,Computed by PubChem 2.2
+计算属性,单同位素质量 (Monoisotopic Mass),286.04773803,Da,Computed by PubChem 2.2
+计算属性,拓扑极性表面积 (TPSA),107,Å²,Computed by Cactvs 3.4.8.18
+计算属性,重原子数 (Heavy Atom Count),21,,Computed by PubChem
+计算属性,形式电荷 (Formal Charge),0,,Computed by PubChem
+计算属性,复杂度 (Complexity),447,,Computed by Cactvs 3.4.8.18
+计算属性,同位素原子数 (Isotope Atom Count),0,,Computed by PubChem
+计算属性,已定义原子立体中心数,0,,Computed by PubChem
+计算属性,未定义原子立体中心数,0,,Computed by PubChem
+计算属性,已定义键立体中心数,0,,Computed by PubChem
+计算属性,未定义键立体中心数,0,,Computed by PubChem
+计算属性,共价键单元数,1,,Computed by PubChem
+实验属性,物理描述 (Physical Description),Solid,,HMDB
+实验属性,熔点 (Melting Point),329.5,°C,HMDB
+实验属性,脂水分配系数 (LogP),2.53,,PERRISSOUD & TESTA (1986)
+实验属性,碰撞截面积 (CCS),158.43,Å² [M+H]+,Ross et al. JASMS 2022

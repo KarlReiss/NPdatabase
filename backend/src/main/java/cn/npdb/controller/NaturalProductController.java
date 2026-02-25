@@ -229,7 +229,7 @@ public class NaturalProductController {
     }
 
     @GetMapping("/{npId}/bioactivity")
-    public ApiResponse<PageResponse<Bioactivity>> bioactivity(
+    public ApiResponse<PageResponse<cn.npdb.dto.BioactivityWithTarget>> bioactivity(
             @PathVariable("npId") String npId,
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "20") long pageSize
@@ -240,9 +240,8 @@ public class NaturalProductController {
         }
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
-        Page<Bioactivity> mpPage = new Page<>(safePage, safePageSize);
-        Page<Bioactivity> result = bioactivityService.page(mpPage,
-                new QueryWrapper<Bioactivity>().eq("natural_product_id", naturalProductId));
+        Page<cn.npdb.dto.BioactivityWithTarget> mpPage = new Page<>(safePage, safePageSize);
+        Page<cn.npdb.dto.BioactivityWithTarget> result = bioactivityMapper.pageByNaturalProductWithTarget(mpPage, naturalProductId);
         return ApiResponse.ok(PageResponse.from(result));
     }
 
@@ -279,13 +278,20 @@ public class NaturalProductController {
     }
 
     @GetMapping("/{npId}/bioactivity-targets")
-    public ApiResponse<List<BioactivityTargetSummary>> bioactivityTargets(@PathVariable("npId") String npId) {
+    public ApiResponse<PageResponse<BioactivityTargetSummary>> bioactivityTargets(
+            @PathVariable("npId") String npId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
         Long naturalProductId = resolveNaturalProductId(npId);
         if (naturalProductId == null) {
             return ApiResponse.error(ApiCode.SUCCESS, "Not found");
         }
-        List<BioactivityTargetSummary> list = bioactivityMapper.listTargetSummaries(naturalProductId);
-        return ApiResponse.ok(list == null ? Collections.emptyList() : list);
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+        Page<BioactivityTargetSummary> mpPage = new Page<>(safePage, safePageSize);
+        Page<BioactivityTargetSummary> result = bioactivityMapper.pageTargetSummaries(mpPage, naturalProductId);
+        return ApiResponse.ok(PageResponse.from(result));
     }
 
     @GetMapping("/{npId}/bio-resources")

@@ -1,0 +1,35 @@
+类别,字段名,数据库字段,值,提取状态
+计算属性,CID,pubchem_id,123631,✅
+计算属性,MolecularFormula,formula,C22H24ClFN4O3,✅
+计算属性,MolecularWeight,molecular_weight,446.9,✅
+计算属性,IUPACName,iupac_name,N-(3-chloro-4-fluorophenyl)-7-methoxy-6-(3-morpholin-4-ylpropoxy)quinazolin-4-amine,✅
+计算属性,InChIKey,inchikey,XGALLCVXEZPNRQ-UHFFFAOYSA-N,✅
+计算属性,InChI,inchi,InChI=1S/C22H24ClFN4O3/...,✅
+计算属性,CanonicalSMILES,smiles,COC1=C(C=C2C(=C1)N=CN=C2NC3=CC(=C(C=C3)F)Cl)OCCCN4CCOCC4,✅
+计算属性,XLogP,xlogp,4.1,✅
+计算属性,TPSA,tpsa,68.7,✅
+计算属性,HBondDonorCount,h_bond_donors,1,✅
+计算属性,HBondAcceptorCount,h_bond_acceptors,8,✅
+计算属性,RotatableBondCount,rotatable_bonds,8,✅
+计算属性,HeavyAtomCount,heavy_atom_count (新),31,✅
+计算属性,ExactMass,exact_mass (新),446.1520965,✅
+计算属性,Complexity,complexity (新),545,✅
+计算属性,Charge,charge,0,✅
+实验属性,Physical Description,physical_state (新),Solid,✅
+实验属性,Solubility,solubility (新),Sparingly soluble (<pH4),✅
+实验属性,Dissociation Constants,pka (新),"5.4 and 7.2",✅
+同义词,CAS Number,cas_number (新),184475-35-2,✅
+同义词,Synonyms,synonyms (新),Gefitinib; ZD1839; Iressa; 184475-35-2; ...,✅
+化学分类,Chemical Classes,chemical_class (新),Pharmaceuticals > Antineoplastic agents,✅
+毒性,Hepatotoxicity,toxicity_info (新),有数据,✅
+毒性,Drug Induced Liver Injury,toxicity_info (新),有数据,✅
+药理,Mechanism of Action,mechanism_of_action (新),有数据,✅
+药理,ATC Code,atc_code (新),L01XE02,✅
+药理,Pharmacodynamics,pharmacology (新),有数据,✅
+光谱,NMR Spectra,nmr_spectra_url (新),有链接,✅
+光谱,Mass Spectrometry,ms_spectra_url (新),有链接,✅
+蛋白靶点,Protein Targets,protein_targets (新),10个蛋白结构,✅
+蛋白靶点,PDBe Ligand Code,pdbe_code (新),IRE,✅
+药物信息,Drug Indication,drug_indication (新),有数据,✅
+药物信息,FDA Approved,fda_approved (新),Yes,✅
+药物信息,Clinical Trials,clinical_trials (新),有数据,✅

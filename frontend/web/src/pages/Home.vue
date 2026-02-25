@@ -54,23 +54,17 @@
           </button>
         </form>
 
-        <div class="mt-4 flex flex-wrap gap-2 text-slate-500 text-xs px-4">
-          <span>示例：</span>
-          <button class="hover:text-[#3B82F6] underline decoration-dotted" @click="applyExample('Curcumin')">
-            Curcumin
-          </button>
-          <span>,</span>
-          <button class="hover:text-[#3B82F6] underline decoration-dotted" @click="applyExample('Panax ginseng')">
-            Panax ginseng
-          </button>
-          <span>,</span>
-          <button class="hover:text-[#3B82F6] underline decoration-dotted" @click="applyExample('EGFR')">
-            EGFR
-          </button>
-          <span>,</span>
-          <button class="hover:text-[#3B82F6] underline decoration-dotted" @click="applyExample('CAS 458-37-7')">
-            CAS 458-37-7
-          </button>
+        <div class="mt-4 flex flex-wrap items-center gap-3 text-sm px-4">
+          <span class="text-slate-600 font-medium">示例：</span>
+          <RouterLink to="/bio-resources/NPO7154" class="text-[#10B981] hover:text-[#059669] font-medium hover:underline">甘草</RouterLink>
+          <span class="text-slate-400">•</span>
+          <RouterLink to="/natural-products/NPC56271" class="text-[#10B981] hover:text-[#059669] font-medium hover:underline">Gefitinib</RouterLink>
+          <span class="text-slate-400">•</span>
+          <RouterLink to="/prescriptions/PRES08926" class="text-[#10B981] hover:text-[#059669] font-medium hover:underline">漳州神曲</RouterLink>
+          <span class="text-slate-400">•</span>
+          <RouterLink to="/targets/NPT16" class="text-[#10B981] hover:text-[#059669] font-medium hover:underline">金黄色葡萄球菌</RouterLink>
+          <span class="text-slate-400">•</span>
+          <RouterLink to="/diseases/2C10.0" class="text-[#10B981] hover:text-[#059669] font-medium hover:underline">胰腺腺癌</RouterLink>
         </div>
       </div>
     </section>

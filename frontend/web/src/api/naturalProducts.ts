@@ -30,8 +30,7 @@ export const fetchNaturalProductDetail = (npId: string) =>
 export const fetchNaturalProductBioactivity = (npId: string, params: { page?: number; pageSize?: number }) =>
   apiGet<PageResponse<BioactivityApi>>(`/api/natural-products/${npId}/bioactivity`, params);
 
-export const fetchNaturalProductBioactivityTargets = (npId: string) =>
-  apiGet<BioactivityTargetSummaryApi[]>(`/api/natural-products/${npId}/bioactivity-targets`);
-
+export const fetchNaturalProductBioactivityTargets = (npId: string, params: { page?: number; pageSize?: number }) =>
+  apiGet<PageResponse<BioactivityTargetSummaryApi>>(`/api/natural-products/${npId}/bioactivity-targets`, params);
 export const fetchNaturalProductResources = (npId: string, params: { page?: number; pageSize?: number }) =>
   apiGet<PageResponse<BioResourceApi>>(`/api/natural-products/${npId}/bio-resources`, params);
