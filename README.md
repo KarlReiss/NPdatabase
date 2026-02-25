@@ -33,7 +33,7 @@ NPdatabase/
 ├── frontend/                       # 前端应用
 │   └── web/                        # Vue 3 Web 应用
 ├── scripts/                        # 脚本集合
-│   ├── backend-service.sh          # 服务管理脚本
+│   ├── npdb.sh              # 服务管理脚本（推荐）
 │   └── data-import/                # 数据导入脚本
 └── CLAUDE.md                       # Claude Code 开发指南
 ```
@@ -51,15 +51,19 @@ NPdatabase/
 - [x] Swagger 文档与校验说明
 - [x] 多源数据整合（NPASS + TCMID + CMAUP + TTD）
 - [x] 数据导入脚本与验证报告
-- [x] 服务管理脚本（backend-service.sh）
+- [x] 服务管理脚本（npdb.sh）
 - [x] 启动指南文档（docs/startup-guide.md）
+- [x] 天然产物详情页关联靶点分页功能
+- [x] 活性记录靶点信息显示与跳转链接
+- [x] 生物资源处方数量统计修复
+- [x] 生物资源列表排序功能
+- [x] 首页示例链接（生物资源/天然产物/处方/靶点/疾病）
+- [x] 数据库完整备份（data/npdb_full_dump.sql.gz）
 
 ### 🚧 进行中
-- [ ] 前端联调与页面完善
-- [ ] 生物资源详情页完善
-- [ ] 疾病关联展示
 - [ ] 高级搜索（结构/相似性）功能
-
+- [ ] 疾病详情页完善
+- [ ] 性能优化（缓存、索引）
 ## 快速开始
 
 ### 📋 前置要求
@@ -99,25 +103,25 @@ psql -U postgres -d npdb -f scripts/database/exports/01_schema_full.sql
 
 ```bash
 # 一键启动后端和前端服务
-bash scripts/backend-service.sh start
+bash npdb.sh start
 
 # 查看服务状态
-bash scripts/backend-service.sh status
+bash npdb.sh status
 
 # 停止服务
-bash scripts/backend-service.sh stop
+bash npdb.sh stop
 
 # 重启服务
-bash scripts/backend-service.sh restart
+bash npdb.sh restart
 
 # 查看日志
-bash scripts/backend-service.sh logs
+bash npdb.sh logs          # 后端日志
+bash npdb.sh logs frontend # 前端日志
 ```
 
 启动成功后访问：
 - 前端页面：http://localhost:3001
 - 后端API文档：http://localhost:8080/swagger-ui.html
-
 **方式二：手动启动**
 
 启动后端：
@@ -170,7 +174,7 @@ gunzip -c data/npdb_backup_YYYYMMDD.sql.gz | psql -h localhost -U yfguo
 **解决方案**：
 ```bash
 # 使用脚本自动清理并重启
-bash scripts/backend-service.sh restart
+bash npdb.sh restart
 
 # 或手动查找并终止占用端口的进程
 lsof -ti:8080 | xargs kill -9  # 清理后端端口
@@ -191,7 +195,7 @@ lsof -ti:3001 | xargs kill -9  # 清理前端端口
 
 3. 使用自定义配置启动：
    ```bash
-   DB_USER=your_user DB_PASSWORD=your_password bash scripts/backend-service.sh start
+   DB_USER=your_user DB_PASSWORD=your_password bash npdb.sh start
    ```
 
 ### 3. 前端无法加载数据
@@ -201,7 +205,7 @@ lsof -ti:3001 | xargs kill -9  # 清理前端端口
 **解决方案**：
 1. 确认后端服务已启动：
    ```bash
-   bash scripts/backend-service.sh status
+   bash npdb.sh status
    ```
 
 2. 测试后端API是否响应：
@@ -211,7 +215,7 @@ lsof -ti:3001 | xargs kill -9  # 清理前端端口
 
 3. 查看后端日志排查错误：
    ```bash
-   bash scripts/backend-service.sh logs
+   bash npdb.sh logs
    ```
 
 ### 4. Maven 构建失败
@@ -223,7 +227,7 @@ lsof -ti:3001 | xargs kill -9  # 清理前端端口
 # 清理并重新构建
 mvn -f backend/pom.xml clean
 mvn -f backend/pom.xml dependency:resolve
-bash scripts/backend-service.sh start
+bash npdb.sh start
 ```
 
 ### 5. npm 依赖问题
@@ -237,7 +241,7 @@ cd frontend/web
 rm -rf node_modules package-lock.json
 npm install
 cd ../..
-bash scripts/backend-service.sh start
+bash npdb.sh start
 ```
 
 **更多问题请参考 [docs/startup-guide.md](docs/startup-guide.md)**
