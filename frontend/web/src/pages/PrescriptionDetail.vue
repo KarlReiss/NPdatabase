@@ -153,7 +153,7 @@ const fetchAll = async () => {
       throw detailResult.reason;
     }
 
-    relatedResources.value = resourcesResult.status === 'fulfilled' ? resourcesResult.value : [];
+    relatedResources.value = resourcesResult.status === 'fulfilled' ? (resourcesResult.value.records ?? []) : [];
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     prescription.value = null;

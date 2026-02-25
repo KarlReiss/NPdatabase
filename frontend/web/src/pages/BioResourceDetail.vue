@@ -204,8 +204,8 @@ const fetchAll = async () => {
       throw detailResult.reason;
     }
 
-    relatedCompounds.value = compoundsResult.status === 'fulfilled' ? compoundsResult.value : [];
-    relatedPrescriptions.value = prescriptionsResult.status === 'fulfilled' ? prescriptionsResult.value : [];
+    relatedCompounds.value = compoundsResult.status === 'fulfilled' ? compoundsResult.value.records : [];
+    relatedPrescriptions.value = prescriptionsResult.status === 'fulfilled' ? prescriptionsResult.value.records : [];
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     resource.value = null;

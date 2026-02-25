@@ -58,6 +58,7 @@ public class BioResourceController {
     public ApiResponse<PageResponse<BioResource>> list(
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "20") long pageSize,
+            @RequestParam(required = false) String q,
             @RequestParam(required = false) String resourceType,
             @RequestParam(required = false) String taxonomyFamily,
             @RequestParam(required = false) String taxonomyGenus) {
@@ -67,6 +68,10 @@ public class BioResourceController {
 
         QueryWrapper<BioResource> wrapper = new QueryWrapper<>();
 
+        if (StringUtils.hasText(q)) {
+            String like = "%" + q.trim() + "%";
+            wrapper.and(w -> w.like("chinese_name", like).or().like("latin_name", like));
+        }
         wrapper.eq(StringUtils.hasText(resourceType), "resource_type", resourceType);
         wrapper.eq(StringUtils.hasText(taxonomyFamily), "taxonomy_family", taxonomyFamily);
         wrapper.eq(StringUtils.hasText(taxonomyGenus), "taxonomy_genus", taxonomyGenus);

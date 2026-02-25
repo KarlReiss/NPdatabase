@@ -15,5 +15,5 @@ export const fetchTargetDetail = (targetId: string) =>
   apiGet<TargetDetailApi>(`/api/targets/${targetId}`);
 
 export const fetchTargetNaturalProducts = (targetId: string) =>
-  apiGet<NaturalProductApi[]>(`/api/targets/${targetId}/natural-products`);
+  apiGet<PageResponse<NaturalProductApi>>(`/api/targets/${targetId}/natural-products`);
 

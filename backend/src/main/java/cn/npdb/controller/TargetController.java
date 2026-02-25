@@ -99,16 +99,16 @@ public class TargetController {
         java.util.Map<String, Object> agg = bioactivityService.getMap(
                 new QueryWrapper<Bioactivity>()
                         .select(
-                                "COUNT(DISTINCT natural_product_id) as naturalProductCount",
-                                "COUNT(*) as bioactivityCount",
-                                "MIN(activity_value_std) as bestActivityValue"
+                                "COUNT(DISTINCT natural_product_id) as naturalproductcount",
+                                "COUNT(*) as bioactivitycount",
+                                "MIN(activity_value_std) as bestactivityvalue"
                         )
                         .eq("target_id", target.getId())
         );
         if (agg != null) {
-            view.setNaturalProductCount(agg.get("naturalProductCount") == null ? 0L : ((Number) agg.get("naturalProductCount")).longValue());
-            view.setBioactivityCount(agg.get("bioactivityCount") == null ? 0L : ((Number) agg.get("bioactivityCount")).longValue());
-            view.setBestActivityValue(agg.get("bestActivityValue") == null ? null : new java.math.BigDecimal(String.valueOf(agg.get("bestActivityValue"))));
+            view.setNaturalProductCount(agg.get("naturalproductcount") == null ? 0L : ((Number) agg.get("naturalproductcount")).longValue());
+            view.setBioactivityCount(agg.get("bioactivitycount") == null ? 0L : ((Number) agg.get("bioactivitycount")).longValue());
+            view.setBestActivityValue(agg.get("bestactivityvalue") == null ? null : new java.math.BigDecimal(String.valueOf(agg.get("bestactivityvalue"))));
         } else {
             view.setNaturalProductCount(0L);
             view.setBioactivityCount(0L);

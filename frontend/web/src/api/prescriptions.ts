@@ -14,4 +14,4 @@ export const fetchPrescriptionDetail = (prescriptionId: string) =>
   apiGet<Prescription>(`/api/prescriptions/${prescriptionId}`);
 
 export const fetchPrescriptionBioResources = (prescriptionId: string) =>
-  apiGet<BioResource[]>(`/api/prescriptions/${prescriptionId}/bio-resources`);
+  apiGet<PageResponse<BioResource>>(`/api/prescriptions/${prescriptionId}/bio-resources`);

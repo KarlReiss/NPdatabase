@@ -256,7 +256,7 @@ const fetchAll = async () => {
       throw detailResult.reason;
     }
 
-    relatedCompounds.value = compoundResult.status === 'fulfilled' ? compoundResult.value : [];
+    relatedCompounds.value = compoundResult.status === 'fulfilled' ? (compoundResult.value.records ?? []) : [];
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     target.value = null;

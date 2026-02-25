@@ -180,8 +180,8 @@ const fetchAll = async () => {
       throw detailResult.reason;
     }
 
-    relatedResources.value = resourcesResult.status === 'fulfilled' ? resourcesResult.value : [];
-    relatedCompounds.value = compoundsResult.status === 'fulfilled' ? compoundsResult.value : [];
+    relatedResources.value = resourcesResult.status === 'fulfilled' ? (resourcesResult.value.records ?? []) : [];
+    relatedCompounds.value = compoundsResult.status === 'fulfilled' ? (compoundsResult.value.records ?? []) : [];
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     disease.value = null;

@@ -15,7 +15,7 @@ export const fetchBioResourceDetail = (resourceId: string) =>
   apiGet<BioResource>(`/api/bio-resources/${resourceId}`);
 
 export const fetchBioResourceNaturalProducts = (resourceId: string) =>
-  apiGet<BioResourceNaturalProductItem[]>(`/api/bio-resources/${resourceId}/natural-products`);
+  apiGet<PageResponse<BioResourceNaturalProductItem>>(`/api/bio-resources/${resourceId}/natural-products`);
 
 export const fetchBioResourcePrescriptions = (resourceId: string) =>
-  apiGet<Prescription[]>(`/api/bio-resources/${resourceId}/prescriptions`);
+  apiGet<PageResponse<Prescription>>(`/api/bio-resources/${resourceId}/prescriptions`);

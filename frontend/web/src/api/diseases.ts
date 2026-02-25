@@ -15,7 +15,7 @@ export const fetchDiseaseDetail = (diseaseId: string) =>
   apiGet<Disease>(`/api/diseases/${diseaseId}`);
 
 export const fetchDiseaseBioResources = (diseaseId: string) =>
-  apiGet<BioResource[]>(`/api/diseases/${diseaseId}/bio-resources`);
+  apiGet<PageResponse<BioResource>>(`/api/diseases/${diseaseId}/bio-resources`);
 
 export const fetchDiseaseNaturalProducts = (diseaseId: string) =>
-  apiGet<NaturalProductApi[]>(`/api/diseases/${diseaseId}/natural-products`);
+  apiGet<PageResponse<NaturalProductApi>>(`/api/diseases/${diseaseId}/natural-products`);
