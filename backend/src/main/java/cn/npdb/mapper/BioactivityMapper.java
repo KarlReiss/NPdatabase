@@ -1,14 +1,21 @@
 package cn.npdb.mapper;
 
 import cn.npdb.dto.BioactivityTargetSummary;
+import cn.npdb.dto.BioactivityWithNpId;
 import cn.npdb.entity.Bioactivity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
 public interface BioactivityMapper extends BaseMapper<Bioactivity> {
+
+    @Select("SELECT b.*, np.np_id FROM bioactivity b " +
+            "JOIN natural_products np ON b.natural_product_id = np.id " +
+            "WHERE b.target_id = #{targetDbId} ORDER BY b.id")
+    Page<BioactivityWithNpId> listByTargetWithNpId(Page<BioactivityWithNpId> page, @Param("targetDbId") Long targetDbId);
     @Select(
             "SELECT " +
             "    t.id AS target_db_id, " +
@@ -18,7 +25,7 @@ public interface BioactivityMapper extends BaseMapper<Bioactivity> {
             "    t.target_organism AS target_organism, " +
             "    t.uniprot_id AS uniprot_id, " +
             "    COUNT(*) AS bioactivity_count, " +
-            "    MIN(b.activity_value_std) AS best_activity_value " +
+            "    MIN(COALESCE(b.activity_value_std, b.activity_value)) AS best_activity_value " +
             "FROM bioactivity b " +
             "JOIN targets t ON b.target_id = t.id " +
             "WHERE b.natural_product_id = #{naturalProductId} " +

@@ -98,6 +98,7 @@ export interface TargetDetailView {
 export interface Bioactivity {
   id: number;
   naturalProductId: number;
+  npId?: string;
   targetId: number;
   activityType?: string;
   activityTypeGrouped?: string;
@@ -132,13 +133,13 @@ export interface BioResource {
   resourceId?: string;
   resourceType?: string;
   chineseName?: string;
-  translationSource?: string;
-  familyChinese?: string;
-  genusChinese?: string;
   latinName?: string;
   englishName?: string;
   pinyinName?: string;
   alias?: string;
+  translationSource?: string;
+  familyChinese?: string;
+  genusChinese?: string;
   taxonomyKingdom?: string;
   taxonomyPhylum?: string;
   taxonomyClass?: string;
@@ -151,9 +152,6 @@ export interface BioResource {
   genusTaxId?: string;
   familyTaxId?: string;
   cmaupId?: string;
-  translationSource?: string;
-  familyChinese?: string;
-  genusChinese?: string;
   medicinalPart?: string;
   medicinalPartLatin?: string;
   originRegion?: string;

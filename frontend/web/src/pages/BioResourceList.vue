@@ -51,25 +51,30 @@
           <table class="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr style="background: var(--theme-bg);">
-                <th class="p-3 text-sm font-bold text-slate-700 border-b w-32">
+                <th class="p-3 text-sm font-bold text-slate-700 border-b w-35">
                   <button class="flex items-center space-x-1" @click="toggleSort('resourceId')">
                     <span>编号</span>
                     <SortIcon :active="sortKey === 'resourceId'" :dir="sortDir" />
                   </button>
                 </th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">
+                <th class="p-3 text-sm font-bold text-slate-700 border-b w-42">
                   <button class="flex items-center space-x-1" @click="toggleSort('chineseName')">
                     <span>名称</span>
                     <SortIcon :active="sortKey === 'chineseName'" :dir="sortDir" />
                   </button>
                 </th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">拉丁名</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">资源类型</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">分类（科/属）</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">
+                <th class="p-3 text-sm font-bold text-slate-700 border-b w-42">拉丁名</th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b w-22">资源类型</th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b w-22">
                   <button class="flex items-center space-x-1" @click="toggleSort('numOfNaturalProducts')">
                     <span>天然产物数</span>
                     <SortIcon :active="sortKey === 'numOfNaturalProducts'" :dir="sortDir" />
+                  </button>
+                </th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b w-22">
+                  <button class="flex items-center space-x-1" @click="toggleSort('numOfPrescriptions')">
+                    <span>相关处方数</span>
+                    <SortIcon :active="sortKey === 'numOfPrescriptions'" :dir="sortDir" />
                   </button>
                 </th>
               </tr>
@@ -78,12 +83,12 @@
               <tr v-if="loading">
                 <td colspan="6" class="p-6 text-sm text-slate-500 text-center">加载中...</td>
               </tr>
-              <tr v-else-if="sortedResources.length === 0">
+              <tr v-else-if="rows.length === 0">
                 <td colspan="6" class="p-6 text-sm text-slate-400 text-center">暂无匹配记录</td>
               </tr>
               <tr
                 v-else
-                v-for="(resource, idx) in sortedResources"
+                v-for="(resource, idx) in rows"
                 :key="resource.resourceId"
                 :class="[idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30', 'hover:bg-slate-50 transition-colors']"
               >
@@ -99,12 +104,10 @@
                       ?? resource.resourceId
                   }}
                 </td>
-                <td class="p-3 text-sm text-slate-600">{{ resource.latinName ?? '—' }}</td>
+                <td class="p-3 text-sm text-slate-600 max-w-[160px] truncate" :title="resource.latinName ?? ''">{{ resource.latinName ?? '—' }}</td>
                 <td class="p-3 text-sm text-slate-600">{{ toTypeLabel(resource.resourceType) }}</td>
-                <td class="p-3 text-sm text-slate-600">
-                  {{ resource.taxonomyFamily ?? '—' }} / {{ resource.taxonomyGenus ?? '—' }}
-                </td>
                 <td class="p-3 text-sm text-slate-600">{{ resource.numOfNaturalProducts }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ resource.numOfPrescriptions ?? 0 }}</td>
               </tr>
             </tbody>
           </table>
@@ -154,7 +157,7 @@ import SortIcon from '@/components/SortIcon.vue';
 import { fetchBioResources } from '@/api/bioResources';
 import type { BioResource } from '@/api/types';
 
-type SortKey = 'resourceId' | 'chineseName' | 'numOfNaturalProducts';
+type SortKey = 'resourceId' | 'chineseName' | 'numOfNaturalProducts' | 'numOfPrescriptions';
 type PageItem = number | '...';
 
 const route = useRoute();
@@ -205,25 +208,6 @@ const toTypeLabel = (value?: string) => {
   return value;
 };
 
-const compareValues = (a: unknown, b: unknown) => {
-  if (a === null || a === undefined || a === '') return 1;
-  if (b === null || b === undefined || b === '') return -1;
-  if (typeof a === 'string' || typeof b === 'string') {
-    return String(a).localeCompare(String(b), 'zh-Hans-CN', { numeric: true });
-  }
-  return Number(a) > Number(b) ? 1 : -1;
-};
-
-const sortedResources = computed(() => {
-  const data = [...rows.value];
-  const key = sortKey.value;
-  const dir = sortDir.value;
-  return data.sort((a, b) => {
-    const result = compareValues(a[key], b[key]);
-    return dir === 'asc' ? result : -result;
-  });
-});
-
 let requestId = 0;
 const fetchList = async (options?: { resetPage?: boolean }) => {
   if (options?.resetPage) {
@@ -237,6 +221,8 @@ const fetchList = async (options?: { resetPage?: boolean }) => {
       page: page.value,
       pageSize: pageSize.value,
       q: searchQuery.value.trim() || undefined,
+      sortBy: sortKey.value,
+      sortOrder: sortDir.value,
     });
     if (currentId !== requestId) return;
     rows.value = response.records ?? [];
@@ -272,10 +258,11 @@ const syncQueryToRoute = () => {
 const toggleSort = (key: SortKey) => {
   if (sortKey.value === key) {
     sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-    return;
+  } else {
+    sortKey.value = key;
+    sortDir.value = 'desc';
   }
-  sortKey.value = key;
-  sortDir.value = 'desc';
+  fetchList({ resetPage: true });
 };
 
 const goToPage = (target: number) => {

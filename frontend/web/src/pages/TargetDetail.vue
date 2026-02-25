@@ -142,7 +142,7 @@
           <button
             v-for="tab in tabs"
             :key="tab.id"
-            @click="activeTab = tab.id"
+            @click="onTabChange(tab.id as 'compounds' | 'bio')"
             :class="[
               'px-6 py-4 text-sm font-medium transition-all relative',
               activeTab === tab.id ? 'text-[#10B981]' : 'text-slate-500 hover:text-slate-700'
@@ -154,36 +154,107 @@
         </div>
 
         <div class="p-6">
+          <!-- 相关天然产物 -->
           <div v-if="activeTab === 'compounds'">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-50/50">
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">编号</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">名称</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">分子量（MW）</th>
-                  <th class="p-3 text-sm font-bold text-slate-700 border-b">最强活性</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-50">
-                <tr v-if="compoundRows.length === 0">
-                  <td colspan="4" class="p-6 text-sm text-slate-400 text-center">暂无关联化合物</td>
-                </tr>
-                <tr v-else v-for="cmp in compoundRows" :key="cmp.id" class="hover:bg-slate-50/50">
-                  <td class="p-3 text-sm">
-                    <RouterLink :to="`/compounds/${cmp.id}`" class="text-[#3B82F6] hover:underline font-medium">
-                      {{ cmp.id }}
-                    </RouterLink>
-                  </td>
-                  <td class="p-3 text-sm text-slate-700">{{ cmp.name }}</td>
-                  <td class="p-3 text-sm text-slate-600">{{ formatDecimal(cmp.molecularWeight) }}</td>
-                  <td class="p-3 text-sm text-slate-700 font-medium">{{ formatActivityValue(cmp.bestActivityValue) }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div v-if="compoundsLoading" class="text-sm text-slate-400 text-center py-8">加载中...</div>
+            <template v-else>
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50/50">
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">编号</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">名称</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">分子量（MW）</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">最强活性</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                  <tr v-if="compoundRows.length === 0">
+                    <td colspan="4" class="p-6 text-sm text-slate-400 text-center">暂无关联化合物</td>
+                  </tr>
+                  <tr v-else v-for="cmp in compoundRows" :key="cmp.id" class="hover:bg-slate-50/50">
+                    <td class="p-3 text-sm">
+                      <RouterLink :to="`/compounds/${cmp.id}`" class="text-[#3B82F6] hover:underline font-medium">
+                        {{ cmp.id }}
+                      </RouterLink>
+                    </td>
+                    <td class="p-3 text-sm text-slate-700">{{ cmp.name }}</td>
+                    <td class="p-3 text-sm text-slate-600">{{ formatDecimal(cmp.molecularWeight) }}</td>
+                    <td class="p-3 text-sm text-slate-700 font-medium">{{ formatActivityValue(cmp.bestActivityValue) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div v-if="compoundsTotalPages > 1" class="flex items-center justify-between mt-4 text-sm text-slate-500">
+                <span>第 {{ compoundsPage }} / {{ compoundsTotalPages }} 页，共 {{ compoundsTotal }} 条</span>
+                <div class="flex gap-2">
+                  <button
+                    :disabled="compoundsPage <= 1"
+                    @click="loadCompounds(compoundsPage - 1)"
+                    class="px-3 py-1 rounded border border-slate-200 disabled:opacity-40 hover:bg-slate-50"
+                  >上一页</button>
+                  <button
+                    :disabled="compoundsPage >= compoundsTotalPages"
+                    @click="loadCompounds(compoundsPage + 1)"
+                    class="px-3 py-1 rounded border border-slate-200 disabled:opacity-40 hover:bg-slate-50"
+                  >下一页</button>
+                </div>
+              </div>
+            </template>
           </div>
 
-          <div v-if="activeTab === 'bio'" class="py-10 text-sm text-slate-400 text-center">
-            当前接口暂未提供靶点级活性明细，后续补充。
+          <!-- 活性记录 -->
+          <div v-if="activeTab === 'bio'">
+            <div v-if="bioLoading" class="text-sm text-slate-400 text-center py-8">加载中...</div>
+            <template v-else>
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50/50">
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">活性类型</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">关系</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">值</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">单位</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">标准值</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">标准单位</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">天然产物</th>
+                    <th class="p-3 text-sm font-bold text-slate-700 border-b">参考文献</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                  <tr v-if="bioactivities.length === 0">
+                    <td colspan="8" class="p-6 text-sm text-slate-400 text-center">暂无活性记录</td>
+                  </tr>
+                  <tr v-else v-for="row in bioactivities" :key="row.id" class="hover:bg-slate-50/50">
+                    <td class="p-3 text-sm text-slate-700">{{ row.activityType || '—' }}</td>
+                    <td class="p-3 text-sm text-slate-600">{{ row.activityRelation || '—' }}</td>
+                    <td class="p-3 text-sm text-slate-600">{{ row.activityValue ?? '—' }}</td>
+                    <td class="p-3 text-sm text-slate-600">{{ row.activityUnits || '—' }}</td>
+                    <td class="p-3 text-sm text-slate-600">{{ row.activityValueStd ?? '—' }}</td>
+                    <td class="p-3 text-sm text-slate-600">{{ row.activityUnitsStd || '—' }}</td>
+                    <td class="p-3 text-sm">
+                      <RouterLink v-if="row.npId" :to="`/compounds/${row.npId}`" class="text-[#3B82F6] hover:underline">
+                        {{ row.npId }}
+                      </RouterLink>
+                      <span v-else>—</span>
+                    </td>
+                    <td class="p-3 text-sm text-slate-600">{{ row.refId || '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div v-if="bioTotalPages > 1" class="flex items-center justify-between mt-4 text-sm text-slate-500">
+                <span>第 {{ bioPage }} / {{ bioTotalPages }} 页，共 {{ bioTotal }} 条</span>
+                <div class="flex gap-2">
+                  <button
+                    :disabled="bioPage <= 1"
+                    @click="loadBio(bioPage - 1)"
+                    class="px-3 py-1 rounded border border-slate-200 disabled:opacity-40 hover:bg-slate-50"
+                  >上一页</button>
+                  <button
+                    :disabled="bioPage >= bioTotalPages"
+                    @click="loadBio(bioPage + 1)"
+                    class="px-3 py-1 rounded border border-slate-200 disabled:opacity-40 hover:bg-slate-50"
+                  >下一页</button>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </section>
@@ -198,17 +269,30 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchTargetDetail, fetchTargetNaturalProducts } from '@/api/targets';
-import type { NaturalProductApi, TargetDetailApi } from '@/api/types';
+import { fetchTargetBioactivities, fetchTargetDetail, fetchTargetNaturalProducts } from '@/api/targets';
+import type { BioactivityApi, NaturalProductApi, TargetDetailApi } from '@/api/types';
 import { formatActivityValue, formatCount, formatDecimal, toNumber } from '@/utils/format';
+
+const PAGE_SIZE = 20;
 
 const route = useRoute();
 const activeTab = ref<'compounds' | 'bio'>('compounds');
 
 const target = ref<TargetDetailApi | null>(null);
-const relatedCompounds = ref<NaturalProductApi[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+// compounds tab
+const compounds = ref<NaturalProductApi[]>([]);
+const compoundsPage = ref(1);
+const compoundsTotal = ref(0);
+const compoundsLoading = ref(false);
+
+// bio tab
+const bioactivities = ref<BioactivityApi[]>([]);
+const bioPage = ref(1);
+const bioTotal = ref(0);
+const bioLoading = ref(false);
 
 const targetId = computed(() => String(route.params.id || ''));
 
@@ -228,7 +312,7 @@ const pdbIds = computed(() => {
 });
 
 const compoundRows = computed(() =>
-  relatedCompounds.value.map((item) => ({
+  compounds.value.map((item) => ({
     id: item.npId || '-',
     name: item.prefName || item.iupacName || item.npId || '—',
     molecularWeight: toNumber(item.molecularWeight),
@@ -236,31 +320,62 @@ const compoundRows = computed(() =>
   }))
 );
 
+const compoundsTotalPages = computed(() => Math.ceil(compoundsTotal.value / PAGE_SIZE));
+const bioTotalPages = computed(() => Math.ceil(bioTotal.value / PAGE_SIZE));
+
 const tabs = computed(() => [
-  { id: 'compounds', name: '相关天然产物', count: relatedCompounds.value.length },
-  { id: 'bio', name: '活性记录', count: target.value?.bioactivityCount ?? 0 },
+  { id: 'compounds', name: '相关天然产物', count: target.value?.naturalProductCount ?? compoundsTotal.value },
+  { id: 'bio', name: '活性记录', count: target.value?.bioactivityCount ?? bioTotal.value },
 ]);
 
-const fetchAll = async () => {
+const loadCompounds = async (page: number) => {
+  if (!targetId.value) return;
+  compoundsLoading.value = true;
+  try {
+    const res = await fetchTargetNaturalProducts(targetId.value, { page, pageSize: PAGE_SIZE });
+    compounds.value = res.records ?? [];
+    compoundsTotal.value = res.total ?? 0;
+    compoundsPage.value = page;
+  } finally {
+    compoundsLoading.value = false;
+  }
+};
+
+const loadBio = async (page: number) => {
+  if (!targetId.value) return;
+  bioLoading.value = true;
+  try {
+    const res = await fetchTargetBioactivities(targetId.value, { page, pageSize: PAGE_SIZE });
+    bioactivities.value = res.records ?? [];
+    bioTotal.value = res.total ?? 0;
+    bioPage.value = page;
+  } finally {
+    bioLoading.value = false;
+  }
+};
+
+const onTabChange = (tab: 'compounds' | 'bio') => {
+  activeTab.value = tab;
+  if (tab === 'compounds' && compounds.value.length === 0) loadCompounds(1);
+  if (tab === 'bio' && bioactivities.value.length === 0) loadBio(1);
+};
+
+const init = async () => {
   if (!targetId.value) return;
   loading.value = true;
   error.value = '';
+  compounds.value = [];
+  bioactivities.value = [];
+  compoundsPage.value = 1;
+  bioPage.value = 1;
+  compoundsTotal.value = 0;
+  bioTotal.value = 0;
   try {
-    const detailPromise = fetchTargetDetail(targetId.value);
-    const compoundsPromise = fetchTargetNaturalProducts(targetId.value);
-    const [detailResult, compoundResult] = await Promise.allSettled([detailPromise, compoundsPromise]);
-
-    if (detailResult.status === 'fulfilled') {
-      target.value = detailResult.value;
-    } else {
-      throw detailResult.reason;
-    }
-
-    relatedCompounds.value = compoundResult.status === 'fulfilled' ? (compoundResult.value.records ?? []) : [];
+    target.value = await fetchTargetDetail(targetId.value);
+    await loadCompounds(1);
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     target.value = null;
-    relatedCompounds.value = [];
   } finally {
     loading.value = false;
   }
@@ -268,6 +383,6 @@ const fetchAll = async () => {
 
 watch(targetId, () => {
   activeTab.value = 'compounds';
-  fetchAll();
+  init();
 }, { immediate: true });
 </script>

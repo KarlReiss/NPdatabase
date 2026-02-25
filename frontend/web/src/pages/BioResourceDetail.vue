@@ -89,7 +89,7 @@
         <button
           v-for="tab in tabs"
           :key="tab.id"
-          @click="activeTab = tab.id"
+          @click="onTabChange(tab.id as 'compounds' | 'prescriptions')"
           :class="[
             'px-6 py-4 text-sm font-medium transition-all relative',
             activeTab === tab.id ? 'text-[#10B981]' : 'text-slate-500 hover:text-slate-700'
@@ -102,7 +102,8 @@
 
       <div class="p-6">
         <div v-if="activeTab === 'compounds'">
-          <table class="w-full text-left border-collapse">
+          <div v-if="compoundsLoading" class="text-sm text-slate-400 py-4">加载中...</div>
+          <table v-else class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-50/50">
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">编号</th>
@@ -112,7 +113,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
-              <tr v-for="cmp in relatedCompounds" :key="cmp.npId" class="hover:bg-slate-50/50">
+              <tr v-for="cmp in compounds" :key="cmp.npId" class="hover:bg-slate-50/50">
                 <td class="p-3 text-sm">
                   <RouterLink :to="`/natural-products/${cmp.npId}`" class="text-[#3B82F6] hover:underline font-medium">
                     {{ cmp.npId }}
@@ -122,35 +123,52 @@
                   <div class="font-medium">{{ cmp.prefName || cmp.iupacName || cmp.npId }}</div>
                 </td>
                 <td class="p-3 text-sm text-slate-600">{{ formatDecimal(cmp.molecularWeight) }}</td>
-                <td class="p-3 text-sm text-slate-600">
-                  {{ formatSource(cmp) }}
-                </td>
+                <td class="p-3 text-sm text-slate-600">{{ formatSource(cmp) }}</td>
               </tr>
             </tbody>
           </table>
+          <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
+            <span>第 {{ compoundsPage }} / {{ Math.ceil(compoundsTotal / 20) || 1 }} 页，共 {{ compoundsTotal }} 条</span>
+            <div class="flex gap-2">
+              <button :disabled="compoundsPage <= 1" @click="loadCompounds(compoundsPage - 1)"
+                class="px-3 py-1 rounded border text-xs disabled:opacity-40 hover:bg-slate-50">上一页</button>
+              <button :disabled="compoundsPage >= Math.ceil(compoundsTotal / 20)" @click="loadCompounds(compoundsPage + 1)"
+                class="px-3 py-1 rounded border text-xs disabled:opacity-40 hover:bg-slate-50">下一页</button>
+            </div>
+          </div>
         </div>
 
         <div v-if="activeTab === 'prescriptions'">
-          <table class="w-full text-left border-collapse">
+          <div v-if="presLoading" class="text-sm text-slate-400 py-4">加载中...</div>
+          <table v-else class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-50/50">
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">编号</th>
                 <th class="p-3 text-sm font-bold text-slate-700 border-b">处方名称</th>
-                <th class="p-3 text-sm font-bold text-slate-700 border-b">分类</th>
+                <th class="p-3 text-sm font-bold text-slate-700 border-b">主治</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
-              <tr v-for="pres in relatedPrescriptions" :key="pres.prescriptionId" class="hover:bg-slate-50/50">
+              <tr v-for="pres in prescriptions" :key="pres.prescriptionId" class="hover:bg-slate-50/50">
                 <td class="p-3 text-sm">
                   <RouterLink :to="`/prescriptions/${pres.prescriptionId}`" class="text-[#3B82F6] hover:underline font-medium">
                     {{ pres.prescriptionId }}
                   </RouterLink>
                 </td>
                 <td class="p-3 text-sm text-slate-700">{{ pres.chineseName }}</td>
-                <td class="p-3 text-sm text-slate-600">{{ pres.category ?? '—' }}</td>
+                <td class="p-3 text-sm text-slate-600">{{ pres.indications || '—' }}</td>
               </tr>
             </tbody>
           </table>
+          <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
+            <span>第 {{ presPage }} / {{ Math.ceil(presTotal / 20) || 1 }} 页，共 {{ presTotal }} 条</span>
+            <div class="flex gap-2">
+              <button :disabled="presPage <= 1" @click="loadPrescriptions(presPage - 1)"
+                class="px-3 py-1 rounded border text-xs disabled:opacity-40 hover:bg-slate-50">上一页</button>
+              <button :disabled="presPage >= Math.ceil(presTotal / 20)" @click="loadPrescriptions(presPage + 1)"
+                class="px-3 py-1 rounded border text-xs disabled:opacity-40 hover:bg-slate-50">下一页</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -168,49 +186,78 @@ import { fetchBioResourceDetail, fetchBioResourceNaturalProducts, fetchBioResour
 import type { BioResource, BioResourceNaturalProductItem, Prescription } from '@/api/types';
 import { formatDecimal } from '@/utils/format';
 
+const PAGE_SIZE = 20;
+
 const route = useRoute();
 const activeTab = ref<'compounds' | 'prescriptions'>('compounds');
 
 const resource = ref<BioResource | null>(null);
-const relatedCompounds = ref<BioResourceNaturalProductItem[]>([]);
-const relatedPrescriptions = ref<Prescription[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+// compounds tab state
+const compounds = ref<BioResourceNaturalProductItem[]>([]);
+const compoundsPage = ref(1);
+const compoundsTotal = ref(0);
+const compoundsLoading = ref(false);
+
+// prescriptions tab state
+const prescriptions = ref<Prescription[]>([]);
+const presPage = ref(1);
+const presTotal = ref(0);
+const presLoading = ref(false);
 
 const resourceId = computed(() => String(route.params.id || ''));
 
 const tabs = computed(() => [
-  { id: 'compounds', name: '相关天然产物', count: relatedCompounds.value.length },
-  { id: 'prescriptions', name: '相关处方', count: relatedPrescriptions.value.length },
+  { id: 'compounds', name: '相关天然产物', count: resource.value?.numOfNaturalProducts || compoundsTotal.value },
+  { id: 'prescriptions', name: '相关处方', count: resource.value?.numOfPrescriptions || presTotal.value },
 ]);
 
-const fetchAll = async () => {
+const loadCompounds = async (page: number) => {
+  compoundsLoading.value = true;
+  try {
+    const res = await fetchBioResourceNaturalProducts(resourceId.value, { page, pageSize: PAGE_SIZE });
+    compounds.value = res.records;
+    compoundsTotal.value = res.total;
+    compoundsPage.value = page;
+  } finally {
+    compoundsLoading.value = false;
+  }
+};
+
+const loadPrescriptions = async (page: number) => {
+  presLoading.value = true;
+  try {
+    const res = await fetchBioResourcePrescriptions(resourceId.value, { page, pageSize: PAGE_SIZE });
+    prescriptions.value = res.records;
+    presTotal.value = res.total;
+    presPage.value = page;
+  } finally {
+    presLoading.value = false;
+  }
+};
+
+const onTabChange = (tab: 'compounds' | 'prescriptions') => {
+  activeTab.value = tab;
+  if (tab === 'compounds' && compounds.value.length === 0) loadCompounds(1);
+  if (tab === 'prescriptions' && prescriptions.value.length === 0) loadPrescriptions(1);
+};
+
+const init = async () => {
   if (!resourceId.value) return;
   loading.value = true;
   error.value = '';
+  compounds.value = [];
+  prescriptions.value = [];
+  compoundsPage.value = 1;
+  presPage.value = 1;
   try {
-    const detailPromise = fetchBioResourceDetail(resourceId.value);
-    const compoundsPromise = fetchBioResourceNaturalProducts(resourceId.value);
-    const prescriptionsPromise = fetchBioResourcePrescriptions(resourceId.value);
-    const [detailResult, compoundsResult, prescriptionsResult] = await Promise.allSettled([
-      detailPromise,
-      compoundsPromise,
-      prescriptionsPromise,
-    ]);
-
-    if (detailResult.status === 'fulfilled') {
-      resource.value = detailResult.value;
-    } else {
-      throw detailResult.reason;
-    }
-
-    relatedCompounds.value = compoundsResult.status === 'fulfilled' ? compoundsResult.value.records : [];
-    relatedPrescriptions.value = prescriptionsResult.status === 'fulfilled' ? prescriptionsResult.value.records : [];
+    resource.value = await fetchBioResourceDetail(resourceId.value);
+    await loadCompounds(1);
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     resource.value = null;
-    relatedCompounds.value = [];
-    relatedPrescriptions.value = [];
   } finally {
     loading.value = false;
   }
@@ -218,7 +265,7 @@ const fetchAll = async () => {
 
 watch(resourceId, () => {
   activeTab.value = 'compounds';
-  fetchAll();
+  init();
 }, { immediate: true });
 
 const formatSource = (item: BioResourceNaturalProductItem) => {

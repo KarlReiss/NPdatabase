@@ -155,7 +155,7 @@ public class NaturalProductController {
                 "natural_product_id as naturalProductId",
                 "COUNT(*) as bioactivityCount",
                 "COUNT(DISTINCT target_id) as targetCount",
-                "MIN(activity_value_std) as bestActivityValue"
+                "MIN(COALESCE(activity_value_std, activity_value)) as bestActivityValue"
         );
         aggWrapper.in("natural_product_id", ids);
         aggWrapper.groupBy("natural_product_id");
@@ -202,7 +202,7 @@ public class NaturalProductController {
         aggWrapper.select(
                 "COUNT(*) as bioactivityCount",
                 "COUNT(DISTINCT target_id) as targetCount",
-                "MIN(activity_value_std) as bestActivityValue"
+                "MIN(COALESCE(activity_value_std, activity_value)) as bestActivityValue"
         );
         aggWrapper.eq("natural_product_id", np.getId());
         java.util.Map<String, Object> agg = bioactivityService.getMap(aggWrapper);

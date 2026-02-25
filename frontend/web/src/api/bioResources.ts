@@ -6,6 +6,8 @@ export interface BioResourceQuery {
   pageSize?: number;
   q?: string;
   resourceType?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export const fetchBioResources = (params: BioResourceQuery) =>
@@ -14,8 +16,8 @@ export const fetchBioResources = (params: BioResourceQuery) =>
 export const fetchBioResourceDetail = (resourceId: string) =>
   apiGet<BioResource>(`/api/bio-resources/${resourceId}`);
 
-export const fetchBioResourceNaturalProducts = (resourceId: string) =>
-  apiGet<PageResponse<BioResourceNaturalProductItem>>(`/api/bio-resources/${resourceId}/natural-products`);
+export const fetchBioResourceNaturalProducts = (resourceId: string, params?: { page?: number; pageSize?: number }) =>
+  apiGet<PageResponse<BioResourceNaturalProductItem>>(`/api/bio-resources/${resourceId}/natural-products`, params);
 
-export const fetchBioResourcePrescriptions = (resourceId: string) =>
-  apiGet<PageResponse<Prescription>>(`/api/bio-resources/${resourceId}/prescriptions`);
+export const fetchBioResourcePrescriptions = (resourceId: string, params?: { page?: number; pageSize?: number }) =>
+  apiGet<PageResponse<Prescription>>(`/api/bio-resources/${resourceId}/prescriptions`, params);

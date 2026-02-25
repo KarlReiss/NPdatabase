@@ -33,5 +33,5 @@ export const fetchNaturalProductBioactivity = (npId: string, params: { page?: nu
 export const fetchNaturalProductBioactivityTargets = (npId: string) =>
   apiGet<BioactivityTargetSummaryApi[]>(`/api/natural-products/${npId}/bioactivity-targets`);
 
-export const fetchNaturalProductResources = (npId: string) =>
-  apiGet<BioResourceApi[]>(`/api/natural-products/${npId}/bio-resources`);
+export const fetchNaturalProductResources = (npId: string, params: { page?: number; pageSize?: number }) =>
+  apiGet<PageResponse<BioResourceApi>>(`/api/natural-products/${npId}/bio-resources`, params);

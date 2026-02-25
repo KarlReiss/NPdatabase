@@ -61,7 +61,9 @@ public class BioResourceController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String resourceType,
             @RequestParam(required = false) String taxonomyFamily,
-            @RequestParam(required = false) String taxonomyGenus) {
+            @RequestParam(required = false) String taxonomyGenus,
+            @RequestParam(defaultValue = "numOfNaturalProducts") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortOrder) {
 
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
@@ -75,7 +77,14 @@ public class BioResourceController {
         wrapper.eq(StringUtils.hasText(resourceType), "resource_type", resourceType);
         wrapper.eq(StringUtils.hasText(taxonomyFamily), "taxonomy_family", taxonomyFamily);
         wrapper.eq(StringUtils.hasText(taxonomyGenus), "taxonomy_genus", taxonomyGenus);
-        wrapper.orderByDesc("id");
+
+        // 排序逻辑
+        String sortColumn = camelToSnake(sortBy);
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            wrapper.orderByAsc(sortColumn);
+        } else {
+            wrapper.orderByDesc(sortColumn);
+        }
 
         Page<BioResource> mpPage = new Page<>(safePage, safePageSize);
         Page<BioResource> result = bioResourceService.page(mpPage, wrapper);
@@ -261,6 +270,24 @@ public class BioResourceController {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static String camelToSnake(String camelCase) {
+        if (camelCase == null || camelCase.isEmpty()) {
+            return camelCase;
+        }
+        StringBuilder result = new StringBuilder();
+        result.append(Character.toLowerCase(camelCase.charAt(0)));
+        for (int i = 1; i < camelCase.length(); i++) {
+            char ch = camelCase.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                result.append('_');
+                result.append(Character.toLowerCase(ch));
+            } else {
+                result.append(ch);
+            }
+        }
+        return result.toString();
     }
 
     private static class Aggregate {

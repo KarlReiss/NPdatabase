@@ -3,6 +3,7 @@ package cn.npdb.controller;
 import cn.npdb.common.ApiCode;
 import cn.npdb.common.ApiResponse;
 import cn.npdb.common.PageResponse;
+import cn.npdb.dto.BioactivityWithNpId;
 import cn.npdb.entity.Bioactivity;
 import cn.npdb.entity.NaturalProductDetailView;
 import cn.npdb.entity.Target;
@@ -101,7 +102,7 @@ public class TargetController {
                         .select(
                                 "COUNT(DISTINCT natural_product_id) as naturalproductcount",
                                 "COUNT(*) as bioactivitycount",
-                                "MIN(activity_value_std) as bestactivityvalue"
+                                "MIN(COALESCE(activity_value_std, activity_value)) as bestactivityvalue"
                         )
                         .eq("target_id", target.getId())
         );
@@ -147,6 +148,24 @@ public class TargetController {
         return ApiResponse.ok(PageResponse.from(result));
     }
 
+
+    @GetMapping("/{targetId}/bioactivity")
+    public ApiResponse<PageResponse<BioactivityWithNpId>> bioactivity(
+            @PathVariable("targetId") String targetId,
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize
+    ) {
+        long safePage = page < 1 ? 1 : page;
+        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
+        Target target = targetService.getOne(new QueryWrapper<Target>().select("id").eq("target_id", targetId));
+        if (target == null) {
+            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
+        }
+        Page<BioactivityWithNpId> mpPage = new Page<>(safePage, safePageSize);
+        Page<BioactivityWithNpId> result = ((cn.npdb.mapper.BioactivityMapper) bioactivityService.getBaseMapper())
+                .listByTargetWithNpId(mpPage, target.getId());
+        return ApiResponse.ok(PageResponse.from(result));
+    }
 
     /**
      * @description 获取靶点类型列表
