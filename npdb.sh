@@ -45,11 +45,14 @@ start_backend() {
         echo "后端已在运行，PID: $(cat $BACKEND_PID)"
         return 0
     fi
-    
-    echo "启动后端服务..."
+
+    echo "编译后端..."
     cd "$BACKEND_DIR"
+    mvn package -DskipTests -q || { echo "✗ 编译失败"; return 1; }
+
+    echo "启动后端服务..."
     DB_USER=$DB_USER DB_PASSWORD=$DB_PASSWORD \
-        nohup mvn spring-boot:run -DskipTests > "$BACKEND_LOG" 2>&1 &
+        nohup java -jar "$BACKEND_DIR/target/backend-0.1.0-SNAPSHOT.jar" > "$BACKEND_LOG" 2>&1 &
     echo $! > "$BACKEND_PID"
     
     if wait_backend; then
@@ -85,32 +88,33 @@ start_frontend() {
     fi
 }
 
-# 停止服务
-stop_service() {
-    local name=$1
-    local pid_file=$2
-    
-    if ! is_running "$pid_file"; then
-        echo "$name 未运行"
-        return 0
+# 停止后端（需同时杀 mvn 父进程和 java 子进程）
+stop_backend_proc() {
+    echo "停止后端..."
+    pkill -f "spring-boot:run" 2>/dev/null || true
+    pkill -f "NpdbApplication\|backend-0.1.0-SNAPSHOT.jar" 2>/dev/null || true
+    sleep 2
+    # 兜底：按端口强杀
+    local pid
+    pid=$(ss -tlnp 2>/dev/null | grep ":$BACKEND_PORT " | grep -oP 'pid=\K[0-9]+' | head -1)
+    [[ -n "$pid" ]] && kill -9 "$pid" 2>/dev/null || true
+    rm -f "$BACKEND_PID"
+    echo "✓ 后端已停止"
+}
+
+# 停止前端
+stop_frontend_proc() {
+    echo "停止前端..."
+    if [[ -f "$FRONTEND_PID" ]]; then
+        local pid
+        pid=$(cat "$FRONTEND_PID")
+        kill "$pid" 2>/dev/null || true
+        sleep 2
+        kill -9 "$pid" 2>/dev/null || true
     fi
-    
-    local pid=$(cat "$pid_file")
-    echo "停止 $name (PID: $pid)..."
-    kill "$pid" 2>/dev/null || true
-    
-    for i in {1..10}; do
-        if ! kill -0 "$pid" 2>/dev/null; then
-            rm -f "$pid_file"
-            echo "✓ $name 已停止"
-            return 0
-        fi
-        sleep 1
-    done
-    
-    kill -9 "$pid" 2>/dev/null || true
-    rm -f "$pid_file"
-    echo "✓ $name 已强制停止"
+    pkill -f "vite\|npm.*dev" 2>/dev/null || true
+    rm -f "$FRONTEND_PID"
+    echo "✓ 前端已停止"
 }
 
 # 显示状态
@@ -169,13 +173,13 @@ case "${1:-}" in
         echo "启动完成！访问 http://localhost:$FRONTEND_PORT"
         ;;
     stop)
-        stop_service "前端" "$FRONTEND_PID"
-        stop_service "后端" "$BACKEND_PID"
+        stop_frontend_proc
+        stop_backend_proc
         ;;
     restart)
-        $0 stop
+        bash "$ROOT_DIR/npdb.sh" stop
         sleep 2
-        $0 start
+        bash "$ROOT_DIR/npdb.sh" start
         ;;
     status)
         show_status

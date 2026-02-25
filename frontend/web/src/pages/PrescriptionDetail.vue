@@ -82,9 +82,7 @@
               <td class="p-3 text-sm">
                 <RouterLink :to="`/resources/${resource.resourceId}`" class="text-[#3B82F6] hover:underline font-medium">
                   {{
-                    resource.standardChineseName
-                      ?? resource.officialChineseName
-                      ?? resource.chineseName
+                    resource.chineseName
                       ?? resource.latinName
                       ?? resource.resourceId
                   }}

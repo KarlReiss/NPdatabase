@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.3
--- Dumped by pg_dump version 16.3
+\restrict JBajSlJHh2giQYgBKmXf3ptqgY0wSYxeJ58On2axIUdLPueag6j7y980nqudnkn
+
+-- Dumped from database version 16.11 (Ubuntu 16.11-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.11 (Ubuntu 16.11-0ubuntu0.24.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,7 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: yfguo
 --
 
 CREATE FUNCTION public.update_updated_at_column() RETURNS trigger
@@ -30,56 +32,14 @@ END;
 $$;
 
 
+ALTER FUNCTION public.update_updated_at_column() OWNER TO yfguo;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: bio_resource_natural_products; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.bio_resource_natural_products (
-    id bigint NOT NULL,
-    bio_resource_id bigint NOT NULL,
-    natural_product_id bigint NOT NULL,
-    content_value numeric(20,6),
-    content_unit character varying(50),
-    content_part character varying(200),
-    isolation_method character varying(200),
-    ref_id character varying(100),
-    ref_id_type character varying(20),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
---
--- Name: TABLE bio_resource_natural_products; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.bio_resource_natural_products IS '生物资源-天然产物关联表 - 记录生物资源包含的天然产物';
-
-
---
--- Name: bio_resource_compounds_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.bio_resource_compounds_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: bio_resource_compounds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.bio_resource_compounds_id_seq OWNED BY public.bio_resource_natural_products.id;
-
-
---
--- Name: bio_resource_disease_associations; Type: TABLE; Schema: public; Owner: -
+-- Name: bio_resource_disease_associations; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.bio_resource_disease_associations (
@@ -97,78 +57,94 @@ CREATE TABLE public.bio_resource_disease_associations (
 );
 
 
---
--- Name: TABLE bio_resource_disease_associations; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.bio_resource_disease_associations IS '生物资源-疾病关联表 - 记录植物与疾病的关联及证据';
-
+ALTER TABLE public.bio_resource_disease_associations OWNER TO yfguo;
 
 --
--- Name: COLUMN bio_resource_disease_associations.bio_resource_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE bio_resource_disease_associations; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON TABLE public.bio_resource_disease_associations IS '生物资源-疾病关联表 - 记录生物资源与疾病的治疗关联关系及证据来源';
+
+
+--
+-- Name: COLUMN bio_resource_disease_associations.id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_disease_associations.id IS '主键ID';
+
+
+--
+-- Name: COLUMN bio_resource_disease_associations.bio_resource_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.bio_resource_disease_associations.bio_resource_id IS '关联的生物资源ID';
 
 
 --
--- Name: COLUMN bio_resource_disease_associations.disease_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resource_disease_associations.disease_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.bio_resource_disease_associations.disease_id IS '关联的疾病ID';
 
 
 --
--- Name: COLUMN bio_resource_disease_associations.evidence_therapeutic_target; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resource_disease_associations.evidence_therapeutic_target; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_therapeutic_target IS '治疗靶点证据（靶点列表，分号分隔）';
-
-
---
--- Name: COLUMN bio_resource_disease_associations.evidence_transcriptome; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_transcriptome IS '转录组证据（布尔值）';
+COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_therapeutic_target IS '治疗靶点证据 - 相关治疗靶点列表（分号分隔）';
 
 
 --
--- Name: COLUMN bio_resource_disease_associations.evidence_clinical_trial_plant; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resource_disease_associations.evidence_transcriptome; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_clinical_trial_plant IS '植物临床试验证据（试验ID，分号分隔）';
-
-
---
--- Name: COLUMN bio_resource_disease_associations.evidence_clinical_trial_ingredient; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_clinical_trial_ingredient IS '成分临床试验证据（试验ID，分号分隔）';
+COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_transcriptome IS '转录组证据 - 是否有转录组学证据支持';
 
 
 --
--- Name: COLUMN bio_resource_disease_associations.confidence_score; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resource_disease_associations.evidence_clinical_trial_plant; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resource_disease_associations.confidence_score IS '置信度评分（0-1之间的小数）';
+COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_clinical_trial_plant IS '植物临床试验证据 - 相关临床试验ID';
 
 
 --
--- Name: COLUMN bio_resource_disease_associations.source; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resource_disease_associations.evidence_clinical_trial_ingredient; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_disease_associations.evidence_clinical_trial_ingredient IS '成分临床试验证据 - 成分相关临床试验ID';
+
+
+--
+-- Name: COLUMN bio_resource_disease_associations.confidence_score; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_disease_associations.confidence_score IS '置信度评分（0-1之间，越高表示关联越可靠）';
+
+
+--
+-- Name: COLUMN bio_resource_disease_associations.source; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.bio_resource_disease_associations.source IS '数据来源';
 
 
 --
--- Name: COLUMN bio_resource_disease_associations.source_version; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resource_disease_associations.source_version; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resource_disease_associations.source_version IS '数据版本';
+COMMENT ON COLUMN public.bio_resource_disease_associations.source_version IS '数据来源版本';
 
 
 --
--- Name: bio_resource_disease_associations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN bio_resource_disease_associations.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_disease_associations.created_at IS '记录创建时间';
+
+
+--
+-- Name: bio_resource_disease_associations_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.bio_resource_disease_associations_id_seq
@@ -179,15 +155,183 @@ CREATE SEQUENCE public.bio_resource_disease_associations_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.bio_resource_disease_associations_id_seq OWNER TO yfguo;
+
 --
--- Name: bio_resource_disease_associations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: bio_resource_disease_associations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.bio_resource_disease_associations_id_seq OWNED BY public.bio_resource_disease_associations.id;
 
 
 --
--- Name: bio_resources; Type: TABLE; Schema: public; Owner: -
+-- Name: bio_resource_natural_products; Type: TABLE; Schema: public; Owner: yfguo
+--
+
+CREATE TABLE public.bio_resource_natural_products (
+    id bigint NOT NULL,
+    org_id text,
+    np_id text,
+    src_org_record_id text,
+    src_org_pair_id text,
+    src_org_pair text,
+    new_cp_found text,
+    org_isolation_part text,
+    org_collect_location text,
+    org_collect_time text,
+    ref_type text,
+    ref_id text,
+    ref_id_type text,
+    ref_url text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.bio_resource_natural_products OWNER TO yfguo;
+
+--
+-- Name: TABLE bio_resource_natural_products; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON TABLE public.bio_resource_natural_products IS '生物资源-天然产物关联表 - 记录生物资源中包含的天然产物及其含量信息';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.id IS '主键ID';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.org_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.org_id IS '生物来源编号';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.np_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.np_id IS '天然产物编号';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.src_org_record_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.src_org_record_id IS '来源生物记录ID';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.src_org_pair_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.src_org_pair_id IS '来源生物-产物配对ID';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.src_org_pair; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.src_org_pair IS '来源生物-产物配对信息';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.new_cp_found; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.new_cp_found IS '是否发现新化合物';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.org_isolation_part; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.org_isolation_part IS '分离部位 - 从生物体的哪个部位分离';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.org_collect_location; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.org_collect_location IS '采集地点';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.org_collect_time; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.org_collect_time IS '采集时间';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.ref_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.ref_type IS '参考文献类型';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.ref_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.ref_id IS '参考文献ID';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.ref_id_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.ref_id_type IS '参考文献ID类型（PMID、DOI）';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.ref_url; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.ref_url IS '参考文献URL链接';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.created_at IS '记录创建时间';
+
+
+--
+-- Name: COLUMN bio_resource_natural_products.updated_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resource_natural_products.updated_at IS '记录更新时间';
+
+
+--
+-- Name: bio_resource_natural_products_new_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
+--
+
+CREATE SEQUENCE public.bio_resource_natural_products_new_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.bio_resource_natural_products_new_id_seq OWNER TO yfguo;
+
+--
+-- Name: bio_resource_natural_products_new_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
+--
+
+ALTER SEQUENCE public.bio_resource_natural_products_new_id_seq OWNED BY public.bio_resource_natural_products.id;
+
+
+--
+-- Name: bio_resources; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.bio_resources (
@@ -196,44 +340,12 @@ CREATE TABLE public.bio_resources (
     resource_type character varying(50) NOT NULL,
     chinese_name character varying(500),
     latin_name character varying(500),
-    english_name character varying(500),
-    pinyin_name character varying(200),
-    alias text,
     taxonomy_kingdom character varying(100),
-    taxonomy_phylum character varying(100),
-    taxonomy_class character varying(100),
-    taxonomy_order character varying(100),
     taxonomy_family character varying(200),
     taxonomy_genus character varying(200),
     taxonomy_species character varying(200),
     taxonomy_id character varying(50),
-    medicinal_part character varying(200),
-    medicinal_part_latin character varying(200),
-    origin_region text,
-    distribution text,
-    habitat text,
-    tcm_property character varying(100),
-    tcm_flavor character varying(100),
-    tcm_meridian character varying(200),
-    tcm_toxicity character varying(50),
-    functions text,
-    indications text,
-    contraindications text,
-    mineral_composition character varying(500),
-    mineral_crystal_system character varying(100),
-    mineral_hardness character varying(50),
-    mineral_color character varying(100),
-    microbe_strain character varying(200),
-    microbe_culture_condition text,
-    microbe_fermentation_product text,
-    animal_class character varying(100),
-    animal_conservation_status character varying(50),
-    tcmid_id character varying(50),
-    tcmsp_id character varying(50),
-    herb_id character varying(50),
-    pharmacopoeia_ref character varying(200),
-    literature_ref text,
-    image_url text,
+    tcmid_id character varying(500),
     num_of_natural_products integer DEFAULT 0,
     num_of_prescriptions integer DEFAULT 0,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
@@ -241,75 +353,157 @@ CREATE TABLE public.bio_resources (
     species_tax_id character varying(50),
     genus_tax_id character varying(50),
     family_tax_id character varying(50),
-    cmaup_id character varying(50)
+    cmaup_id character varying(50),
+    translation_source character varying(200),
+    family_chinese character varying(200),
+    genus_chinese character varying(200)
 );
 
 
---
--- Name: TABLE bio_resources; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.bio_resources IS '生物资源表 - 存储植物、动物、微生物、矿物等天然产物来源，包含分类学信息和药用属性';
-
+ALTER TABLE public.bio_resources OWNER TO yfguo;
 
 --
--- Name: COLUMN bio_resources.resource_type; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE bio_resources; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resources.resource_type IS '资源类型: Plant(植物), Animal(动物), Microorganism(微生物), Mineral(矿物), Fungus(真菌)';
+COMMENT ON TABLE public.bio_resources IS '生物资源表 - 存储植物、动物、微生物、矿物等天然产物来源，包含分类学信息和中医药用属性';
 
 
 --
--- Name: COLUMN bio_resources.tcm_property; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resources.id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resources.tcm_property IS '中医药性: 寒、热、温、凉、平';
-
-
---
--- Name: COLUMN bio_resources.tcm_flavor; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.bio_resources.tcm_flavor IS '中医药味: 酸、苦、甘、辛、咸、淡、涩';
+COMMENT ON COLUMN public.bio_resources.id IS '主键ID';
 
 
 --
--- Name: COLUMN bio_resources.num_of_natural_products; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resources.resource_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.resource_id IS '资源唯一编号';
+
+
+--
+-- Name: COLUMN bio_resources.resource_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.resource_type IS '资源类型（Plant植物、Animal动物、Microorganism微生物、Mineral矿物、Fungus真菌）';
+
+
+--
+-- Name: COLUMN bio_resources.chinese_name; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.chinese_name IS '中文名称';
+
+
+--
+-- Name: COLUMN bio_resources.latin_name; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.latin_name IS '拉丁学名 - 国际通用的科学命名';
+
+
+--
+-- Name: COLUMN bio_resources.taxonomy_kingdom; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.taxonomy_kingdom IS '分类学-界';
+
+
+--
+-- Name: COLUMN bio_resources.taxonomy_family; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.taxonomy_family IS '分类学-科';
+
+
+--
+-- Name: COLUMN bio_resources.taxonomy_genus; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.taxonomy_genus IS '分类学-属';
+
+
+--
+-- Name: COLUMN bio_resources.taxonomy_species; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.taxonomy_species IS '分类学-种';
+
+
+--
+-- Name: COLUMN bio_resources.taxonomy_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.taxonomy_id IS 'NCBI分类学ID';
+
+
+--
+-- Name: COLUMN bio_resources.tcmid_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.tcmid_id IS 'TCMID中药分子数据库编号';
+
+
+--
+-- Name: COLUMN bio_resources.num_of_natural_products; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.bio_resources.num_of_natural_products IS '包含的天然产物数量';
 
 
 --
--- Name: COLUMN bio_resources.species_tax_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resources.num_of_prescriptions; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resources.species_tax_id IS '种的Taxonomy ID';
-
-
---
--- Name: COLUMN bio_resources.genus_tax_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.bio_resources.genus_tax_id IS '属的Taxonomy ID';
+COMMENT ON COLUMN public.bio_resources.num_of_prescriptions IS '相关处方数量';
 
 
 --
--- Name: COLUMN bio_resources.family_tax_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bio_resources.created_at; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bio_resources.family_tax_id IS '科的Taxonomy ID';
-
-
---
--- Name: COLUMN bio_resources.cmaup_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.bio_resources.cmaup_id IS 'CMAUP数据库ID';
+COMMENT ON COLUMN public.bio_resources.created_at IS '记录创建时间';
 
 
 --
--- Name: bio_resources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN bio_resources.updated_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.updated_at IS '记录更新时间';
+
+
+--
+-- Name: COLUMN bio_resources.species_tax_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.species_tax_id IS '种级分类学ID';
+
+
+--
+-- Name: COLUMN bio_resources.genus_tax_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.genus_tax_id IS '属级分类学ID';
+
+
+--
+-- Name: COLUMN bio_resources.family_tax_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.family_tax_id IS '科极分类学ID';
+
+
+--
+-- Name: COLUMN bio_resources.cmaup_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bio_resources.cmaup_id IS 'CMAUP中药材数据库编号';
+
+
+--
+-- Name: bio_resources_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.bio_resources_id_seq
@@ -320,15 +514,17 @@ CREATE SEQUENCE public.bio_resources_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.bio_resources_id_seq OWNER TO yfguo;
+
 --
--- Name: bio_resources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: bio_resources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.bio_resources_id_seq OWNED BY public.bio_resources.id;
 
 
 --
--- Name: bioactivity; Type: TABLE; Schema: public; Owner: -
+-- Name: bioactivity; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.bioactivity (
@@ -338,9 +534,9 @@ CREATE TABLE public.bioactivity (
     activity_type character varying(100),
     activity_type_grouped character varying(100),
     activity_relation character varying(10),
-    activity_value numeric(20,6),
+    activity_value numeric(30,6),
     activity_units character varying(100),
-    activity_value_std numeric(20,6),
+    activity_value_std numeric(30,6),
     activity_units_std character varying(20) DEFAULT 'nM'::character varying,
     assay_organism character varying(200),
     assay_tax_id character varying(100),
@@ -349,42 +545,147 @@ CREATE TABLE public.bioactivity (
     assay_cell_type character varying(100),
     ref_id character varying(300),
     ref_id_type character varying(20),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_activity_value CHECK (((activity_value IS NULL) OR (activity_value >= (0)::numeric))),
-    CONSTRAINT chk_activity_value_std CHECK (((activity_value_std IS NULL) OR (activity_value_std >= (0)::numeric)))
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
---
--- Name: TABLE bioactivity; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.bioactivity IS '活性记录表 - 存储天然产物对靶点的生物活性数据';
-
+ALTER TABLE public.bioactivity OWNER TO yfguo;
 
 --
--- Name: COLUMN bioactivity.natural_product_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE bioactivity; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bioactivity.natural_product_id IS '关联的天然产物 ID';
+COMMENT ON TABLE public.bioactivity IS '生物活性表 - 存储天然产物对靶点的生物活性实验数据（IC50、EC50、Ki等）';
 
 
 --
--- Name: COLUMN bioactivity.activity_relation; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN bioactivity.id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.bioactivity.activity_relation IS '活性关系: = (等于), > (大于), < (小于)';
-
-
---
--- Name: COLUMN bioactivity.activity_value_std; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.bioactivity.activity_value_std IS '标准化活性值 (统一转换为 nM)';
+COMMENT ON COLUMN public.bioactivity.id IS '主键ID';
 
 
 --
--- Name: bioactivity_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN bioactivity.natural_product_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.natural_product_id IS '关联的天然产物ID';
+
+
+--
+-- Name: COLUMN bioactivity.target_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.target_id IS '关联的靶点ID';
+
+
+--
+-- Name: COLUMN bioactivity.activity_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.activity_type IS '活性类型（IC50、EC50、Ki、Kd、GI50等）';
+
+
+--
+-- Name: COLUMN bioactivity.activity_type_grouped; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.activity_type_grouped IS '活性类型分组（IC50/EC50/Ki/Kd等归为一组）';
+
+
+--
+-- Name: COLUMN bioactivity.activity_relation; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.activity_relation IS '活性关系符号（= 等于、> 大于、< 小于、~ 约等于）';
+
+
+--
+-- Name: COLUMN bioactivity.activity_value; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.activity_value IS '原始活性值';
+
+
+--
+-- Name: COLUMN bioactivity.activity_units; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.activity_units IS '原始活性单位（nM、μM、mM、M等）';
+
+
+--
+-- Name: COLUMN bioactivity.activity_value_std; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.activity_value_std IS '标准化活性值（统一转换为nM）';
+
+
+--
+-- Name: COLUMN bioactivity.activity_units_std; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.activity_units_std IS '标准化活性单位（固定为nM）';
+
+
+--
+-- Name: COLUMN bioactivity.assay_organism; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.assay_organism IS '实验物种 - 活性测定所用的生物体';
+
+
+--
+-- Name: COLUMN bioactivity.assay_tax_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.assay_tax_id IS '实验物种分类学ID';
+
+
+--
+-- Name: COLUMN bioactivity.assay_strain; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.assay_strain IS '实验菌株/品系';
+
+
+--
+-- Name: COLUMN bioactivity.assay_tissue; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.assay_tissue IS '实验组织';
+
+
+--
+-- Name: COLUMN bioactivity.assay_cell_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.assay_cell_type IS '实验细胞类型';
+
+
+--
+-- Name: COLUMN bioactivity.ref_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.ref_id IS '参考文献ID（PMID、DOI等）';
+
+
+--
+-- Name: COLUMN bioactivity.ref_id_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.ref_id_type IS '参考文献类型（PMID、DOI、Patent）';
+
+
+--
+-- Name: COLUMN bioactivity.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.bioactivity.created_at IS '记录创建时间';
+
+
+--
+-- Name: bioactivity_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.bioactivity_id_seq
@@ -395,15 +696,17 @@ CREATE SEQUENCE public.bioactivity_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.bioactivity_id_seq OWNER TO yfguo;
+
 --
--- Name: bioactivity_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: bioactivity_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.bioactivity_id_seq OWNED BY public.bioactivity.id;
 
 
 --
--- Name: natural_products; Type: TABLE; Schema: public; Owner: -
+-- Name: natural_products; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.natural_products (
@@ -427,51 +730,225 @@ CREATE TABLE public.natural_products (
     num_of_organism integer DEFAULT 0,
     num_of_target integer DEFAULT 0,
     num_of_activity integer DEFAULT 0,
-    gene_cluster text,
-    if_quantity boolean DEFAULT false,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    if_quantity boolean DEFAULT false,
+    log_s numeric(10,2),
+    log_d numeric(10,2),
+    log_p numeric(10,2),
+    tpsa numeric(10,2),
+    ring_count integer,
     CONSTRAINT chk_mw CHECK (((molecular_weight IS NULL) OR (molecular_weight > (0)::numeric)))
 );
 
 
---
--- Name: TABLE natural_products; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.natural_products IS '天然产物表 - 存储天然产物的基本信息、结构和理化性质';
-
+ALTER TABLE public.natural_products OWNER TO yfguo;
 
 --
--- Name: COLUMN natural_products.np_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE natural_products; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.natural_products.np_id IS 'NPASS 天然产物 ID (如 NPC491451)';
+COMMENT ON TABLE public.natural_products IS '天然产物表 - 存储天然产物的基本信息、化学结构和理化性质';
 
 
 --
--- Name: COLUMN natural_products.molecular_weight; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN natural_products.id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.natural_products.molecular_weight IS '分子量 (g/mol)';
-
-
---
--- Name: COLUMN natural_products.xlogp; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.natural_products.xlogp IS '脂水分配系数 (计算值)';
+COMMENT ON COLUMN public.natural_products.id IS '主键ID';
 
 
 --
--- Name: COLUMN natural_products.psa; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN natural_products.np_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.natural_products.psa IS '极性表面积 (Å²)';
+COMMENT ON COLUMN public.natural_products.np_id IS '天然产物编号（如NPC491451）';
 
 
 --
--- Name: compounds_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN natural_products.inchikey; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.inchikey IS 'InChIKey - 国际化合物标识符的哈希值';
+
+
+--
+-- Name: COLUMN natural_products.pref_name; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.pref_name IS '首选名称 - 化合物的常用名称';
+
+
+--
+-- Name: COLUMN natural_products.iupac_name; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.iupac_name IS 'IUPAC系统命名 - 国际纯粹与应用化学联合会标准命名';
+
+
+--
+-- Name: COLUMN natural_products.name_initial; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.name_initial IS '名称首字母 - 用于按字母排序';
+
+
+--
+-- Name: COLUMN natural_products.inchi; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.inchi IS 'InChI - 国际化合物标识符';
+
+
+--
+-- Name: COLUMN natural_products.smiles; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.smiles IS 'SMILES - 简化分子线性输入规范';
+
+
+--
+-- Name: COLUMN natural_products.chembl_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.chembl_id IS 'ChEMBL数据库编号';
+
+
+--
+-- Name: COLUMN natural_products.pubchem_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.pubchem_id IS 'PubChem化合物编号（CID）';
+
+
+--
+-- Name: COLUMN natural_products.molecular_weight; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.molecular_weight IS '分子量（单位：g/mol）';
+
+
+--
+-- Name: COLUMN natural_products.xlogp; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.xlogp IS '脂水分配系数XLogP - 衡量化合物的亲脂性';
+
+
+--
+-- Name: COLUMN natural_products.psa; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.psa IS '极性表面积PSA（单位：Å²）';
+
+
+--
+-- Name: COLUMN natural_products.formula; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.formula IS '分子式 - 化合物的元素组成';
+
+
+--
+-- Name: COLUMN natural_products.h_bond_donors; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.h_bond_donors IS '氢键供体数量';
+
+
+--
+-- Name: COLUMN natural_products.h_bond_acceptors; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.h_bond_acceptors IS '氢键受体数量';
+
+
+--
+-- Name: COLUMN natural_products.rotatable_bonds; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.rotatable_bonds IS '可旋转键数量';
+
+
+--
+-- Name: COLUMN natural_products.num_of_organism; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.num_of_organism IS '关联生物来源数量';
+
+
+--
+-- Name: COLUMN natural_products.num_of_target; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.num_of_target IS '关联靶点数量';
+
+
+--
+-- Name: COLUMN natural_products.num_of_activity; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.num_of_activity IS '生物活性记录数量';
+
+
+--
+-- Name: COLUMN natural_products.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.created_at IS '记录创建时间';
+
+
+--
+-- Name: COLUMN natural_products.updated_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.updated_at IS '记录更新时间';
+
+
+--
+-- Name: COLUMN natural_products.if_quantity; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.if_quantity IS '是否有定量数据';
+
+
+--
+-- Name: COLUMN natural_products.log_s; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.log_s IS 'LogS - 水溶解度对数值';
+
+
+--
+-- Name: COLUMN natural_products.log_d; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.log_d IS 'LogD - 分布系数对数值';
+
+
+--
+-- Name: COLUMN natural_products.log_p; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.log_p IS 'LogP - 辛醇-水分配系数对数值';
+
+
+--
+-- Name: COLUMN natural_products.tpsa; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.tpsa IS '拓扑极性表面积（TPSA）';
+
+
+--
+-- Name: COLUMN natural_products.ring_count; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.natural_products.ring_count IS '环数目 - 分子中环的数量';
+
+
+--
+-- Name: compounds_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.compounds_id_seq
@@ -482,105 +959,98 @@ CREATE SEQUENCE public.compounds_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.compounds_id_seq OWNER TO yfguo;
+
 --
--- Name: compounds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: compounds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.compounds_id_seq OWNED BY public.natural_products.id;
 
 
 --
--- Name: diseases; Type: TABLE; Schema: public; Owner: -
+-- Name: diseases; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.diseases (
     id bigint NOT NULL,
-    disease_id character varying(50) NOT NULL,
     icd11_code character varying(50) NOT NULL,
     disease_name character varying(500) NOT NULL,
     disease_name_zh character varying(500),
     disease_category character varying(200),
-    description text,
-    symptoms text,
-    num_of_related_plants integer DEFAULT 0,
-    num_of_related_targets integer DEFAULT 0,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    disease_name_cmaup character varying(500)
 );
 
 
---
--- Name: TABLE diseases; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.diseases IS '疾病表 - 存储疾病信息（基于ICD-11分类）';
-
+ALTER TABLE public.diseases OWNER TO yfguo;
 
 --
--- Name: COLUMN diseases.disease_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE diseases; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.diseases.disease_id IS '疾病唯一标识符（自动生成，如 DIS0001）';
+COMMENT ON TABLE public.diseases IS '疾病表 - 存储疾病信息，基于ICD-11国际疾病分类标准';
 
 
 --
--- Name: COLUMN diseases.icd11_code; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN diseases.id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.diseases.icd11_code IS 'ICD-11疾病分类编码';
+COMMENT ON COLUMN public.diseases.id IS '主键ID';
 
 
 --
--- Name: COLUMN diseases.disease_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN diseases.icd11_code; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.diseases.icd11_code IS 'ICD-11国际疾病分类编码';
+
+
+--
+-- Name: COLUMN diseases.disease_name; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.diseases.disease_name IS '疾病英文名称';
 
 
 --
--- Name: COLUMN diseases.disease_name_zh; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN diseases.disease_name_zh; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.diseases.disease_name_zh IS '疾病中文名称';
 
 
 --
--- Name: COLUMN diseases.disease_category; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN diseases.disease_category; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.diseases.disease_category IS '疾病分类';
 
 
 --
--- Name: COLUMN diseases.description; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN diseases.created_at; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.diseases.description IS '疾病描述';
-
-
---
--- Name: COLUMN diseases.symptoms; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.diseases.symptoms IS '疾病症状';
+COMMENT ON COLUMN public.diseases.created_at IS '记录创建时间';
 
 
 --
--- Name: COLUMN diseases.num_of_related_plants; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN diseases.updated_at; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.diseases.num_of_related_plants IS '关联植物数量';
-
-
---
--- Name: COLUMN diseases.num_of_related_targets; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.diseases.num_of_related_targets IS '关联靶点数量';
+COMMENT ON COLUMN public.diseases.updated_at IS '记录更新时间';
 
 
 --
--- Name: diseases_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN diseases.disease_name_cmaup; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.diseases.disease_name_cmaup IS '参考数据库中的疾病名称';
+
+
+--
+-- Name: diseases_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.diseases_id_seq
@@ -591,127 +1061,74 @@ CREATE SEQUENCE public.diseases_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.diseases_id_seq OWNER TO yfguo;
+
 --
--- Name: diseases_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: diseases_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.diseases_id_seq OWNED BY public.diseases.id;
 
 
 --
--- Name: prescription_natural_products; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.prescription_natural_products (
-    id bigint NOT NULL,
-    prescription_id bigint NOT NULL,
-    natural_product_id bigint NOT NULL,
-    source_resource_id bigint,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
---
--- Name: TABLE prescription_natural_products; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.prescription_natural_products IS '处方-天然产物关联表 - 记录处方包含的天然产物（直接关联）';
-
-
---
--- Name: prescription_compounds_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.prescription_compounds_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: prescription_compounds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.prescription_compounds_id_seq OWNED BY public.prescription_natural_products.id;
-
-
---
--- Name: prescription_resources; Type: TABLE; Schema: public; Owner: -
+-- Name: prescription_resources; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.prescription_resources (
     id bigint NOT NULL,
     prescription_id bigint NOT NULL,
     bio_resource_id bigint NOT NULL,
-    dosage_value numeric(10,2),
-    dosage_unit character varying(20),
-    dosage_text character varying(100),
-    role character varying(50),
-    role_chinese character varying(20),
-    processing_method character varying(200),
-    processing_note text,
-    sort_order integer DEFAULT 0,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    tcmid_component_id character varying(50),
-    barcode character varying(100),
-    latin_name character varying(500),
-    chinese_name character varying(500)
+    tcmid_component_id character varying(500)
 );
 
 
---
--- Name: TABLE prescription_resources; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.prescription_resources IS '处方-生物资源关联表 - 记录处方的组成药材';
-
+ALTER TABLE public.prescription_resources OWNER TO yfguo;
 
 --
--- Name: COLUMN prescription_resources.dosage_text; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE prescription_resources; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescription_resources.dosage_text IS '药材用量文本（来自TCMID的ComponentQuantity）';
+COMMENT ON TABLE public.prescription_resources IS '处方-生物资源关联表 - 记录处方的组成药材、用量及君臣佐使配伍关系';
 
 
 --
--- Name: COLUMN prescription_resources.role; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescription_resources.id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescription_resources.role IS '君臣佐使: Monarch(君), Minister(臣), Assistant(佐), Guide(使)';
-
-
---
--- Name: COLUMN prescription_resources.tcmid_component_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.prescription_resources.tcmid_component_id IS 'TCMID药材组分ID（如 TCMH1398）';
+COMMENT ON COLUMN public.prescription_resources.id IS '主键ID';
 
 
 --
--- Name: COLUMN prescription_resources.barcode; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescription_resources.prescription_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescription_resources.barcode IS 'TCMID药材条形码（如 ITSAM882-14）';
-
-
---
--- Name: COLUMN prescription_resources.latin_name; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.prescription_resources.latin_name IS '药材拉丁名（来自TCMID）';
+COMMENT ON COLUMN public.prescription_resources.prescription_id IS '关联的处方ID';
 
 
 --
--- Name: COLUMN prescription_resources.chinese_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescription_resources.bio_resource_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescription_resources.chinese_name IS '药材中文名（来自TCMID）';
+COMMENT ON COLUMN public.prescription_resources.bio_resource_id IS '关联的生物资源ID（药材）';
 
 
 --
--- Name: prescription_resources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN prescription_resources.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.prescription_resources.created_at IS '记录创建时间';
+
+
+--
+-- Name: COLUMN prescription_resources.tcmid_component_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.prescription_resources.tcmid_component_id IS '参考数据库药材组分ID（如TCMH1398）';
+
+
+--
+-- Name: prescription_resources_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.prescription_resources_id_seq
@@ -722,15 +1139,17 @@ CREATE SEQUENCE public.prescription_resources_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.prescription_resources_id_seq OWNER TO yfguo;
+
 --
--- Name: prescription_resources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: prescription_resources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.prescription_resources_id_seq OWNED BY public.prescription_resources.id;
 
 
 --
--- Name: prescriptions; Type: TABLE; Schema: public; Owner: -
+-- Name: prescriptions; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.prescriptions (
@@ -739,144 +1158,111 @@ CREATE TABLE public.prescriptions (
     chinese_name character varying(500),
     pinyin_name character varying(200),
     english_name character varying(500),
-    alias text,
-    source_book character varying(200),
-    source_dynasty character varying(100),
-    source_author character varying(100),
-    category character varying(100),
-    subcategory character varying(100),
     functions text,
     indications text,
-    indications_modern text,
-    syndrome character varying(500),
-    composition_text text,
-    dosage_form character varying(100),
-    preparation_method text,
-    usage_method text,
-    dosage text,
-    contraindications text,
-    precautions text,
-    adverse_reactions text,
-    pharmacology text,
-    clinical_application text,
-    target_tissues text,
-    related_diseases text,
     tcmid_id character varying(50),
-    tcmsp_id character varying(50),
-    symmap_id character varying(50),
-    pharmacopoeia_ref character varying(200),
-    literature_ref text,
-    num_of_herbs integer DEFAULT 0,
-    num_of_natural_products integer DEFAULT 0,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     disease_icd11_category text,
-    human_tissues text,
-    reference text,
-    reference_book text
+    reference text
 );
 
 
---
--- Name: TABLE prescriptions; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.prescriptions IS '处方表 - 存储中医方剂/处方信息';
-
+ALTER TABLE public.prescriptions OWNER TO yfguo;
 
 --
--- Name: COLUMN prescriptions.prescription_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE prescriptions; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescriptions.prescription_id IS '处方唯一标识符（TCMID格式: TCMF1, TCMF2等）';
+COMMENT ON TABLE public.prescriptions IS '处方表 - 存储中医方剂/处方信息，包括方剂组成、功效主治、用法用量等';
 
 
 --
--- Name: COLUMN prescriptions.chinese_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.prescriptions.id IS '主键ID';
+
+
+--
+-- Name: COLUMN prescriptions.prescription_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.prescriptions.prescription_id IS '处方编号';
+
+
+--
+-- Name: COLUMN prescriptions.chinese_name; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.prescriptions.chinese_name IS '处方中文名称';
 
 
 --
--- Name: COLUMN prescriptions.pinyin_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.pinyin_name; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.prescriptions.pinyin_name IS '处方拼音名称';
 
 
 --
--- Name: COLUMN prescriptions.english_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.english_name; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.prescriptions.english_name IS '处方英文名称';
 
 
 --
--- Name: COLUMN prescriptions.category; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.functions; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescriptions.category IS '方剂分类: 补益剂、解表剂、清热剂、泻下剂、祛湿剂、理气剂、理血剂、治风剂等';
-
-
---
--- Name: COLUMN prescriptions.functions; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.prescriptions.functions IS '功能描述（功效）';
+COMMENT ON COLUMN public.prescriptions.functions IS '功能功效 - 方剂的功效描述';
 
 
 --
--- Name: COLUMN prescriptions.indications; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.indications; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescriptions.indications IS '适应症';
-
-
---
--- Name: COLUMN prescriptions.dosage_form; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.prescriptions.dosage_form IS '剂型: 丸、散、汤、膏、丹、酒、露、锭等';
+COMMENT ON COLUMN public.prescriptions.indications IS '主治 - 适应症和主治疾病';
 
 
 --
--- Name: COLUMN prescriptions.num_of_natural_products; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.tcmid_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.prescriptions.num_of_natural_products IS '包含的天然产物数量 (间接)';
+COMMENT ON COLUMN public.prescriptions.tcmid_id IS '参考数据库编号';
 
 
 --
--- Name: COLUMN prescriptions.disease_icd11_category; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.prescriptions.created_at IS '记录创建时间';
+
+
+--
+-- Name: COLUMN prescriptions.updated_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.prescriptions.updated_at IS '记录更新时间';
+
+
+--
+-- Name: COLUMN prescriptions.disease_icd11_category; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.prescriptions.disease_icd11_category IS 'ICD-11疾病分类编码（多个用分号分隔）';
 
 
 --
--- Name: COLUMN prescriptions.human_tissues; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.prescriptions.human_tissues IS '相关人体组织';
-
-
---
--- Name: COLUMN prescriptions.reference; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN prescriptions.reference; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.prescriptions.reference IS '参考文献';
 
 
 --
--- Name: COLUMN prescriptions.reference_book; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.prescriptions.reference_book IS '参考书籍';
-
-
---
--- Name: prescriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: prescriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.prescriptions_id_seq
@@ -887,15 +1273,17 @@ CREATE SEQUENCE public.prescriptions_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.prescriptions_id_seq OWNER TO yfguo;
+
 --
--- Name: prescriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: prescriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.prescriptions_id_seq OWNED BY public.prescriptions.id;
 
 
 --
--- Name: sys_dict; Type: TABLE; Schema: public; Owner: -
+-- Name: sys_dict; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.sys_dict (
@@ -916,113 +1304,115 @@ CREATE TABLE public.sys_dict (
 );
 
 
---
--- Name: TABLE sys_dict; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.sys_dict IS '字典表';
-
+ALTER TABLE public.sys_dict OWNER TO yfguo;
 
 --
--- Name: COLUMN sys_dict.dict_code; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE sys_dict; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_dict.dict_code IS '字典编码';
+COMMENT ON TABLE public.sys_dict IS '系统字典表 - 存储系统各类下拉选项的字典数据';
 
 
 --
--- Name: COLUMN sys_dict.dict_sort; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.dict_code; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_dict.dict_sort IS '字典排序';
-
-
---
--- Name: COLUMN sys_dict.dict_label; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_dict.dict_label IS '字典标签';
+COMMENT ON COLUMN public.sys_dict.dict_code IS '字典编码 - 主键';
 
 
 --
--- Name: COLUMN sys_dict.dict_value; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.dict_sort; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_dict.dict_value IS '字典键值';
-
-
---
--- Name: COLUMN sys_dict.dict_type; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_dict.dict_type IS '字典类型';
+COMMENT ON COLUMN public.sys_dict.dict_sort IS '字典排序序号';
 
 
 --
--- Name: COLUMN sys_dict.css_class; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.dict_label; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_dict.css_class IS '样式属性（其他样式扩展）';
-
-
---
--- Name: COLUMN sys_dict.list_class; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_dict.list_class IS '表格回显样式';
+COMMENT ON COLUMN public.sys_dict.dict_label IS '字典标签 - 显示给用户看的文字';
 
 
 --
--- Name: COLUMN sys_dict.is_default; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.dict_value; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_dict.is_default IS '是否默认（Y是 N否）';
-
-
---
--- Name: COLUMN sys_dict.status; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_dict.status IS '状态（0正常 1停用）';
+COMMENT ON COLUMN public.sys_dict.dict_value IS '字典键值 - 实际存储的值';
 
 
 --
--- Name: COLUMN sys_dict.create_by; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.dict_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_dict.dict_type IS '字典类型 - 用于区分不同类型的字典';
+
+
+--
+-- Name: COLUMN sys_dict.css_class; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_dict.css_class IS 'CSS样式类名 - 前端显示样式';
+
+
+--
+-- Name: COLUMN sys_dict.list_class; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_dict.list_class IS '列表样式类名 - 表格中的显示样式';
+
+
+--
+-- Name: COLUMN sys_dict.is_default; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_dict.is_default IS '是否默认值（Y是、N否）';
+
+
+--
+-- Name: COLUMN sys_dict.status; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_dict.status IS '状态（0正常、1停用）';
+
+
+--
+-- Name: COLUMN sys_dict.create_by; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_dict.create_by IS '创建者';
 
 
 --
--- Name: COLUMN sys_dict.create_time; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.create_time; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_dict.create_time IS '创建时间';
 
 
 --
--- Name: COLUMN sys_dict.update_by; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.update_by; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_dict.update_by IS '更新者';
 
 
 --
--- Name: COLUMN sys_dict.update_time; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.update_time; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_dict.update_time IS '更新时间';
 
 
 --
--- Name: COLUMN sys_dict.remark; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_dict.remark; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_dict.remark IS '备注';
+COMMENT ON COLUMN public.sys_dict.remark IS '备注说明';
 
 
 --
--- Name: sys_menu; Type: TABLE; Schema: public; Owner: -
+-- Name: sys_menu; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.sys_menu (
@@ -1048,148 +1438,150 @@ CREATE TABLE public.sys_menu (
 );
 
 
---
--- Name: TABLE sys_menu; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.sys_menu IS '菜单权限表';
-
+ALTER TABLE public.sys_menu OWNER TO yfguo;
 
 --
--- Name: COLUMN sys_menu.menu_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE sys_menu; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_menu.menu_id IS '菜单ID';
+COMMENT ON TABLE public.sys_menu IS '系统菜单表 - 存储前端菜单导航和按钮权限配置';
 
 
 --
--- Name: COLUMN sys_menu.menu_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.menu_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_menu.menu_id IS '菜单ID - 主键';
+
+
+--
+-- Name: COLUMN sys_menu.menu_name; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.menu_name IS '菜单名称';
 
 
 --
--- Name: COLUMN sys_menu.parent_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.parent_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_menu.parent_id IS '父菜单ID';
+COMMENT ON COLUMN public.sys_menu.parent_id IS '父菜单ID（0表示顶级菜单）';
 
 
 --
--- Name: COLUMN sys_menu.order_num; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.order_num; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.order_num IS '显示顺序';
 
 
 --
--- Name: COLUMN sys_menu.path; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.path; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_menu.path IS '路由地址';
-
-
---
--- Name: COLUMN sys_menu.component; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_menu.component IS '组件路径';
+COMMENT ON COLUMN public.sys_menu.path IS '路由地址 - 前端路由路径';
 
 
 --
--- Name: COLUMN sys_menu.query_param; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.component; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_menu.component IS '组件路径 - Vue组件路径';
+
+
+--
+-- Name: COLUMN sys_menu.query_param; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.query_param IS '路由参数';
 
 
 --
--- Name: COLUMN sys_menu.is_frame; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.is_frame; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_menu.is_frame IS '是否为外链 (0是1否)';
-
-
---
--- Name: COLUMN sys_menu.is_cache; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_menu.is_cache IS '是否缓存 (0缓存1不缓存)';
+COMMENT ON COLUMN public.sys_menu.is_frame IS '是否为外链（0是、1否）';
 
 
 --
--- Name: COLUMN sys_menu.menu_type; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.is_cache; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_menu.menu_type IS '菜单类型 (M目录C菜单F按钮)';
-
-
---
--- Name: COLUMN sys_menu.visible; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_menu.visible IS '显示状态 (0显示1隐藏)';
+COMMENT ON COLUMN public.sys_menu.is_cache IS '是否缓存（0缓存、1不缓存）';
 
 
 --
--- Name: COLUMN sys_menu.status; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.menu_type; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_menu.status IS '菜单状态 (0正常1停用)';
-
-
---
--- Name: COLUMN sys_menu.perms; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.sys_menu.perms IS '权限标识';
+COMMENT ON COLUMN public.sys_menu.menu_type IS '菜单类型（M目录、C菜单、F按钮）';
 
 
 --
--- Name: COLUMN sys_menu.icon; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.visible; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_menu.visible IS '显示状态（0显示、1隐藏）';
+
+
+--
+-- Name: COLUMN sys_menu.status; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_menu.status IS '菜单状态（0正常、1停用）';
+
+
+--
+-- Name: COLUMN sys_menu.perms; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.sys_menu.perms IS '权限标识 - 用于权限控制';
+
+
+--
+-- Name: COLUMN sys_menu.icon; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.icon IS '菜单图标';
 
 
 --
--- Name: COLUMN sys_menu.create_by; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.create_by; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.create_by IS '创建者';
 
 
 --
--- Name: COLUMN sys_menu.create_time; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.create_time; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.create_time IS '创建时间';
 
 
 --
--- Name: COLUMN sys_menu.update_by; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.update_by; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.update_by IS '更新者';
 
 
 --
--- Name: COLUMN sys_menu.update_time; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.update_time; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
 COMMENT ON COLUMN public.sys_menu.update_time IS '更新时间';
 
 
 --
--- Name: COLUMN sys_menu.remark; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN sys_menu.remark; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.sys_menu.remark IS '备注';
+COMMENT ON COLUMN public.sys_menu.remark IS '备注说明';
 
 
 --
--- Name: targets; Type: TABLE; Schema: public; Owner: -
+-- Name: targets; Type: TABLE; Schema: public; Owner: yfguo
 --
 
 CREATE TABLE public.targets (
@@ -1216,78 +1608,157 @@ CREATE TABLE public.targets (
 );
 
 
---
--- Name: TABLE targets; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.targets IS '靶点表 - 存储生物靶点信息（蛋白、细胞系、基因等）';
-
+ALTER TABLE public.targets OWNER TO yfguo;
 
 --
--- Name: COLUMN targets.target_type; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE targets; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.targets.target_type IS '靶点类型: Cell line, Protein, Gene, Enzyme';
+COMMENT ON TABLE public.targets IS '靶点表 - 存储生物靶点信息（蛋白质、细胞系、基因、酶等）';
 
 
 --
--- Name: COLUMN targets.gene_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN targets.id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.targets.gene_name IS '基因名称';
-
-
---
--- Name: COLUMN targets.synonyms; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.targets.synonyms IS '同义词（多个用分号分隔）';
+COMMENT ON COLUMN public.targets.id IS '主键ID';
 
 
 --
--- Name: COLUMN targets.function; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN targets.target_id; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.targets.function IS '功能描述';
-
-
---
--- Name: COLUMN targets.pdb_structure; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.targets.pdb_structure IS 'PDB结构ID（多个用分号分隔）';
+COMMENT ON COLUMN public.targets.target_id IS '靶点编号（如NPT918）';
 
 
 --
--- Name: COLUMN targets.bioclass; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN targets.target_type; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.targets.bioclass IS '生物分类';
-
-
---
--- Name: COLUMN targets.ec_number; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.targets.ec_number IS 'EC编号';
+COMMENT ON COLUMN public.targets.target_type IS '靶点类型（Protein蛋白质、Cell line细胞系、Gene基因、Enzyme酶）';
 
 
 --
--- Name: COLUMN targets.sequence; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN targets.target_name; Type: COMMENT; Schema: public; Owner: yfguo
 --
 
-COMMENT ON COLUMN public.targets.sequence IS '蛋白质序列';
-
-
---
--- Name: COLUMN targets.ttd_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.targets.ttd_id IS 'TTD数据库ID';
+COMMENT ON COLUMN public.targets.target_name IS '靶点名称';
 
 
 --
--- Name: targets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: COLUMN targets.target_organism; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.target_organism IS '靶点来源物种';
+
+
+--
+-- Name: COLUMN targets.target_organism_tax_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.target_organism_tax_id IS '靶点来源物种的分类学ID';
+
+
+--
+-- Name: COLUMN targets.uniprot_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.uniprot_id IS 'UniProt蛋白质数据库编号';
+
+
+--
+-- Name: COLUMN targets.num_of_compounds; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.num_of_compounds IS '关联化合物数量（旧字段，保留兼容）';
+
+
+--
+-- Name: COLUMN targets.num_of_activities; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.num_of_activities IS '生物活性记录数量';
+
+
+--
+-- Name: COLUMN targets.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.created_at IS '记录创建时间';
+
+
+--
+-- Name: COLUMN targets.updated_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.updated_at IS '记录更新时间';
+
+
+--
+-- Name: COLUMN targets.num_of_natural_products; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.num_of_natural_products IS '关联天然产物数量';
+
+
+--
+-- Name: COLUMN targets.gene_name; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.gene_name IS '基因名称 - 编码该蛋白的基因符号';
+
+
+--
+-- Name: COLUMN targets.synonyms; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.synonyms IS '同义词 - 靶点的其他名称（分号分隔）';
+
+
+--
+-- Name: COLUMN targets.function; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.function IS '功能描述 - 靶点的生物学功能';
+
+
+--
+-- Name: COLUMN targets.pdb_structure; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.pdb_structure IS 'PDB结构编号 - 蛋白质三维结构数据';
+
+
+--
+-- Name: COLUMN targets.bioclass; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.bioclass IS '生物分类 - 靶点的生物学类别';
+
+
+--
+-- Name: COLUMN targets.ec_number; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.ec_number IS 'EC编号 - 酶的分类编号';
+
+
+--
+-- Name: COLUMN targets.sequence; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.sequence IS '蛋白质氨基酸序列';
+
+
+--
+-- Name: COLUMN targets.ttd_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.targets.ttd_id IS 'TTD治疗靶点数据库编号';
+
+
+--
+-- Name: targets_id_seq; Type: SEQUENCE; Schema: public; Owner: yfguo
 --
 
 CREATE SEQUENCE public.targets_id_seq
@@ -1298,215 +1769,17 @@ CREATE SEQUENCE public.targets_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.targets_id_seq OWNER TO yfguo;
+
 --
--- Name: targets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: targets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yfguo
 --
 
 ALTER SEQUENCE public.targets_id_seq OWNED BY public.targets.id;
 
 
 --
--- Name: toxicity; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.toxicity (
-    id bigint NOT NULL,
-    natural_product_id bigint NOT NULL,
-    toxicity_type character varying(100),
-    toxicity_value numeric(20,6),
-    toxicity_units character varying(50),
-    dose character varying(100),
-    symptoms text,
-    assay_organism character varying(200),
-    assay_method character varying(200),
-    ref_id character varying(50),
-    ref_id_type character varying(20),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
---
--- Name: TABLE toxicity; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.toxicity IS '毒性表 - 存储天然产物的毒性数据';
-
-
---
--- Name: toxicity_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.toxicity_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: toxicity_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.toxicity_id_seq OWNED BY public.toxicity.id;
-
-
---
--- Name: v_bio_resource_detail; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.v_bio_resource_detail AS
-SELECT
-    NULL::bigint AS id,
-    NULL::character varying(50) AS resource_id,
-    NULL::character varying(50) AS resource_type,
-    NULL::character varying(500) AS chinese_name,
-    NULL::character varying(500) AS latin_name,
-    NULL::character varying(500) AS english_name,
-    NULL::character varying(200) AS pinyin_name,
-    NULL::text AS alias,
-    NULL::character varying(100) AS taxonomy_kingdom,
-    NULL::character varying(100) AS taxonomy_phylum,
-    NULL::character varying(100) AS taxonomy_class,
-    NULL::character varying(100) AS taxonomy_order,
-    NULL::character varying(200) AS taxonomy_family,
-    NULL::character varying(200) AS taxonomy_genus,
-    NULL::character varying(200) AS taxonomy_species,
-    NULL::character varying(50) AS taxonomy_id,
-    NULL::character varying(200) AS medicinal_part,
-    NULL::character varying(200) AS medicinal_part_latin,
-    NULL::text AS origin_region,
-    NULL::text AS distribution,
-    NULL::text AS habitat,
-    NULL::character varying(100) AS tcm_property,
-    NULL::character varying(100) AS tcm_flavor,
-    NULL::character varying(200) AS tcm_meridian,
-    NULL::character varying(50) AS tcm_toxicity,
-    NULL::text AS functions,
-    NULL::text AS indications,
-    NULL::text AS contraindications,
-    NULL::character varying(500) AS mineral_composition,
-    NULL::character varying(100) AS mineral_crystal_system,
-    NULL::character varying(50) AS mineral_hardness,
-    NULL::character varying(100) AS mineral_color,
-    NULL::character varying(200) AS microbe_strain,
-    NULL::text AS microbe_culture_condition,
-    NULL::text AS microbe_fermentation_product,
-    NULL::character varying(100) AS animal_class,
-    NULL::character varying(50) AS animal_conservation_status,
-    NULL::character varying(50) AS tcmid_id,
-    NULL::character varying(50) AS tcmsp_id,
-    NULL::character varying(50) AS herb_id,
-    NULL::character varying(200) AS pharmacopoeia_ref,
-    NULL::text AS literature_ref,
-    NULL::text AS image_url,
-    NULL::integer AS num_of_compounds,
-    NULL::integer AS num_of_prescriptions,
-    NULL::timestamp without time zone AS created_at,
-    NULL::timestamp without time zone AS updated_at,
-    NULL::bigint AS natural_product_count,
-    NULL::bigint AS prescription_count;
-
-
---
--- Name: VIEW v_bio_resource_detail; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON VIEW public.v_bio_resource_detail IS '生物资源详情视图 - 包含统计信息';
-
-
---
--- Name: v_natural_product_detail; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.v_natural_product_detail AS
-SELECT
-    NULL::bigint AS id,
-    NULL::character varying(50) AS np_id,
-    NULL::character varying(100) AS inchikey,
-    NULL::text AS pref_name,
-    NULL::text AS iupac_name,
-    NULL::character varying(10) AS name_initial,
-    NULL::text AS inchi,
-    NULL::text AS smiles,
-    NULL::character varying(50) AS chembl_id,
-    NULL::character varying(50) AS pubchem_id,
-    NULL::numeric(10,2) AS molecular_weight,
-    NULL::numeric(10,2) AS xlogp,
-    NULL::numeric(10,2) AS psa,
-    NULL::character varying(200) AS formula,
-    NULL::integer AS h_bond_donors,
-    NULL::integer AS h_bond_acceptors,
-    NULL::integer AS rotatable_bonds,
-    NULL::integer AS num_of_organism,
-    NULL::integer AS num_of_target,
-    NULL::integer AS num_of_activity,
-    NULL::text AS gene_cluster,
-    NULL::boolean AS if_quantity,
-    NULL::timestamp without time zone AS created_at,
-    NULL::timestamp without time zone AS updated_at,
-    NULL::bigint AS bioactivity_count,
-    NULL::bigint AS target_count,
-    NULL::bigint AS bio_resource_count,
-    NULL::numeric AS best_activity_value,
-    NULL::boolean AS has_toxicity;
-
-
---
--- Name: v_prescription_detail; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.v_prescription_detail AS
-SELECT
-    NULL::bigint AS id,
-    NULL::character varying(50) AS prescription_id,
-    NULL::character varying(500) AS chinese_name,
-    NULL::character varying(200) AS pinyin_name,
-    NULL::character varying(500) AS english_name,
-    NULL::text AS alias,
-    NULL::character varying(200) AS source_book,
-    NULL::character varying(100) AS source_dynasty,
-    NULL::character varying(100) AS source_author,
-    NULL::character varying(100) AS category,
-    NULL::character varying(100) AS subcategory,
-    NULL::text AS functions,
-    NULL::text AS indications,
-    NULL::text AS indications_modern,
-    NULL::character varying(500) AS syndrome,
-    NULL::text AS composition_text,
-    NULL::character varying(100) AS dosage_form,
-    NULL::text AS preparation_method,
-    NULL::text AS usage_method,
-    NULL::text AS dosage,
-    NULL::text AS contraindications,
-    NULL::text AS precautions,
-    NULL::text AS adverse_reactions,
-    NULL::text AS pharmacology,
-    NULL::text AS clinical_application,
-    NULL::text AS target_tissues,
-    NULL::text AS related_diseases,
-    NULL::character varying(50) AS tcmid_id,
-    NULL::character varying(50) AS tcmsp_id,
-    NULL::character varying(50) AS symmap_id,
-    NULL::character varying(200) AS pharmacopoeia_ref,
-    NULL::text AS literature_ref,
-    NULL::integer AS num_of_herbs,
-    NULL::integer AS num_of_compounds,
-    NULL::timestamp without time zone AS created_at,
-    NULL::timestamp without time zone AS updated_at,
-    NULL::bigint AS herb_count,
-    NULL::bigint AS direct_natural_product_count;
-
-
---
--- Name: VIEW v_prescription_detail; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON VIEW public.v_prescription_detail IS '处方详情视图 - 包含统计信息';
-
-
---
--- Name: v_target_detail; Type: VIEW; Schema: public; Owner: -
+-- Name: v_target_detail; Type: VIEW; Schema: public; Owner: yfguo
 --
 
 CREATE VIEW public.v_target_detail AS
@@ -1527,93 +1800,178 @@ SELECT
     NULL::numeric AS best_activity_value;
 
 
+ALTER VIEW public.v_target_detail OWNER TO yfguo;
+
 --
--- Name: bio_resource_disease_associations id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: VIEW v_target_detail; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON VIEW public.v_target_detail IS '靶点详情视图 - 汇总关联天然产物数、生物活性数、最佳活性值等统计信息';
+
+
+--
+-- Name: COLUMN v_target_detail.id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.id IS '主键ID';
+
+
+--
+-- Name: COLUMN v_target_detail.target_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.target_id IS '靶点编号';
+
+
+--
+-- Name: COLUMN v_target_detail.target_type; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.target_type IS '靶点类型（Protein、Cell line、Gene、Enzyme）';
+
+
+--
+-- Name: COLUMN v_target_detail.target_name; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.target_name IS '靶点名称';
+
+
+--
+-- Name: COLUMN v_target_detail.target_organism; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.target_organism IS '靶点来源物种';
+
+
+--
+-- Name: COLUMN v_target_detail.target_organism_tax_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.target_organism_tax_id IS '靶点来源物种分类学ID';
+
+
+--
+-- Name: COLUMN v_target_detail.uniprot_id; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.uniprot_id IS 'UniProt蛋白质数据库编号';
+
+
+--
+-- Name: COLUMN v_target_detail.num_of_compounds; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.num_of_compounds IS '关联化合物数（旧字段）';
+
+
+--
+-- Name: COLUMN v_target_detail.num_of_activities; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.num_of_activities IS '生物活性记录数';
+
+
+--
+-- Name: COLUMN v_target_detail.created_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.created_at IS '创建时间';
+
+
+--
+-- Name: COLUMN v_target_detail.updated_at; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.updated_at IS '更新时间';
+
+
+--
+-- Name: COLUMN v_target_detail.natural_product_count; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.natural_product_count IS '关联天然产物总数';
+
+
+--
+-- Name: COLUMN v_target_detail.bioactivity_count; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.bioactivity_count IS '生物活性记录总数';
+
+
+--
+-- Name: COLUMN v_target_detail.best_activity_value; Type: COMMENT; Schema: public; Owner: yfguo
+--
+
+COMMENT ON COLUMN public.v_target_detail.best_activity_value IS '最佳活性值（最小的标准化活性值）';
+
+
+--
+-- Name: bio_resource_disease_associations id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resource_disease_associations ALTER COLUMN id SET DEFAULT nextval('public.bio_resource_disease_associations_id_seq'::regclass);
 
 
 --
--- Name: bio_resource_natural_products id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: bio_resource_natural_products id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
-ALTER TABLE ONLY public.bio_resource_natural_products ALTER COLUMN id SET DEFAULT nextval('public.bio_resource_compounds_id_seq'::regclass);
+ALTER TABLE ONLY public.bio_resource_natural_products ALTER COLUMN id SET DEFAULT nextval('public.bio_resource_natural_products_new_id_seq'::regclass);
 
 
 --
--- Name: bio_resources id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: bio_resources id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resources ALTER COLUMN id SET DEFAULT nextval('public.bio_resources_id_seq'::regclass);
 
 
 --
--- Name: bioactivity id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: bioactivity id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bioactivity ALTER COLUMN id SET DEFAULT nextval('public.bioactivity_id_seq'::regclass);
 
 
 --
--- Name: diseases id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: diseases id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.diseases ALTER COLUMN id SET DEFAULT nextval('public.diseases_id_seq'::regclass);
 
 
 --
--- Name: natural_products id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: natural_products id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.natural_products ALTER COLUMN id SET DEFAULT nextval('public.compounds_id_seq'::regclass);
 
 
 --
--- Name: prescription_natural_products id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.prescription_natural_products ALTER COLUMN id SET DEFAULT nextval('public.prescription_compounds_id_seq'::regclass);
-
-
---
--- Name: prescription_resources id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: prescription_resources id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescription_resources ALTER COLUMN id SET DEFAULT nextval('public.prescription_resources_id_seq'::regclass);
 
 
 --
--- Name: prescriptions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: prescriptions id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescriptions ALTER COLUMN id SET DEFAULT nextval('public.prescriptions_id_seq'::regclass);
 
 
 --
--- Name: targets id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: targets id; Type: DEFAULT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.targets ALTER COLUMN id SET DEFAULT nextval('public.targets_id_seq'::regclass);
 
 
 --
--- Name: toxicity id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.toxicity ALTER COLUMN id SET DEFAULT nextval('public.toxicity_id_seq'::regclass);
-
-
---
--- Name: bio_resource_natural_products bio_resource_compounds_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.bio_resource_natural_products
-    ADD CONSTRAINT bio_resource_compounds_pkey PRIMARY KEY (id);
-
-
---
--- Name: bio_resource_disease_associations bio_resource_disease_associations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: bio_resource_disease_associations bio_resource_disease_associations_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resource_disease_associations
@@ -1621,7 +1979,15 @@ ALTER TABLE ONLY public.bio_resource_disease_associations
 
 
 --
--- Name: bio_resources bio_resources_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: bio_resource_natural_products bio_resource_natural_products_new_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
+--
+
+ALTER TABLE ONLY public.bio_resource_natural_products
+    ADD CONSTRAINT bio_resource_natural_products_new_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: bio_resources bio_resources_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resources
@@ -1629,7 +1995,7 @@ ALTER TABLE ONLY public.bio_resources
 
 
 --
--- Name: bio_resources bio_resources_resource_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: bio_resources bio_resources_resource_id_key; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resources
@@ -1637,7 +2003,7 @@ ALTER TABLE ONLY public.bio_resources
 
 
 --
--- Name: bioactivity bioactivity_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: bioactivity bioactivity_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bioactivity
@@ -1645,7 +2011,7 @@ ALTER TABLE ONLY public.bioactivity
 
 
 --
--- Name: natural_products compounds_np_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: natural_products compounds_np_id_key; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.natural_products
@@ -1653,7 +2019,7 @@ ALTER TABLE ONLY public.natural_products
 
 
 --
--- Name: natural_products compounds_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: natural_products compounds_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.natural_products
@@ -1661,15 +2027,7 @@ ALTER TABLE ONLY public.natural_products
 
 
 --
--- Name: diseases diseases_disease_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.diseases
-    ADD CONSTRAINT diseases_disease_id_key UNIQUE (disease_id);
-
-
---
--- Name: diseases diseases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: diseases diseases_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.diseases
@@ -1677,15 +2035,7 @@ ALTER TABLE ONLY public.diseases
 
 
 --
--- Name: prescription_natural_products prescription_compounds_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.prescription_natural_products
-    ADD CONSTRAINT prescription_compounds_pkey PRIMARY KEY (id);
-
-
---
--- Name: prescription_resources prescription_resources_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: prescription_resources prescription_resources_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescription_resources
@@ -1693,7 +2043,7 @@ ALTER TABLE ONLY public.prescription_resources
 
 
 --
--- Name: prescriptions prescriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: prescriptions prescriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescriptions
@@ -1701,7 +2051,7 @@ ALTER TABLE ONLY public.prescriptions
 
 
 --
--- Name: prescriptions prescriptions_prescription_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: prescriptions prescriptions_prescription_id_key; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescriptions
@@ -1709,7 +2059,7 @@ ALTER TABLE ONLY public.prescriptions
 
 
 --
--- Name: sys_dict sys_dict_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sys_dict sys_dict_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.sys_dict
@@ -1717,7 +2067,7 @@ ALTER TABLE ONLY public.sys_dict
 
 
 --
--- Name: sys_menu sys_menu_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sys_menu sys_menu_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.sys_menu
@@ -1725,7 +2075,7 @@ ALTER TABLE ONLY public.sys_menu
 
 
 --
--- Name: targets targets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: targets targets_pkey; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.targets
@@ -1733,7 +2083,7 @@ ALTER TABLE ONLY public.targets
 
 
 --
--- Name: targets targets_target_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: targets targets_target_id_key; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.targets
@@ -1741,15 +2091,7 @@ ALTER TABLE ONLY public.targets
 
 
 --
--- Name: toxicity toxicity_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.toxicity
-    ADD CONSTRAINT toxicity_pkey PRIMARY KEY (id);
-
-
---
--- Name: bio_resource_disease_associations uk_bio_resource_disease; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: bio_resource_disease_associations uk_bio_resource_disease; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resource_disease_associations
@@ -1757,23 +2099,7 @@ ALTER TABLE ONLY public.bio_resource_disease_associations
 
 
 --
--- Name: bio_resource_natural_products uk_bio_resource_natural_product; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.bio_resource_natural_products
-    ADD CONSTRAINT uk_bio_resource_natural_product UNIQUE (bio_resource_id, natural_product_id);
-
-
---
--- Name: prescription_natural_products uk_prescription_natural_product; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.prescription_natural_products
-    ADD CONSTRAINT uk_prescription_natural_product UNIQUE (prescription_id, natural_product_id);
-
-
---
--- Name: prescription_resources uk_prescription_resource; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: prescription_resources uk_prescription_resource; Type: CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescription_resources
@@ -1781,697 +2107,483 @@ ALTER TABLE ONLY public.prescription_resources
 
 
 --
--- Name: idx_bio_resources_chinese_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_chinese_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_chinese_gin ON public.bio_resources USING gin (to_tsvector('simple'::regconfig, (COALESCE(chinese_name, ''::character varying))::text));
 
 
 --
--- Name: idx_bio_resources_chinese_name; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_chinese_name; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_chinese_name ON public.bio_resources USING btree (chinese_name);
 
 
 --
--- Name: idx_bio_resources_cmaup_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_cmaup_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_cmaup_id ON public.bio_resources USING btree (cmaup_id);
 
 
 --
--- Name: idx_bio_resources_family; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_family; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_family ON public.bio_resources USING btree (taxonomy_family);
 
 
 --
--- Name: idx_bio_resources_family_tax_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_family_tax_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_family_tax_id ON public.bio_resources USING btree (family_tax_id);
 
 
 --
--- Name: idx_bio_resources_functions_gin; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_bio_resources_functions_gin ON public.bio_resources USING gin (to_tsvector('simple'::regconfig, COALESCE(functions, ''::text)));
-
-
---
--- Name: idx_bio_resources_genus; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_genus; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_genus ON public.bio_resources USING btree (taxonomy_genus);
 
 
 --
--- Name: idx_bio_resources_genus_tax_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_genus_tax_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_genus_tax_id ON public.bio_resources USING btree (genus_tax_id);
 
 
 --
--- Name: idx_bio_resources_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_id ON public.bio_resources USING btree (resource_id);
 
 
 --
--- Name: idx_bio_resources_latin_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_latin_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_latin_gin ON public.bio_resources USING gin (to_tsvector('english'::regconfig, (COALESCE(latin_name, ''::character varying))::text));
 
 
 --
--- Name: idx_bio_resources_latin_name; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_latin_name; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_latin_name ON public.bio_resources USING btree (latin_name);
 
 
 --
--- Name: idx_bio_resources_pinyin; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_bio_resources_pinyin ON public.bio_resources USING btree (pinyin_name);
-
-
---
--- Name: idx_bio_resources_species_tax_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_species_tax_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_species_tax_id ON public.bio_resources USING btree (species_tax_id);
 
 
 --
--- Name: idx_bio_resources_tcm_meridian; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_tcmid_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
-CREATE INDEX idx_bio_resources_tcm_meridian ON public.bio_resources USING btree (tcm_meridian);
-
-
---
--- Name: idx_bio_resources_tcm_property; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_bio_resources_tcm_property ON public.bio_resources USING btree (tcm_property);
+CREATE INDEX idx_bio_resources_tcmid_id ON public.bio_resources USING btree (tcmid_id);
 
 
 --
--- Name: idx_bio_resources_type; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bio_resources_type; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bio_resources_type ON public.bio_resources USING btree (resource_type);
 
 
 --
--- Name: idx_bioactivity_natural_product; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_activity_value; Type: INDEX; Schema: public; Owner: yfguo
+--
+
+CREATE INDEX idx_bioactivity_activity_value ON public.bioactivity USING btree (activity_value);
+
+
+--
+-- Name: idx_bioactivity_natural_product; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_natural_product ON public.bioactivity USING btree (natural_product_id);
 
 
 --
--- Name: idx_bioactivity_natural_product_target; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_natural_product_target; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_natural_product_target ON public.bioactivity USING btree (natural_product_id, target_id);
 
 
 --
--- Name: idx_bioactivity_ref_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_natural_product_value_std; Type: INDEX; Schema: public; Owner: yfguo
+--
+
+CREATE INDEX idx_bioactivity_natural_product_value_std ON public.bioactivity USING btree (natural_product_id, activity_value_std);
+
+
+--
+-- Name: idx_bioactivity_ref_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_ref_id ON public.bioactivity USING btree (ref_id);
 
 
 --
--- Name: idx_bioactivity_relation; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_relation; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_relation ON public.bioactivity USING btree (activity_relation);
 
 
 --
--- Name: idx_bioactivity_target; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_target; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_target ON public.bioactivity USING btree (target_id);
 
 
 --
--- Name: idx_bioactivity_type; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_target_natural_product; Type: INDEX; Schema: public; Owner: yfguo
+--
+
+CREATE INDEX idx_bioactivity_target_natural_product ON public.bioactivity USING btree (target_id, natural_product_id);
+
+
+--
+-- Name: idx_bioactivity_type; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_type ON public.bioactivity USING btree (activity_type);
 
 
 --
--- Name: idx_bioactivity_type_grouped; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_type_grouped; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_type_grouped ON public.bioactivity USING btree (activity_type_grouped);
 
 
 --
--- Name: idx_bioactivity_type_value_std; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_type_value_std; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_type_value_std ON public.bioactivity USING btree (activity_type, activity_value_std);
 
 
 --
--- Name: idx_bioactivity_value_std; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_bioactivity_value_std; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_bioactivity_value_std ON public.bioactivity USING btree (activity_value_std);
 
 
 --
--- Name: idx_brda_bio_resource; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_brda_bio_resource; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_brda_bio_resource ON public.bio_resource_disease_associations USING btree (bio_resource_id);
 
 
 --
--- Name: idx_brda_confidence; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_brda_confidence; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_brda_confidence ON public.bio_resource_disease_associations USING btree (confidence_score);
 
 
 --
--- Name: idx_brda_disease; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_brda_disease; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_brda_disease ON public.bio_resource_disease_associations USING btree (disease_id);
 
 
 --
--- Name: idx_brnp_bio_resource; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_brnp_np_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
-CREATE INDEX idx_brnp_bio_resource ON public.bio_resource_natural_products USING btree (bio_resource_id);
-
-
---
--- Name: idx_brnp_natural_product; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_brnp_natural_product ON public.bio_resource_natural_products USING btree (natural_product_id);
+CREATE INDEX idx_brnp_np_id ON public.bio_resource_natural_products USING btree (np_id);
 
 
 --
--- Name: idx_diseases_category; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_brnp_org_id; Type: INDEX; Schema: public; Owner: yfguo
+--
+
+CREATE INDEX idx_brnp_org_id ON public.bio_resource_natural_products USING btree (org_id);
+
+
+--
+-- Name: idx_brnp_org_np; Type: INDEX; Schema: public; Owner: yfguo
+--
+
+CREATE INDEX idx_brnp_org_np ON public.bio_resource_natural_products USING btree (org_id, np_id);
+
+
+--
+-- Name: idx_brnp_ref_id; Type: INDEX; Schema: public; Owner: yfguo
+--
+
+CREATE INDEX idx_brnp_ref_id ON public.bio_resource_natural_products USING btree (ref_id);
+
+
+--
+-- Name: idx_diseases_category; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_diseases_category ON public.diseases USING btree (disease_category);
 
 
 --
--- Name: idx_diseases_disease_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_diseases_disease_id ON public.diseases USING btree (disease_id);
-
-
---
--- Name: idx_diseases_icd11_code; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_diseases_icd11_code; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_diseases_icd11_code ON public.diseases USING btree (icd11_code);
 
 
 --
--- Name: idx_diseases_name_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_diseases_name_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_diseases_name_gin ON public.diseases USING gin (to_tsvector('english'::regconfig, (COALESCE(disease_name, ''::character varying))::text));
 
 
 --
--- Name: idx_natural_products_chembl_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_chembl_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_chembl_id ON public.natural_products USING btree (chembl_id);
 
 
 --
--- Name: idx_natural_products_inchikey; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_inchikey; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_inchikey ON public.natural_products USING btree (inchikey);
 
 
 --
--- Name: idx_natural_products_iupac_name_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_iupac_name_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_iupac_name_gin ON public.natural_products USING gin (to_tsvector('english'::regconfig, COALESCE(iupac_name, ''::text)));
 
 
 --
--- Name: idx_natural_products_mw; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_mw; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_mw ON public.natural_products USING btree (molecular_weight);
 
 
 --
--- Name: idx_natural_products_np_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_np_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_np_id ON public.natural_products USING btree (np_id);
 
 
 --
--- Name: idx_natural_products_num_activity; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_num_activity; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_num_activity ON public.natural_products USING btree (num_of_activity);
 
 
 --
--- Name: idx_natural_products_num_target; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_num_target; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_num_target ON public.natural_products USING btree (num_of_target);
 
 
 --
--- Name: idx_natural_products_pref_name; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_pref_name; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_pref_name ON public.natural_products USING btree (pref_name);
 
 
 --
--- Name: idx_natural_products_pref_name_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_pref_name_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_pref_name_gin ON public.natural_products USING gin (to_tsvector('english'::regconfig, COALESCE(pref_name, (''::character varying)::text)));
 
 
 --
--- Name: idx_natural_products_psa; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_psa; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_psa ON public.natural_products USING btree (psa);
 
 
 --
--- Name: idx_natural_products_pubchem_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_pubchem_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_pubchem_id ON public.natural_products USING btree (pubchem_id);
 
 
 --
--- Name: idx_natural_products_xlogp; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_natural_products_xlogp; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_natural_products_xlogp ON public.natural_products USING btree (xlogp);
 
 
 --
--- Name: idx_pnp_natural_product; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_pnp_natural_product ON public.prescription_natural_products USING btree (natural_product_id);
-
-
---
--- Name: idx_pnp_prescription; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_pnp_prescription ON public.prescription_natural_products USING btree (prescription_id);
-
-
---
--- Name: idx_pr_barcode; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_pr_barcode ON public.prescription_resources USING btree (barcode);
-
-
---
--- Name: idx_pr_bio_resource; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_pr_bio_resource; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_pr_bio_resource ON public.prescription_resources USING btree (bio_resource_id);
 
 
 --
--- Name: idx_pr_prescription; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_pr_prescription; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_pr_prescription ON public.prescription_resources USING btree (prescription_id);
 
 
 --
--- Name: idx_pr_role; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_pr_role ON public.prescription_resources USING btree (role);
-
-
---
--- Name: idx_pr_tcmid_component; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_pr_tcmid_component; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_pr_tcmid_component ON public.prescription_resources USING btree (tcmid_component_id);
 
 
 --
--- Name: idx_prescriptions_category; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_prescriptions_category ON public.prescriptions USING btree (category);
-
-
---
--- Name: idx_prescriptions_chinese_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_prescriptions_chinese_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_prescriptions_chinese_gin ON public.prescriptions USING gin (to_tsvector('simple'::regconfig, (COALESCE(chinese_name, ''::character varying))::text));
 
 
 --
--- Name: idx_prescriptions_chinese_name; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_prescriptions_chinese_name; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_prescriptions_chinese_name ON public.prescriptions USING btree (chinese_name);
 
 
 --
--- Name: idx_prescriptions_dosage_form; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_prescriptions_dosage_form ON public.prescriptions USING btree (dosage_form);
-
-
---
--- Name: idx_prescriptions_functions_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_prescriptions_functions_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_prescriptions_functions_gin ON public.prescriptions USING gin (to_tsvector('simple'::regconfig, COALESCE(functions, ''::text)));
 
 
 --
--- Name: idx_prescriptions_icd11_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_prescriptions_icd11_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_prescriptions_icd11_gin ON public.prescriptions USING gin (to_tsvector('english'::regconfig, COALESCE(disease_icd11_category, ''::text)));
 
 
 --
--- Name: idx_prescriptions_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_prescriptions_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_prescriptions_id ON public.prescriptions USING btree (prescription_id);
 
 
 --
--- Name: idx_prescriptions_indications_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_prescriptions_indications_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_prescriptions_indications_gin ON public.prescriptions USING gin (to_tsvector('simple'::regconfig, COALESCE(indications, ''::text)));
 
 
 --
--- Name: idx_prescriptions_pinyin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_prescriptions_pinyin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_prescriptions_pinyin ON public.prescriptions USING btree (pinyin_name);
 
 
 --
--- Name: idx_prescriptions_source_book; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_prescriptions_source_book ON public.prescriptions USING btree (source_book);
-
-
---
--- Name: idx_targets_ec_number; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_ec_number; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_ec_number ON public.targets USING btree (ec_number);
 
 
 --
--- Name: idx_targets_function_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_function_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_function_gin ON public.targets USING gin (to_tsvector('english'::regconfig, COALESCE(function, ''::text)));
 
 
 --
--- Name: idx_targets_gene_name; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_gene_name; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_gene_name ON public.targets USING btree (gene_name);
 
 
 --
--- Name: idx_targets_name; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_name; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_name ON public.targets USING btree (target_name);
 
 
 --
--- Name: idx_targets_name_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_name_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_name_gin ON public.targets USING gin (to_tsvector('english'::regconfig, (COALESCE(target_name, ''::character varying))::text));
 
 
 --
--- Name: idx_targets_organism; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_organism; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_organism ON public.targets USING btree (target_organism);
 
 
 --
--- Name: idx_targets_synonyms_gin; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_synonyms_gin; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_synonyms_gin ON public.targets USING gin (to_tsvector('english'::regconfig, COALESCE(synonyms, ''::text)));
 
 
 --
--- Name: idx_targets_target_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_target_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_target_id ON public.targets USING btree (target_id);
 
 
 --
--- Name: idx_targets_ttd_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_ttd_id; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_ttd_id ON public.targets USING btree (ttd_id);
 
 
 --
--- Name: idx_targets_type; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_type; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_type ON public.targets USING btree (target_type);
 
 
 --
--- Name: idx_targets_uniprot; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_targets_uniprot; Type: INDEX; Schema: public; Owner: yfguo
 --
 
 CREATE INDEX idx_targets_uniprot ON public.targets USING btree (uniprot_id);
 
 
 --
--- Name: idx_toxicity_natural_product; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_toxicity_natural_product ON public.toxicity USING btree (natural_product_id);
-
-
---
--- Name: idx_toxicity_ref_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_toxicity_ref_id ON public.toxicity USING btree (ref_id);
-
-
---
--- Name: idx_toxicity_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_toxicity_type ON public.toxicity USING btree (toxicity_type);
-
-
---
--- Name: v_bio_resource_detail _RETURN; Type: RULE; Schema: public; Owner: -
---
-
-CREATE OR REPLACE VIEW public.v_bio_resource_detail AS
- SELECT br.id,
-    br.resource_id,
-    br.resource_type,
-    br.chinese_name,
-    br.latin_name,
-    br.english_name,
-    br.pinyin_name,
-    br.alias,
-    br.taxonomy_kingdom,
-    br.taxonomy_phylum,
-    br.taxonomy_class,
-    br.taxonomy_order,
-    br.taxonomy_family,
-    br.taxonomy_genus,
-    br.taxonomy_species,
-    br.taxonomy_id,
-    br.medicinal_part,
-    br.medicinal_part_latin,
-    br.origin_region,
-    br.distribution,
-    br.habitat,
-    br.tcm_property,
-    br.tcm_flavor,
-    br.tcm_meridian,
-    br.tcm_toxicity,
-    br.functions,
-    br.indications,
-    br.contraindications,
-    br.mineral_composition,
-    br.mineral_crystal_system,
-    br.mineral_hardness,
-    br.mineral_color,
-    br.microbe_strain,
-    br.microbe_culture_condition,
-    br.microbe_fermentation_product,
-    br.animal_class,
-    br.animal_conservation_status,
-    br.tcmid_id,
-    br.tcmsp_id,
-    br.herb_id,
-    br.pharmacopoeia_ref,
-    br.literature_ref,
-    br.image_url,
-    br.num_of_natural_products AS num_of_compounds,
-    br.num_of_prescriptions,
-    br.created_at,
-    br.updated_at,
-    count(DISTINCT brnp.natural_product_id) AS natural_product_count,
-    count(DISTINCT pr.prescription_id) AS prescription_count
-   FROM ((public.bio_resources br
-     LEFT JOIN public.bio_resource_natural_products brnp ON ((br.id = brnp.bio_resource_id)))
-     LEFT JOIN public.prescription_resources pr ON ((br.id = pr.bio_resource_id)))
-  GROUP BY br.id;
-
-
---
--- Name: v_prescription_detail _RETURN; Type: RULE; Schema: public; Owner: -
---
-
-CREATE OR REPLACE VIEW public.v_prescription_detail AS
- SELECT p.id,
-    p.prescription_id,
-    p.chinese_name,
-    p.pinyin_name,
-    p.english_name,
-    p.alias,
-    p.source_book,
-    p.source_dynasty,
-    p.source_author,
-    p.category,
-    p.subcategory,
-    p.functions,
-    p.indications,
-    p.indications_modern,
-    p.syndrome,
-    p.composition_text,
-    p.dosage_form,
-    p.preparation_method,
-    p.usage_method,
-    p.dosage,
-    p.contraindications,
-    p.precautions,
-    p.adverse_reactions,
-    p.pharmacology,
-    p.clinical_application,
-    p.target_tissues,
-    p.related_diseases,
-    p.tcmid_id,
-    p.tcmsp_id,
-    p.symmap_id,
-    p.pharmacopoeia_ref,
-    p.literature_ref,
-    p.num_of_herbs,
-    p.num_of_natural_products AS num_of_compounds,
-    p.created_at,
-    p.updated_at,
-    count(DISTINCT pr.bio_resource_id) AS herb_count,
-    count(DISTINCT pnp.natural_product_id) AS direct_natural_product_count
-   FROM ((public.prescriptions p
-     LEFT JOIN public.prescription_resources pr ON ((p.id = pr.prescription_id)))
-     LEFT JOIN public.prescription_natural_products pnp ON ((p.id = pnp.prescription_id)))
-  GROUP BY p.id;
-
-
---
--- Name: v_natural_product_detail _RETURN; Type: RULE; Schema: public; Owner: -
---
-
-CREATE OR REPLACE VIEW public.v_natural_product_detail AS
- SELECT np.id,
-    np.np_id,
-    np.inchikey,
-    np.pref_name,
-    np.iupac_name,
-    np.name_initial,
-    np.inchi,
-    np.smiles,
-    np.chembl_id,
-    np.pubchem_id,
-    np.molecular_weight,
-    np.xlogp,
-    np.psa,
-    np.formula,
-    np.h_bond_donors,
-    np.h_bond_acceptors,
-    np.rotatable_bonds,
-    np.num_of_organism,
-    np.num_of_target,
-    np.num_of_activity,
-    np.gene_cluster,
-    np.if_quantity,
-    np.created_at,
-    np.updated_at,
-    count(DISTINCT b.id) AS bioactivity_count,
-    count(DISTINCT b.target_id) AS target_count,
-    count(DISTINCT brnp.bio_resource_id) AS bio_resource_count,
-    min(b.activity_value_std) AS best_activity_value,
-    (EXISTS ( SELECT 1
-           FROM public.toxicity t
-          WHERE (t.natural_product_id = np.id))) AS has_toxicity
-   FROM ((public.natural_products np
-     LEFT JOIN public.bioactivity b ON ((np.id = b.natural_product_id)))
-     LEFT JOIN public.bio_resource_natural_products brnp ON ((np.id = brnp.natural_product_id)))
-  GROUP BY np.id;
-
-
---
--- Name: v_target_detail _RETURN; Type: RULE; Schema: public; Owner: -
+-- Name: v_target_detail _RETURN; Type: RULE; Schema: public; Owner: yfguo
 --
 
 CREATE OR REPLACE VIEW public.v_target_detail AS
@@ -2495,42 +2607,49 @@ CREATE OR REPLACE VIEW public.v_target_detail AS
 
 
 --
--- Name: bio_resources update_bio_resources_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: bio_resources update_bio_resources_updated_at; Type: TRIGGER; Schema: public; Owner: yfguo
 --
 
 CREATE TRIGGER update_bio_resources_updated_at BEFORE UPDATE ON public.bio_resources FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: diseases update_diseases_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: bio_resource_natural_products update_brnp_updated_at; Type: TRIGGER; Schema: public; Owner: yfguo
+--
+
+CREATE TRIGGER update_brnp_updated_at BEFORE UPDATE ON public.bio_resource_natural_products FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: diseases update_diseases_updated_at; Type: TRIGGER; Schema: public; Owner: yfguo
 --
 
 CREATE TRIGGER update_diseases_updated_at BEFORE UPDATE ON public.diseases FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: natural_products update_natural_products_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: natural_products update_natural_products_updated_at; Type: TRIGGER; Schema: public; Owner: yfguo
 --
 
 CREATE TRIGGER update_natural_products_updated_at BEFORE UPDATE ON public.natural_products FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: prescriptions update_prescriptions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: prescriptions update_prescriptions_updated_at; Type: TRIGGER; Schema: public; Owner: yfguo
 --
 
 CREATE TRIGGER update_prescriptions_updated_at BEFORE UPDATE ON public.prescriptions FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: targets update_targets_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: targets update_targets_updated_at; Type: TRIGGER; Schema: public; Owner: yfguo
 --
 
 CREATE TRIGGER update_targets_updated_at BEFORE UPDATE ON public.targets FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: bioactivity fk_bioactivity_natural_product; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: bioactivity fk_bioactivity_natural_product; Type: FK CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bioactivity
@@ -2538,7 +2657,7 @@ ALTER TABLE ONLY public.bioactivity
 
 
 --
--- Name: bioactivity fk_bioactivity_target; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: bioactivity fk_bioactivity_target; Type: FK CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bioactivity
@@ -2546,7 +2665,7 @@ ALTER TABLE ONLY public.bioactivity
 
 
 --
--- Name: bio_resource_disease_associations fk_brda_bio_resource; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: bio_resource_disease_associations fk_brda_bio_resource; Type: FK CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resource_disease_associations
@@ -2554,7 +2673,7 @@ ALTER TABLE ONLY public.bio_resource_disease_associations
 
 
 --
--- Name: bio_resource_disease_associations fk_brda_disease; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: bio_resource_disease_associations fk_brda_disease; Type: FK CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.bio_resource_disease_associations
@@ -2562,47 +2681,7 @@ ALTER TABLE ONLY public.bio_resource_disease_associations
 
 
 --
--- Name: bio_resource_natural_products fk_brnp_bio_resource; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.bio_resource_natural_products
-    ADD CONSTRAINT fk_brnp_bio_resource FOREIGN KEY (bio_resource_id) REFERENCES public.bio_resources(id) ON DELETE CASCADE;
-
-
---
--- Name: bio_resource_natural_products fk_brnp_natural_product; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.bio_resource_natural_products
-    ADD CONSTRAINT fk_brnp_natural_product FOREIGN KEY (natural_product_id) REFERENCES public.natural_products(id) ON DELETE CASCADE;
-
-
---
--- Name: prescription_natural_products fk_pnp_natural_product; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.prescription_natural_products
-    ADD CONSTRAINT fk_pnp_natural_product FOREIGN KEY (natural_product_id) REFERENCES public.natural_products(id) ON DELETE CASCADE;
-
-
---
--- Name: prescription_natural_products fk_pnp_prescription; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.prescription_natural_products
-    ADD CONSTRAINT fk_pnp_prescription FOREIGN KEY (prescription_id) REFERENCES public.prescriptions(id) ON DELETE CASCADE;
-
-
---
--- Name: prescription_natural_products fk_pnp_source_resource; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.prescription_natural_products
-    ADD CONSTRAINT fk_pnp_source_resource FOREIGN KEY (source_resource_id) REFERENCES public.bio_resources(id) ON DELETE SET NULL;
-
-
---
--- Name: prescription_resources fk_pr_bio_resource; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: prescription_resources fk_pr_bio_resource; Type: FK CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescription_resources
@@ -2610,7 +2689,7 @@ ALTER TABLE ONLY public.prescription_resources
 
 
 --
--- Name: prescription_resources fk_pr_prescription; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: prescription_resources fk_pr_prescription; Type: FK CONSTRAINT; Schema: public; Owner: yfguo
 --
 
 ALTER TABLE ONLY public.prescription_resources
@@ -2618,14 +2697,8 @@ ALTER TABLE ONLY public.prescription_resources
 
 
 --
--- Name: toxicity fk_toxicity_natural_product; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.toxicity
-    ADD CONSTRAINT fk_toxicity_natural_product FOREIGN KEY (natural_product_id) REFERENCES public.natural_products(id) ON DELETE CASCADE;
-
-
---
 -- PostgreSQL database dump complete
 --
+
+\unrestrict JBajSlJHh2giQYgBKmXf3ptqgY0wSYxeJ58On2axIUdLPueag6j7y980nqudnkn
 

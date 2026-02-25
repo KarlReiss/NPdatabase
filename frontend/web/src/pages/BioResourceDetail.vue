@@ -26,7 +26,6 @@
             </div>
             <div class="mt-2 text-base text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
               <span>编号：{{ resource.resourceId }}</span>
-              <span v-if="resource.officialChineseName">官方中文名：{{ resource.officialChineseName }}</span>
               <span>拉丁名：{{ resource.latinName ?? '—' }}</span>
             </div>
           </div>
@@ -50,7 +49,7 @@
           <div class="text-xs text-slate-400 uppercase tracking-wider">基本信息</div>
           <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>资源类型：{{ resource.resourceType ?? '—' }}</div>
-            <div>官方中文名：{{ resource.officialChineseName ?? '—' }}</div>
+            <div>中文名来源：{{ resource.translationSource ?? '—' }}</div>
             <div>拉丁名：{{ resource.latinName ?? '—' }}</div>
             <div>Taxonomy ID：{{ resource.taxonomyId ?? '—' }}</div>
           </div>

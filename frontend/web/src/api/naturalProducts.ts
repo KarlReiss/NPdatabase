@@ -4,7 +4,6 @@ import type {
   BioactivityTargetSummaryApi,
   BioResourceApi,
   NaturalProductApi,
-  ToxicityApi,
 } from './types';
 
 export interface NaturalProductQuery {
@@ -20,7 +19,6 @@ export interface NaturalProductQuery {
   activityType?: string;
   activityMaxNm?: number;
   targetType?: string;
-  hasToxicity?: boolean;
 }
 
 export const fetchNaturalProducts = (params: NaturalProductQuery) =>
@@ -37,6 +35,3 @@ export const fetchNaturalProductBioactivityTargets = (npId: string) =>
 
 export const fetchNaturalProductResources = (npId: string) =>
   apiGet<BioResourceApi[]>(`/api/natural-products/${npId}/bio-resources`);
-
-export const fetchNaturalProductToxicity = (npId: string) =>
-  apiGet<ToxicityApi[]>(`/api/natural-products/${npId}/toxicity`);

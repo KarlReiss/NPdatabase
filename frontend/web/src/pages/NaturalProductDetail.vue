@@ -28,10 +28,9 @@
               <div class="flex items-center space-x-3 mt-3">
                 <span
                   class="px-2 py-0.5 text-[11px] font-bold rounded"
-                  :class="compound.hasToxicity ? 'bg-red-50 text-red-600' : ''"
-                  :style="compound.hasToxicity ? '' : 'background: var(--theme-soft); color: var(--theme);'"
+                  style="background: var(--theme-soft); color: var(--theme);"
                 >
-                  {{ compound.hasToxicity ? '含毒性记录' : '天然产物' }}
+                  天然产物
                 </span>
                 <span class="text-[12px] text-slate-400 font-mono select-all cursor-pointer">ID: {{ compound.npId }}</span>
               </div>
@@ -240,14 +239,12 @@ import {
   fetchNaturalProductBioactivityTargets,
   fetchNaturalProductDetail,
   fetchNaturalProductResources,
-  fetchNaturalProductToxicity,
 } from '@/api/naturalProducts';
 import type {
   BioactivityApi,
   BioactivityTargetSummaryApi,
   BioResourceApi,
   NaturalProductApi,
-  ToxicityApi,
 } from '@/api/types';
 import { buildPubchemImage, formatCount, formatDecimal, toNumber } from '@/utils/format';
 
@@ -258,7 +255,6 @@ const bioactivity = ref<BioactivityApi[]>([]);
 const bioactivityTotal = ref(0);
 const targetSummaries = ref<BioactivityTargetSummaryApi[]>([]);
 const resources = ref<BioResourceApi[]>([]);
-const toxicity = ref<ToxicityApi[]>([]);
 
 const loading = ref(false);
 const error = ref('');
@@ -363,17 +359,15 @@ const fetchAll = async () => {
     const bioPromise = fetchNaturalProductBioactivity(compoundId.value, { page: 1, pageSize: 50 });
     const targetPromise = fetchNaturalProductBioactivityTargets(compoundId.value);
     const resourcePromise = fetchNaturalProductResources(compoundId.value);
-    const toxicityPromise = fetchNaturalProductToxicity(compoundId.value);
 
     const results = await Promise.allSettled([
       detailPromise,
       bioPromise,
       targetPromise,
       resourcePromise,
-      toxicityPromise,
     ]);
 
-    const [detailResult, bioResult, targetResult, resourceResult, toxicityResult] = results;
+    const [detailResult, bioResult, targetResult, resourceResult] = results;
 
     if (detailResult.status === 'fulfilled') {
       compound.value = detailResult.value;
@@ -391,14 +385,12 @@ const fetchAll = async () => {
 
     targetSummaries.value = targetResult.status === 'fulfilled' ? targetResult.value : [];
     resources.value = resourceResult.status === 'fulfilled' ? resourceResult.value : [];
-    toxicity.value = toxicityResult.status === 'fulfilled' ? toxicityResult.value : [];
   } catch (err) {
     error.value = err instanceof Error ? err.message : '数据加载失败';
     compound.value = null;
     bioactivity.value = [];
     targetSummaries.value = [];
     resources.value = [];
-    toxicity.value = [];
   } finally {
     loading.value = false;
   }

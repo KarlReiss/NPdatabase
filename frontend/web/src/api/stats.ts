@@ -1,5 +1,5 @@
 import { apiGet } from './client';
-import type { StatsApi } from './types';
+import type { StatsResponse } from './types';
 
-export const fetchStats = () => apiGet<StatsApi>('/api/stats');
+export const fetchStats = () => apiGet<StatsResponse>('/api/stats');
 

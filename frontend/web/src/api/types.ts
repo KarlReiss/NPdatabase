@@ -42,7 +42,6 @@ export interface NaturalProductDetailView {
   targetCount?: number;
   bioResourceCount?: number;
   bestActivityValue?: number;
-  hasToxicity?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -133,6 +132,9 @@ export interface BioResource {
   resourceId?: string;
   resourceType?: string;
   chineseName?: string;
+  translationSource?: string;
+  familyChinese?: string;
+  genusChinese?: string;
   latinName?: string;
   englishName?: string;
   pinyinName?: string;
@@ -149,7 +151,9 @@ export interface BioResource {
   genusTaxId?: string;
   familyTaxId?: string;
   cmaupId?: string;
-  standardChineseName?: string;
+  translationSource?: string;
+  familyChinese?: string;
+  genusChinese?: string;
   medicinalPart?: string;
   medicinalPartLatin?: string;
   originRegion?: string;
@@ -236,21 +240,6 @@ export interface Disease {
   updatedAt?: string;
 }
 
-export interface Toxicity {
-  id: number;
-  naturalProductId: number;
-  toxicityType?: string;
-  toxicityValue?: number;
-  toxicityUnits?: string;
-  dose?: string;
-  symptoms?: string;
-  assayOrganism?: string;
-  assayMethod?: string;
-  refId?: string;
-  refIdType?: string;
-  createdAt?: string;
-}
-
 export interface SearchResponse {
   naturalProducts: NaturalProductDetailView[];
   targets: TargetDetailView[];
@@ -263,7 +252,6 @@ export interface StatsResponse {
   targets: number;
   diseases: number;
   bioactivity?: number;
-  toxicity?: number;
 }
 
 export interface NaturalProductListParams {
@@ -279,7 +267,6 @@ export interface NaturalProductListParams {
   activityType?: string;
   activityMaxNm?: number;
   targetType?: string;
-  hasToxicity?: boolean;
 }
 
 export interface TargetListParams {
@@ -295,4 +282,3 @@ export type TargetDetailApi = TargetDetailView;
 export type BioactivityApi = Bioactivity;
 export type BioactivityTargetSummaryApi = BioactivityTargetSummary;
 export type BioResourceApi = BioResource;
-export type ToxicityApi = Toxicity;

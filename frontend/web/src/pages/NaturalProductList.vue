@@ -114,22 +114,6 @@
                 />
               </div>
             </div>
-
-            <div>
-              <button class="flex items-center justify-between w-full py-2 border-b border-gray-50 mb-2">
-                <span class="text-sm font-semibold text-slate-700">毒性筛选（Toxicity）</span>
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div class="py-2">
-                <select v-model="filters.toxicity" class="w-full text-sm px-2 py-1.5 border rounded">
-                  <option value="all">全部记录</option>
-                  <option value="toxic">仅有毒记录</option>
-                  <option value="non-toxic">仅无毒记录</option>
-                </select>
-              </div>
-            </div>
           </div>
 
           <button
@@ -225,12 +209,6 @@
                   <td class="p-3">
                     <div class="flex flex-col">
                       <span class="text-sm font-bold text-slate-800">{{ cmp.name }}</span>
-                      <span
-                        v-if="cmp.hasToxicity"
-                        class="mt-1 inline-flex w-fit px-2 py-0.5 text-[10px] font-semibold rounded-full bg-red-50 text-red-600"
-                      >
-                        含毒性记录
-                      </span>
                     </div>
                   </td>
                   <td class="p-3 text-sm text-slate-600">{{ formatDecimal(cmp.molecularWeight) }}</td>
@@ -303,7 +281,6 @@ interface CompoundRow {
   bestActivityValue?: number | null;
   targetCount?: number | null;
   organismCount?: number | null;
-  hasToxicity?: boolean;
 }
 
 type PageItem = number | '...';
@@ -322,7 +299,6 @@ const filters = reactive({
   activityType: '',
   activityMaxNm: '',
   targetType: '',
-  toxicity: 'all',
 });
 
 const page = ref(1);
@@ -385,7 +361,6 @@ const mapRow = (item: NaturalProductApi): CompoundRow => {
     bestActivityValue,
     targetCount,
     organismCount,
-    hasToxicity: item.hasToxicity ?? false,
   };
 };
 
@@ -400,9 +375,6 @@ const buildParams = () => {
   const rawTargetType = filters.targetType.trim();
   const targetType = rawTargetType && SAFE_LITERAL.test(rawTargetType) ? rawTargetType : undefined;
 
-  const toxicityValue =
-    filters.toxicity === 'toxic' ? true : filters.toxicity === 'non-toxic' ? false : undefined;
-
   return {
     page: page.value,
     pageSize: pageSize.value,
@@ -416,7 +388,6 @@ const buildParams = () => {
     activityType: filters.activityType.trim() || undefined,
     activityMaxNm: activityMaxNm ?? undefined,
     targetType,
-    hasToxicity: toxicityValue,
   };
 };
 
@@ -475,7 +446,6 @@ const resetFilters = () => {
   filters.activityType = '';
   filters.activityMaxNm = '';
   filters.targetType = '';
-  filters.toxicity = 'all';
   fetchList({ resetPage: true });
 };
 

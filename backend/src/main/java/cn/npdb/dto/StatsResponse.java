@@ -11,7 +11,6 @@ public class StatsResponse {
     private long naturalProducts;
     private long targets;
     private long bioactivity;
-    private long toxicity;
     private long bioResources;
     private long prescriptions;
     private long diseases;

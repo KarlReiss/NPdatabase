@@ -35,7 +35,6 @@ public class NaturalProductDetailView {
     private Integer hBondAcceptors;
     private Integer rotatableBonds;
 
-    // 新增理化性质字段
     private BigDecimal logS;
     private BigDecimal logD;
     private BigDecimal logP;
@@ -55,5 +54,4 @@ public class NaturalProductDetailView {
     private Long targetCount;
     private Long bioResourceCount;
     private BigDecimal bestActivityValue;
-    private Boolean hasToxicity;
 }

@@ -94,9 +94,7 @@
                 </td>
                 <td class="p-3 text-sm text-slate-800 font-medium">
                   {{
-                    resource.standardChineseName
-                      ?? resource.officialChineseName
-                      ?? resource.chineseName
+                    resource.chineseName
                       ?? resource.latinName
                       ?? resource.resourceId
                   }}

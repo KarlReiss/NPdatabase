@@ -10,14 +10,12 @@ import cn.npdb.entity.Bioactivity;
 import cn.npdb.entity.NaturalProduct;
 import cn.npdb.entity.NaturalProductDetailView;
 import cn.npdb.entity.Target;
-import cn.npdb.entity.Toxicity;
 import cn.npdb.mapper.BioactivityMapper;
 import cn.npdb.service.BioResourceNaturalProductService;
 import cn.npdb.service.BioResourceService;
 import cn.npdb.service.BioactivityService;
 import cn.npdb.service.NaturalProductService;
 import cn.npdb.service.TargetService;
-import cn.npdb.service.ToxicityService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.BeanUtils;
@@ -48,7 +46,6 @@ public class NaturalProductController {
     private final TargetService targetService;
     private final BioResourceService bioResourceService;
     private final BioResourceNaturalProductService bioResourceNaturalProductService;
-    private final ToxicityService toxicityService;
     private final BioactivityMapper bioactivityMapper;
 
     public NaturalProductController(NaturalProductService naturalProductService,
@@ -56,14 +53,12 @@ public class NaturalProductController {
                                     TargetService targetService,
                                     BioResourceService bioResourceService,
                                     BioResourceNaturalProductService bioResourceNaturalProductService,
-                                    ToxicityService toxicityService,
                                     BioactivityMapper bioactivityMapper) {
         this.naturalProductService = naturalProductService;
         this.bioactivityService = bioactivityService;
         this.targetService = targetService;
         this.bioResourceService = bioResourceService;
         this.bioResourceNaturalProductService = bioResourceNaturalProductService;
-        this.toxicityService = toxicityService;
         this.bioactivityMapper = bioactivityMapper;
     }
 
@@ -80,8 +75,7 @@ public class NaturalProductController {
             @RequestParam(required = false) BigDecimal psaMax,
             @RequestParam(required = false) String activityType,
             @RequestParam(required = false) BigDecimal activityMaxNm,
-            @RequestParam(required = false) String targetType,
-            @RequestParam(required = false) Boolean hasToxicity
+            @RequestParam(required = false) String targetType
     ) {
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
@@ -124,13 +118,6 @@ public class NaturalProductController {
         }
         if (psaMax != null) {
             wrapper.le("psa", psaMax);
-        }
-        if (hasToxicity != null) {
-            if (hasToxicity) {
-                wrapper.inSql("id", "select distinct natural_product_id from toxicity");
-            } else {
-                wrapper.notInSql("id", "select distinct natural_product_id from toxicity");
-            }
         }
 
         if (StringUtils.hasText(activityType) || activityMaxNm != null || StringUtils.hasText(targetType)) {
@@ -182,16 +169,6 @@ public class NaturalProductController {
             }
         }
 
-        List<java.util.Map<String, Object>> toxRows = toxicityService.listMaps(
-                new QueryWrapper<Toxicity>()
-                        .select("distinct natural_product_id as naturalProductId")
-                        .in("natural_product_id", ids)
-        );
-        java.util.Set<Long> toxicIds = toxRows.stream()
-                .map(row -> getLong(row, "naturalProductId", "natural_product_id"))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
         List<NaturalProductDetailView> views = records.stream().map(np -> {
             NaturalProductDetailView view = new NaturalProductDetailView();
             BeanUtils.copyProperties(np, view);
@@ -205,7 +182,6 @@ public class NaturalProductController {
                 view.setTargetCount(0L);
                 view.setBestActivityValue(null);
             }
-            view.setHasToxicity(toxicIds.contains(np.getId()));
             return view;
         }).collect(Collectors.toList());
 
@@ -248,10 +224,6 @@ public class NaturalProductController {
                 ? 0L
                 : ((Number) brCountRow.get("cnt")).longValue();
         view.setBioResourceCount(bioResourceCount);
-        boolean hasToxicity = toxicityService.count(
-                new QueryWrapper<Toxicity>().eq("natural_product_id", np.getId())
-        ) > 0;
-        view.setHasToxicity(hasToxicity);
 
         return ApiResponse.ok(view);
     }
@@ -322,7 +294,6 @@ public class NaturalProductController {
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "20") long pageSize) {
         //验证分页参数
-        //验证分页参数
         long safePage = page < 1 ? 1 : page;
         long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
 
@@ -358,27 +329,6 @@ public class NaturalProductController {
                 new QueryWrapper<BioResource>().in("resource_id", resourceIds)
                         .orderByAsc("resource_id"));
         return ApiResponse.ok(new PageResponse<>(resources, safePage, safePageSize, total));
-    }
-
-    @GetMapping("/{npId}/toxicity")
-    public ApiResponse<PageResponse<Toxicity>> toxicity(
-            @PathVariable("npId") String npId,
-            @RequestParam(defaultValue = "1") long page,
-            @RequestParam(defaultValue = "20") long pageSize
-    ) {
-        //验证分页参数
-        long safePage = page < 1 ? 1 : page;
-        long safePageSize = pageSize < 1 ? 20 : Math.min(pageSize, MAX_PAGE_SIZE);
-        //解析天然产物ID
-        Long naturalProductId = resolveNaturalProductId(npId);
-        if (naturalProductId == null) {
-            return ApiResponse.error(ApiCode.SUCCESS, "Not found");
-        }
-        //分页查询毒性信息
-        Page<Toxicity> mpPage = new Page<>(safePage, safePageSize);
-        Page<Toxicity> result = toxicityService.page(mpPage,
-                new QueryWrapper<Toxicity>().eq("natural_product_id", naturalProductId));
-        return ApiResponse.ok(PageResponse.from(result));
     }
 
     private Long resolveNaturalProductId(String npId) {

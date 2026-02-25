@@ -171,14 +171,14 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchStats } from '@/api/stats';
 import { fetchSearch } from '@/api/search';
-import type { StatsApi } from '@/api/types';
+import type { StatsResponse } from '@/api/types';
 import { formatCount } from '@/utils/format';
 
 const searchTab = ref<'keyword' | 'smiles'>('keyword');
 const searchValue = ref('');
 const router = useRouter();
 
-const stats = ref<StatsApi | null>(null);
+const stats = ref<StatsResponse | null>(null);
 const statsError = ref('');
 
 const handleSearch = async (event: Event) => {

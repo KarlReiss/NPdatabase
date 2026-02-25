@@ -1,0 +1,328 @@
+/*
+ * Natural Product Database - ER Diagram (完整版)
+ * 格式: Graphviz DOT
+ * 渲染命令: dot -Tpng database-er-diagram.dot -o database-er-diagram.png
+ */
+
+digraph ERDiagram {
+    // 全局设置
+    graph [
+        rankdir=LR,
+        splines=polyline,
+        nodesep=0.5,
+        ranksep=1.2,
+        fontname="Arial",
+        fontsize=10,
+        label="Natural Product Database - ER Diagram\n(完整版)",
+        labelloc=t,
+        fontsize=16
+    ];
+
+    node [shape=none, fontname="Arial", fontsize=9];
+    edge [fontname="Arial", fontsize=8];
+
+    // ============================================
+    // natural_products 天然产物表 (28字段)
+    // ============================================
+    natural_products [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#E3F2FD">
+            <tr><td colspan="3" bgcolor="#1565C0"><font color="white"><b>natural_products</b> (天然产物表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#BBDEFB"><font color="#333"><i>~203,000 条记录 | 28 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left"><u>np_id</u></td><td align="left">varchar(50)</td><td align="left">天然产物编号</td></tr>
+            <tr><td align="left"><u>inchikey</u></td><td align="left">varchar(100)</td><td align="left">InChIKey</td></tr>
+            <tr><td align="left">pref_name</td><td align="left">text</td><td align="left">首选名称</td></tr>
+            <tr><td align="left">iupac_name</td><td align="left">text</td><td align="left">IUPAC命名</td></tr>
+            <tr><td align="left">name_initial</td><td align="left">varchar(10)</td><td align="left">名称首字母</td></tr>
+            <tr><td align="left">inchi</td><td align="left">text</td><td align="left">InChI</td></tr>
+            <tr><td align="left">smiles</td><td align="left">text</td><td align="left">SMILES</td></tr>
+            <tr><td align="left">chembl_id</td><td align="left">varchar(50)</td><td align="left">ChEMBL编号</td></tr>
+            <tr><td align="left">pubchem_id</td><td align="left">varchar(50)</td><td align="left">PubChem CID</td></tr>
+            <tr><td align="left">molecular_weight</td><td align="left">numeric(10,2)</td><td align="left">分子量(g/mol)</td></tr>
+            <tr><td align="left">xlogp</td><td align="left">numeric(10,2)</td><td align="left">脂水分配系数</td></tr>
+            <tr><td align="left">psa</td><td align="left">numeric(10,2)</td><td align="left">极性表面积</td></tr>
+            <tr><td align="left">formula</td><td align="left">varchar(200)</td><td align="left">分子式</td></tr>
+            <tr><td align="left">h_bond_donors</td><td align="left">integer</td><td align="left">氢键供体数</td></tr>
+            <tr><td align="left">h_bond_acceptors</td><td align="left">integer</td><td align="left">氢键受体数</td></tr>
+            <tr><td align="left">rotatable_bonds</td><td align="left">integer</td><td align="left">可旋转键数</td></tr>
+            <tr><td align="left">num_of_organism</td><td align="left">integer</td><td align="left">关联生物来源数</td></tr>
+            <tr><td align="left">num_of_target</td><td align="left">integer</td><td align="left">关联靶点数</td></tr>
+            <tr><td align="left">num_of_activity</td><td align="left">integer</td><td align="left">活性记录数</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">updated_at</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+            <tr><td align="left">if_quantity</td><td align="left">boolean</td><td align="left">是否有定量数据</td></tr>
+            <tr><td align="left">log_s</td><td align="left">numeric(10,2)</td><td align="left">LogS水溶解度</td></tr>
+            <tr><td align="left">log_d</td><td align="left">numeric(10,2)</td><td align="left">LogD分布系数</td></tr>
+            <tr><td align="left">log_p</td><td align="left">numeric(10,2)</td><td align="left">LogP分配系数</td></tr>
+            <tr><td align="left">tpsa</td><td align="left">numeric(10,2)</td><td align="left">拓扑极性表面积</td></tr>
+            <tr><td align="left">ring_count</td><td align="left">integer</td><td align="left">环数目</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // targets 靶点表 (20字段)
+    // ============================================
+    targets [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#FFF3E0">
+            <tr><td colspan="3" bgcolor="#E65100"><font color="white"><b>targets</b> (靶点表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#FFE0B2"><font color="#333"><i>~8,700 条记录 | 20 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left"><u>target_id</u></td><td align="left">varchar(50)</td><td align="left">靶点编号</td></tr>
+            <tr><td align="left">target_type</td><td align="left">varchar(200)</td><td align="left">靶点类型</td></tr>
+            <tr><td align="left">target_name</td><td align="left">varchar(500)</td><td align="left">靶点名称</td></tr>
+            <tr><td align="left">target_organism</td><td align="left">varchar(200)</td><td align="left">来源物种</td></tr>
+            <tr><td align="left">target_organism_tax_id</td><td align="left">varchar(100)</td><td align="left">物种分类ID</td></tr>
+            <tr><td align="left">uniprot_id</td><td align="left">varchar(300)</td><td align="left">UniProt编号</td></tr>
+            <tr><td align="left">num_of_compounds</td><td align="left">integer</td><td align="left">关联化合物数</td></tr>
+            <tr><td align="left">num_of_activities</td><td align="left">integer</td><td align="left">活性记录数</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">updated_at</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+            <tr><td align="left">num_of_natural_products</td><td align="left">integer</td><td align="left">关联天然产物数</td></tr>
+            <tr><td align="left">gene_name</td><td align="left">varchar(100)</td><td align="left">基因名称</td></tr>
+            <tr><td align="left">synonyms</td><td align="left">text</td><td align="left">同义词</td></tr>
+            <tr><td align="left">function</td><td align="left">text</td><td align="left">功能描述</td></tr>
+            <tr><td align="left">pdb_structure</td><td align="left">varchar(500)</td><td align="left">PDB结构编号</td></tr>
+            <tr><td align="left">bioclass</td><td align="left">varchar(200)</td><td align="left">生物分类</td></tr>
+            <tr><td align="left">ec_number</td><td align="left">varchar(50)</td><td align="left">EC编号</td></tr>
+            <tr><td align="left">sequence</td><td align="left">text</td><td align="left">蛋白质序列</td></tr>
+            <tr><td align="left">ttd_id</td><td align="left">varchar(50)</td><td align="left">TTD编号</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // bio_resources 生物资源表 (21字段)
+    // ============================================
+    bio_resources [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#E8F5E9">
+            <tr><td colspan="3" bgcolor="#2E7D32"><font color="white"><b>bio_resources</b> (生物资源表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#C8E6C9"><font color="#333"><i>~49,000 条记录 | 21 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left"><u>resource_id</u></td><td align="left">varchar(50)</td><td align="left">资源唯一编号</td></tr>
+            <tr><td align="left">resource_type</td><td align="left">varchar(50)</td><td align="left">资源类型</td></tr>
+            <tr><td align="left">chinese_name</td><td align="left">varchar(500)</td><td align="left">中文名称</td></tr>
+            <tr><td align="left">latin_name</td><td align="left">varchar(500)</td><td align="left">拉丁学名</td></tr>
+            <tr><td align="left">taxonomy_kingdom</td><td align="left">varchar(100)</td><td align="left">分类学-界</td></tr>
+            <tr><td align="left">taxonomy_family</td><td align="left">varchar(200)</td><td align="left">分类学-科</td></tr>
+            <tr><td align="left">taxonomy_genus</td><td align="left">varchar(200)</td><td align="left">分类学-属</td></tr>
+            <tr><td align="left">taxonomy_species</td><td align="left">varchar(200)</td><td align="left">分类学-种</td></tr>
+            <tr><td align="left">taxonomy_id</td><td align="left">varchar(50)</td><td align="left">NCBI分类学ID</td></tr>
+            <tr><td align="left">tcmid_id</td><td align="left">varchar(500)</td><td align="left">TCMID编号</td></tr>
+            <tr><td align="left">num_of_natural_products</td><td align="left">integer</td><td align="left">天然产物数</td></tr>
+            <tr><td align="left">num_of_prescriptions</td><td align="left">integer</td><td align="left">处方数</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">updated_at</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+            <tr><td align="left">species_tax_id</td><td align="left">varchar(50)</td><td align="left">种级分类ID</td></tr>
+            <tr><td align="left">genus_tax_id</td><td align="left">varchar(50)</td><td align="left">属级分类ID</td></tr>
+            <tr><td align="left">family_tax_id</td><td align="left">varchar(50)</td><td align="left">科级分类ID</td></tr>
+            <tr><td align="left">cmaup_id</td><td align="left">varchar(50)</td><td align="left">CMAUP编号</td></tr>
+            <tr><td align="left">official_chinese_name</td><td align="left">varchar(255)</td><td align="left">官方中文名</td></tr>
+            <tr><td align="left">standard_chinese_name</td><td align="left">varchar(500)</td><td align="left">标准中文名</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // bioactivity 生物活性表 (18字段)
+    // ============================================
+    bioactivity [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#FFFDE7">
+            <tr><td colspan="3" bgcolor="#F9A825"><font color="black"><b>bioactivity</b> (生物活性表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#FFF9C4"><font color="#333"><i>~1,050,000 条记录 | 18 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left"><i>natural_product_id</i></td><td align="left">bigint FK</td><td align="left">天然产物ID</td></tr>
+            <tr><td align="left"><i>target_id</i></td><td align="left">bigint FK</td><td align="left">靶点ID</td></tr>
+            <tr><td align="left">activity_type</td><td align="left">varchar(100)</td><td align="left">活性类型</td></tr>
+            <tr><td align="left">activity_type_grouped</td><td align="left">varchar(100)</td><td align="left">活性类型分组</td></tr>
+            <tr><td align="left">activity_relation</td><td align="left">varchar(10)</td><td align="left">关系符号</td></tr>
+            <tr><td align="left">activity_value</td><td align="left">numeric(30,6)</td><td align="left">原始活性值</td></tr>
+            <tr><td align="left">activity_units</td><td align="left">varchar(100)</td><td align="left">原始单位</td></tr>
+            <tr><td align="left">activity_value_std</td><td align="left">numeric(30,6)</td><td align="left">标准化值(nM)</td></tr>
+            <tr><td align="left">activity_units_std</td><td align="left">varchar(20)</td><td align="left">标准化单位</td></tr>
+            <tr><td align="left">assay_organism</td><td align="left">varchar(200)</td><td align="left">实验物种</td></tr>
+            <tr><td align="left">assay_tax_id</td><td align="left">varchar(100)</td><td align="left">物种分类ID</td></tr>
+            <tr><td align="left">assay_strain</td><td align="left">varchar(100)</td><td align="left">实验菌株</td></tr>
+            <tr><td align="left">assay_tissue</td><td align="left">varchar(200)</td><td align="left">实验组织</td></tr>
+            <tr><td align="left">assay_cell_type</td><td align="left">varchar(100)</td><td align="left">细胞类型</td></tr>
+            <tr><td align="left">ref_id</td><td align="left">varchar(300)</td><td align="left">文献ID</td></tr>
+            <tr><td align="left">ref_id_type</td><td align="left">varchar(20)</td><td align="left">文献类型</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // bio_resource_natural_products (16字段)
+    // ============================================
+    bio_resource_natural_products [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#E0F7FA">
+            <tr><td colspan="3" bgcolor="#00838F"><font color="white"><b>bio_resource_natural_products</b></font></td></tr>
+            <tr><td colspan="3" bgcolor="#B2EBF2"><font color="#333"><i>~1,117,000 条记录 | 16 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left">org_id</td><td align="left">text</td><td align="left">生物来源编号</td></tr>
+            <tr><td align="left">np_id</td><td align="left">text</td><td align="left">天然产物编号</td></tr>
+            <tr><td align="left">src_org_record_id</td><td align="left">text</td><td align="left">来源生物记录ID</td></tr>
+            <tr><td align="left">src_org_pair_id</td><td align="left">text</td><td align="left">配对ID</td></tr>
+            <tr><td align="left">src_org_pair</td><td align="left">text</td><td align="left">配对信息</td></tr>
+            <tr><td align="left">new_cp_found</td><td align="left">text</td><td align="left">是否发现新化合物</td></tr>
+            <tr><td align="left">org_isolation_part</td><td align="left">text</td><td align="left">分离部位</td></tr>
+            <tr><td align="left">org_collect_location</td><td align="left">text</td><td align="left">采集地点</td></tr>
+            <tr><td align="left">org_collect_time</td><td align="left">text</td><td align="left">采集时间</td></tr>
+            <tr><td align="left">ref_type</td><td align="left">text</td><td align="left">文献类型</td></tr>
+            <tr><td align="left">ref_id</td><td align="left">text</td><td align="left">文献ID</td></tr>
+            <tr><td align="left">ref_id_type</td><td align="left">text</td><td align="left">文献ID类型</td></tr>
+            <tr><td align="left">ref_url</td><td align="left">text</td><td align="left">文献URL</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">updated_at</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // bio_resource_disease_associations (11字段)
+    // ============================================
+    bio_resource_disease_associations [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#FFEBEE">
+            <tr><td colspan="3" bgcolor="#C62828"><font color="white"><b>bio_resource_disease_associations</b></font></td></tr>
+            <tr><td colspan="3" bgcolor="#FFCDD2"><font color="#333"><i>~802,000 条记录 | 11 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left"><i>bio_resource_id</i></td><td align="left">bigint FK</td><td align="left">生物资源ID</td></tr>
+            <tr><td align="left"><i>disease_id</i></td><td align="left">bigint FK</td><td align="left">疾病ID</td></tr>
+            <tr><td align="left">evidence_therapeutic_target</td><td align="left">text</td><td align="left">治疗靶点证据</td></tr>
+            <tr><td align="left">evidence_transcriptome</td><td align="left">boolean</td><td align="left">转录组证据</td></tr>
+            <tr><td align="left">evidence_clinical_trial_plant</td><td align="left">text</td><td align="left">植物临床试验证据</td></tr>
+            <tr><td align="left">evidence_clinical_trial_ingredient</td><td align="left">text</td><td align="left">成分临床试验证据</td></tr>
+            <tr><td align="left">confidence_score</td><td align="left">numeric(3,2)</td><td align="left">置信度评分</td></tr>
+            <tr><td align="left">source</td><td align="left">varchar(100)</td><td align="left">数据来源</td></tr>
+            <tr><td align="left">source_version</td><td align="left">varchar(50)</td><td align="left">数据版本</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // diseases 疾病表 (8字段)
+    // ============================================
+    diseases [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#FCE4EC">
+            <tr><td colspan="3" bgcolor="#AD1457"><font color="white"><b>diseases</b> (疾病表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#F8BBD0"><font color="#333"><i>~1,500 条记录 | 8 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left">icd11_code</td><td align="left">varchar(50)</td><td align="left">ICD-11编码</td></tr>
+            <tr><td align="left">disease_name</td><td align="left">varchar(500)</td><td align="left">疾病英文名</td></tr>
+            <tr><td align="left">disease_name_zh</td><td align="left">varchar(500)</td><td align="left">疾病中文名</td></tr>
+            <tr><td align="left">disease_category</td><td align="left">varchar(200)</td><td align="left">疾病分类</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">updated_at</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+            <tr><td align="left">disease_name_cmaup</td><td align="left">varchar(500)</td><td align="left">CMAUP疾病名</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // prescriptions 处方表 (12字段)
+    // ============================================
+    prescriptions [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#F3E5F5">
+            <tr><td colspan="3" bgcolor="#6A1B9A"><font color="white"><b>prescriptions</b> (处方表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#E1BEE7"><font color="#333"><i>~7,400 条记录 | 12 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left"><u>prescription_id</u></td><td align="left">varchar(50)</td><td align="left">处方编号</td></tr>
+            <tr><td align="left">chinese_name</td><td align="left">varchar(500)</td><td align="left">处方中文名</td></tr>
+            <tr><td align="left">pinyin_name</td><td align="left">varchar(200)</td><td align="left">拼音名</td></tr>
+            <tr><td align="left">english_name</td><td align="left">varchar(500)</td><td align="left">英文名</td></tr>
+            <tr><td align="left">functions</td><td align="left">text</td><td align="left">功能功效</td></tr>
+            <tr><td align="left">indications</td><td align="left">text</td><td align="left">主治</td></tr>
+            <tr><td align="left">tcmid_id</td><td align="left">varchar(50)</td><td align="left">TCMID编号</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">updated_at</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+            <tr><td align="left">disease_icd11_category</td><td align="left">text</td><td align="left">ICD-11分类</td></tr>
+            <tr><td align="left">reference</td><td align="left">text</td><td align="left">参考文献</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // prescription_resources (5字段)
+    // ============================================
+    prescription_resources [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#EDE7F6">
+            <tr><td colspan="3" bgcolor="#4527A0"><font color="white"><b>prescription_resources</b></font></td></tr>
+            <tr><td colspan="3" bgcolor="#D1C4E9"><font color="#333"><i>~80,000 条记录 | 5 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>id</u></td><td align="left">bigint</td><td align="left">主键ID</td></tr>
+            <tr><td align="left"><i>prescription_id</i></td><td align="left">bigint FK</td><td align="left">处方ID</td></tr>
+            <tr><td align="left"><i>bio_resource_id</i></td><td align="left">bigint FK</td><td align="left">生物资源ID</td></tr>
+            <tr><td align="left">created_at</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">tcmid_component_id</td><td align="left">varchar(500)</td><td align="left">TCMID组分ID</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // sys_dict 系统字典表 (14字段)
+    // ============================================
+    sys_dict [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#ECEFF1">
+            <tr><td colspan="3" bgcolor="#455A64"><font color="white"><b>sys_dict</b> (系统字典表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#CFD8DC"><font color="#333"><i>14 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>dict_code</u></td><td align="left">bigint</td><td align="left">字典编码</td></tr>
+            <tr><td align="left">dict_sort</td><td align="left">integer</td><td align="left">排序号</td></tr>
+            <tr><td align="left">dict_label</td><td align="left">varchar(100)</td><td align="left">字典标签</td></tr>
+            <tr><td align="left">dict_value</td><td align="left">varchar(100)</td><td align="left">字典键值</td></tr>
+            <tr><td align="left">dict_type</td><td align="left">varchar(100)</td><td align="left">字典类型</td></tr>
+            <tr><td align="left">css_class</td><td align="left">varchar(100)</td><td align="left">CSS样式</td></tr>
+            <tr><td align="left">list_class</td><td align="left">varchar(100)</td><td align="left">列表样式</td></tr>
+            <tr><td align="left">is_default</td><td align="left">char(1)</td><td align="left">是否默认</td></tr>
+            <tr><td align="left">status</td><td align="left">char(1)</td><td align="left">状态</td></tr>
+            <tr><td align="left">create_by</td><td align="left">varchar(64)</td><td align="left">创建者</td></tr>
+            <tr><td align="left">create_time</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">update_by</td><td align="left">varchar(64)</td><td align="left">更新者</td></tr>
+            <tr><td align="left">update_time</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+            <tr><td align="left">remark</td><td align="left">varchar(500)</td><td align="left">备注</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // sys_menu 系统菜单表 (19字段)
+    // ============================================
+    sys_menu [label=<
+        <table border="1" cellborder="0" cellpadding="3" cellspacing="0" bgcolor="#ECEFF1">
+            <tr><td colspan="3" bgcolor="#37474F"><font color="white"><b>sys_menu</b> (系统菜单表)</font></td></tr>
+            <tr><td colspan="3" bgcolor="#CFD8DC"><font color="#333"><i>19 字段</i></font></td></tr>
+            <tr><td align="left"><b>字段名</b></td><td align="left"><b>类型</b></td><td align="left"><b>说明</b></td></tr>
+            <tr><td align="left"><u>menu_id</u></td><td align="left">bigint</td><td align="left">菜单ID</td></tr>
+            <tr><td align="left">menu_name</td><td align="left">varchar(50)</td><td align="left">菜单名称</td></tr>
+            <tr><td align="left">parent_id</td><td align="left">bigint</td><td align="left">父菜单ID</td></tr>
+            <tr><td align="left">order_num</td><td align="left">integer</td><td align="left">显示顺序</td></tr>
+            <tr><td align="left">path</td><td align="left">varchar(200)</td><td align="left">路由地址</td></tr>
+            <tr><td align="left">component</td><td align="left">varchar(255)</td><td align="left">组件路径</td></tr>
+            <tr><td align="left">query_param</td><td align="left">varchar(255)</td><td align="left">路由参数</td></tr>
+            <tr><td align="left">is_frame</td><td align="left">integer</td><td align="left">是否外链</td></tr>
+            <tr><td align="left">is_cache</td><td align="left">integer</td><td align="left">是否缓存</td></tr>
+            <tr><td align="left">menu_type</td><td align="left">char(1)</td><td align="left">菜单类型</td></tr>
+            <tr><td align="left">visible</td><td align="left">char(1)</td><td align="left">显示状态</td></tr>
+            <tr><td align="left">status</td><td align="left">char(1)</td><td align="left">状态</td></tr>
+            <tr><td align="left">perms</td><td align="left">varchar(100)</td><td align="left">权限标识</td></tr>
+            <tr><td align="left">icon</td><td align="left">varchar(100)</td><td align="left">菜单图标</td></tr>
+            <tr><td align="left">create_by</td><td align="left">varchar(64)</td><td align="left">创建者</td></tr>
+            <tr><td align="left">create_time</td><td align="left">timestamp</td><td align="left">创建时间</td></tr>
+            <tr><td align="left">update_by</td><td align="left">varchar(64)</td><td align="left">更新者</td></tr>
+            <tr><td align="left">update_time</td><td align="left">timestamp</td><td align="left">更新时间</td></tr>
+            <tr><td align="left">remark</td><td align="left">varchar(500)</td><td align="left">备注</td></tr>
+        </table>
+    >];
+
+    // ============================================
+    // 关系边
+    // ============================================
+    natural_products -> bioactivity [label="1:N", color="#1565C0", penwidth=1.5];
+    targets -> bioactivity [label="1:N", color="#E65100", penwidth=1.5];
+    natural_products -> bio_resource_natural_products [label="1:N", color="#1565C0", penwidth=1.5, style=dashed];
+    bio_resources -> bio_resource_natural_products [label="1:N", color="#2E7D32", penwidth=1.5, style=dashed];
+    bio_resources -> bio_resource_disease_associations [label="1:N", color="#2E7D32", penwidth=1.5];
+    diseases -> bio_resource_disease_associations [label="1:N", color="#AD1457", penwidth=1.5];
+    prescriptions -> prescription_resources [label="1:N", color="#6A1B9A", penwidth=1.5];
+    bio_resources -> prescription_resources [label="1:N", color="#2E7D32", penwidth=1.5];
+}
