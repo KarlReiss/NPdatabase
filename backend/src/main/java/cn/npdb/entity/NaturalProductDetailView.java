@@ -39,7 +39,6 @@ public class NaturalProductDetailView {
     private BigDecimal logD;
     private BigDecimal logP;
     private BigDecimal tpsa;
-    private Integer ringCount;
 
     private Integer numOfOrganism;
     private Integer numOfTarget;

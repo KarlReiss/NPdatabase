@@ -84,16 +84,7 @@ public class TargetController {
         view.setTargetOrganism(target.getTargetOrganism());
         view.setTargetOrganismTaxId(target.getTargetOrganismTaxId());
         view.setUniprotId(target.getUniprotId());
-        view.setGeneName(target.getGeneName());
-        view.setSynonyms(target.getSynonyms());
-        view.setFunction(target.getFunction());
-        view.setPdbStructure(target.getPdbStructure());
-        view.setBioclass(target.getBioclass());
-        view.setEcNumber(target.getEcNumber());
-        view.setSequence(target.getSequence());
-        view.setTtdId(target.getTtdId());
         view.setNumOfActivities(target.getNumOfActivities());
-//        view.setNumOfNaturalProducts(target.getNumOfNaturalProducts());
         view.setCreatedAt(target.getCreatedAt());
         view.setUpdatedAt(target.getUpdatedAt());
 
