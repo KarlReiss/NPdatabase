@@ -24,6 +24,17 @@ backend/.mvn/
 backend/mvnw
 backend/mvnw.cmd
 
+# ===== 前端 (Vue3 site) =====
+frontend/site/node_modules
+frontend/site/.DS_Store
+frontend/site/dist
+frontend/site/dist-ssr
+frontend/site/*.local
+frontend/site/dist*
+frontend/site/pnpm-debug
+frontend/site/stats.html
+frontend/site/.idea
+
 # ===== 前端 (Vue/Node.js) =====
 frontend/web/node_modules/
 frontend/web/dist/

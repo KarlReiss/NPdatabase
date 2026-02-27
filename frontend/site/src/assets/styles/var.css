@@ -1,0 +1,36 @@
+:root {
+  --login-bg-color: #293146;
+  --header-footer-color-primary: #20558A !important;
+  --el-color-primary: #0071BC !important;
+  
+  --el-button-hover-bg-color: var(--el-color-primary);
+  --el-button-hover-border-color: var(--el-color-primary);
+  --el-button-hover-text-color: #fff;
+
+  /* logo start */
+  --logo-height: 50px;
+
+  --logo-title-text-color: #fff;
+  /* logo end */
+
+  /* header start */
+  --top-header-bg-color: '#fff';
+  --top-header-text-color: 'inherit';
+  --top-header-hover-color: #f6f6f6;
+  --tags-view-height: 35px;
+  /* header start */
+
+  --transition-time-02: 0.2s;
+}
+
+.dark {
+  --app-content-bg-color: var(--el-bg-color);
+}
+
+*,
+:after,
+:before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}

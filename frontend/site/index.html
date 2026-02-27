@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <!-- 配置等比缩放，通过设置 viewport 元标签 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <!-- <script>/*@cc_on window.location.href="https://support.dmeng.net/upgrade-your-browser.html?referrer="+encodeURIComponent(window.location.href); @*/</script> -->
+    <script>if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMode)) window.location.href = "/ie.html?referrer=" + encodeURIComponent(window.location.href); </script>
+    <title><%= title %></title>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /> -->
+    <script src="/RDKit_minimal.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <style>
+        /* 药丸旋转加载效果 */
+        .pill-container {
+          display: flex;
+          gap: 20px;
+          align-items: center;
+        }
+
+        .pill {
+          width: 60px;
+          height: 30px;
+          background: linear-gradient(to right, #20558A, #02BFE7);
+          border-radius: 15px;
+          position: relative;
+          animation: pillRotate 2s infinite linear;
+          box-shadow: 0 5px 15px rgba(77, 150, 255, 0.3);
+        }
+
+        .pill::before {
+          content: '';
+          position: absolute;
+          width: 10px;
+          height: 100%;
+          background: white;
+          left: 50%;
+          transform: translateX(-50%);
+          border-radius: 1px;
+        }
+
+        .pill-small {
+          width: 40px;
+          height: 20px;
+          background: linear-gradient(to right, #02BFE7, #20558A);
+          animation: pillRotate 2s infinite linear reverse;
+          animation-delay: 0.5s;
+        }
+
+        .pill-bottle {
+          width: 40px; height: 60px;
+          background: #e6f2ff;
+          border-radius: 5px 5px 15px 15px;
+          position: relative;
+          border: 2px solid #20558A;
+        }
+
+        .pill-bottle::before {
+          content: '';
+          position: absolute;
+          width: 50px;
+          height: 10px;
+          background: #20558A;
+          top: -5px;
+          left: -5px;
+          border-radius: 10px;
+        }
+
+        .pull {
+          width: 60px;
+          height: 30px;
+          background: linear-gradient(to right, #20558A, #02BFE7);
+          border-radius: 15px;
+          position: relative;
+          animation: pullRotate 2s infinite linear;
+          box-shadow: 0 5px 15px rgba(77, 150, 255, 0.3);
+        }
+
+        .pull::before {
+          content: '';
+          position: absolute;
+          width: 10px;
+          height: 100%;
+          background: white;
+          left: 50%;
+          transform: translateX(-50%);
+          border-radius: 1px;
+        }
+
+        .pull-small {
+          width: 40px;
+          height: 20px;
+          background: linear-gradient(to right, #02BFE7, #20558A);
+          animation: pullRotate 2s infinite linear reverse;
+          animation-delay: 0.5s;
+        }
+
+        @keyframes pillRotate {
+          0% {
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            transform: rotate(180deg) scale(1.1);
+          }
+          100% {
+            transform: rotate(360deg) scale(1);
+          }
+        }
+
+        @keyframes pullRotate {
+          0% {
+            transform: rotate(360deg) scale(1);
+          }
+          50% {
+            transform: rotate(180deg) scale(1.1);
+          }
+          100% {
+            transform: rotate(0deg) scale(1);
+          }
+        }
+
+        .app-loading {
+          display: flex;
+          width: 100%; height: 100%;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          background: #f0f2f5;
+        }
+
+        .app-loading .app-loading-wrap {
+          position: absolute;
+          top: 50%; left: 50%; display: flex;
+          -webkit-transform: translate3d(-50%, -50%, 0);
+          transform: translate3d(-50%, -50%, 0);
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+        }
+
+        .app-loading .app-loading-title {
+          margin-bottom: 24px;
+          font-size: 32px;
+          font-weight: bold;
+          text-align: center;
+          color: #20558A;
+        }
+
+        .app-loading .app-loading-logo {
+          width: 100px;
+          margin: 0 auto 15px auto;
+        }
+      </style>
+      <div class="app-loading">
+        <div class="app-loading-wrap">
+          <div class="app-loading-title">
+            <!-- <img src="/logo.png" class="app-loading-logo" alt="Logo" /> -->
+            <div class="app-loading-title" id="text-display"><%= title %></div>
+          </div>
+          <div class="loading-area">
+            <div class="pill-container">
+              <div class="pill"></div>
+              <div class="pill-small"></div>
+              <div class="pill-bottle"></div>
+              <div class="pull-small"></div>
+              <div class="pull"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        // 核心代码（仅30行）
+        function typeWriterSimple(text, element, speed = 160) {
+          let i = 0; element.innerHTML = '';
+          
+          function type() {
+            if (i < text.length) {
+              element.innerHTML = text.substring(0, i + 1) + (i%2==1?'_':' ');
+              i++;
+              setTimeout(type, speed);
+            } else {
+              // element.innerHTML = text;
+              setTimeout(typeWriterSimple(text, element), 240);              
+            }
+          }
+          
+          type();
+        }
+        // 使用示例
+        typeWriterSimple(
+          '云南天然产物活性数据库',
+          document.getElementById('text-display')
+        )
+      </script>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

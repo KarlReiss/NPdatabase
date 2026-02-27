@@ -1,0 +1,98 @@
+export default {
+  common: {
+    inputText: 'Please input',
+    selectText: 'Please select',
+    startTimeText: 'Start time',
+    endTimeText: 'End time',
+    login: 'Login',
+    required: 'This is required',
+    loginOut: 'Login out',
+    document: 'Document',
+    reminder: 'Reminder',
+    loginOutMessage: 'Exit the system?',
+    back: 'Back',
+    ok: 'OK',
+    cancel: 'Cancel',
+    reload: 'Reload current',
+    closeTab: 'Close current',
+    closeTheLeftTab: 'Close left',
+    closeTheRightTab: 'Close right',
+    closeOther: 'Close other',
+    closeAll: 'Close all',
+    prevLabel: 'Prev',
+    nextLabel: 'Next',
+    skipLabel: 'Jump',
+    doneLabel: 'End',
+    tagsViewDes: 'Used to record routing history',
+    query: 'Query',
+    reset: 'Reset',
+    shrink: 'Put away',
+    expand: 'Expand',
+    delMessage: 'Delete the selected data?',
+    delWarning: 'Warning',
+    delOk: 'OK',
+    delCancel: 'Cancel',
+    delNoData: 'Please select the data to delete',
+    delSuccess: 'Deleted successfully',
+    refresh: 'Refresh',
+    fullscreen: 'Fullscreen',
+    size: 'Size',
+    columnSetting: 'Column setting',
+    lengthRange: 'The length should be between {min} and {max}',
+    notSpace: 'Spaces are not allowed',
+    notSpecialCharacters: 'Special characters are not allowed',
+    isEqual: 'The two are not equal',
+    // 列设置
+    setting: 'Setting'
+  },
+  lock: {
+    lockScreen: 'Lock screen',
+    lock: 'Lock',
+    lockPassword: 'Lock screen password',
+    unlock: 'Click to unlock',
+    backToLogin: 'Back to login',
+    entrySystem: 'Entry the system',
+    placeholder: 'Please enter the lock screen password',
+    message: 'Lock screen password error'
+  },
+  error: {
+    noPermission: `Sorry, you don't have permission to access this page.`,
+    pageError: 'Sorry, the page you visited does not exist.',
+    networkError: 'Sorry, the server reported an error.',
+    returnToHome: 'Return to home'
+  },
+  size: {
+    default: 'Default',
+    large: 'Large',
+    small: 'Small'
+  },
+  login: {
+    welcome: 'Welcome to the system',
+    username: 'Username',
+    password: 'Password',
+    register: 'Register',
+    checkPassword: 'Confirm password',
+    login: 'Sign in',
+    otherLogin: 'Sign in with',
+    remember: 'Remember me',
+    hasUser: 'Existing account? Go to login',
+    forgetPassword: 'Forget password',
+    usernamePlaceholder: 'Please input username',
+    passwordPlaceholder: 'Please input password',
+    code: 'Verification code',
+    codePlaceholder: 'Please input verification code',
+    getCode: 'Get code'
+  },
+  router: {
+    login: 'Login',
+    guide: 'Guide',
+    infotip: 'Infotip',
+    inputPassword: 'InputPassword',
+    personalCenter: 'Personal center',
+    personal: 'Personal',
+    tree: 'Tree'
+  },
+  permission: {
+    hasPermission: 'Please set the operation permission value'
+  }
+}
