@@ -24,16 +24,7 @@ public class TargetDetailView {
     private String uniprotId;
 
     private Integer numOfActivities;
-//    private Integer numOfNaturalProducts;
-    private String geneName;
-    private String synonyms;
-    private String function;
-    private String pdbStructure;
-    private String bioclass;
-    private String ecNumber;
-    private String sequence;
-    private String ttdId;
-
+    private Integer numOfCompounds;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

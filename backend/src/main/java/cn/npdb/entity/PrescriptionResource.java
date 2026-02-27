@@ -17,16 +17,7 @@ public class PrescriptionResource {
     private Long prescriptionId;
     private Long bioResourceId;
 
-    private BigDecimal dosageValue;
-    private String dosageUnit;
-    private String dosageText;
-    private String role;
-    private String roleChinese;
-    private String processingMethod;
-    private String processingNote;
-    private String componentId;
-    private String barcode;
-    private Integer sortOrder;
-
     private LocalDateTime createdAt;
+
+    private String tcmidComponentId;
 }
